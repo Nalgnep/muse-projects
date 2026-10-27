@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>算法学习网站 · 制造业算法学院</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#edf0f3; --panel:#ffffff; --panel2:#f6f8fa; --ink:#16222d; --ink2:#4c5d6b;
+        --line:#d7dee5; --accent:#e07b1f; --accent-ink:#b85e0e; --accent-soft:#fdeed9;
+        --steel:#31597a; --steel-soft:#e2ecf4; --good:#1e8a4c; --good-soft:#e0f3e7;
+        --bad:#c93a2e; --bad-soft:#fbe7e3; --gold:#b8860b;
+        --shadow:0 10px 30px rgba(22,34,45,.10);
+        --radius:14px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0e141a; --panel:#17222d; --panel2:#1d2a37; --ink:#e8eef3; --ink2:#a7b8c6;
+          --line:#2b3b4a; --accent:#f59a3d; --accent-ink:#ffb066; --accent-soft:#3a2a16;
+          --steel:#7fb0d8; --steel-soft:#1d3247; --good:#4cc47e; --good-soft:#17382a;
+          --bad:#f0766a; --bad-soft:#3d201c; --gold:#e3b64f;
+          --shadow:0 10px 30px rgba(0,0,0,.45);
+        }
+      }
+      *{box-sizing:border-box}
+      body{
+        margin:0; background:var(--bg); color:var(--ink);
+        font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+        line-height:1.65; -webkit-font-smoothing:antialiased;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size:44px 44px; background-position:center top;
+      }
+      body::before{content:""; position:fixed; inset:0; background:var(--bg); opacity:.82; z-index:-1}
+      .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+      .wrap{max-width:1180px; margin:0 auto; padding:0 20px 80px}
+
+      /* ---------- hero ---------- */
+      .hero{padding:44px 0 8px}
+      .hero-top{display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap}
+      .hero-main{flex:1 1 520px; min-width:280px}
+      .crumb{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; letter-spacing:.14em; color:var(--accent-ink); text-transform:uppercase}
+      .crumb::before{content:""; width:26px; height:3px; background:var(--accent); display:inline-block}
+      h1{font-size:clamp(30px,5vw,46px); line-height:1.18; margin:12px 0 10px; font-weight:900}
+      h1 .hl{color:var(--accent-ink); box-shadow:inset 0 -0.42em 0 var(--accent-soft); padding:0 2px}
+      .hero-sub{font-size:16.5px; color:var(--ink2); max-width:640px; margin:0}
+      .hero-stats{display:flex; gap:12px; margin-top:22px; flex-wrap:wrap}
+      .stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 16px; min-width:104px; box-shadow:var(--shadow)}
+      .stat b{display:block; font-size:22px; line-height:1.1}
+      .stat span{font-size:12.5px; color:var(--ink2)}
+      .hero-card{flex:0 1 330px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px}
+      .hero-card h3{margin:0 0 6px; font-size:15px}
+      .hero-card p{margin:0 0 12px; font-size:13.5px; color:var(--ink2)}
+      .pbar{height:10px; background:var(--panel2); border:1px solid var(--line); border-radius:99px; overflow:hidden}
+      .pbar>i{display:block; height:100%; width:0%; background:var(--accent); transition:width .5s ease}
+      .pbar-note{font-size:12.5px; color:var(--ink2); margin-top:7px}
+
+      /* ---------- roadmap ---------- */
+      .roadmap{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:30px 0 6px}
+      @media (max-width:1020px){.roadmap{grid-template-columns:repeat(2,1fr)}}
+      .stage{border-radius:var(--radius); padding:18px 20px; border:1px solid var(--line); background:var(--panel); box-shadow:var(--shadow); position:relative}
+      .stage .lv{font-size:12px; font-weight:700; letter-spacing:.16em; color:var(--ink2)}
+      .stage h3{margin:4px 0 6px; font-size:19px}
+      .stage p{margin:0; font-size:13.5px; color:var(--ink2)}
+      .stage .tag{position:absolute; top:16px; right:16px; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:99px}
+      .stage.s1 .tag{background:var(--good-soft); color:var(--good)}
+      .stage.s2 .tag{background:var(--steel-soft); color:var(--steel)}
+      .stage.s3 .tag{background:var(--accent-soft); color:var(--accent-ink)}
+      .stage.s4 .tag{background:rgba(184,134,11,.16); color:var(--gold)}
+
+      /* ---------- filters ---------- */
+      .filters{display:flex; gap:8px; flex-wrap:wrap; margin:26px 0 18px; align-items:center}
+      .filters .flabel{font-size:13px; font-weight:700; color:var(--ink2); margin-right:2px}
+      .chip{border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:99px; padding:7px 15px; font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; transition:all .15s}
+      .chip:hover{border-color:var(--accent)}
+      .chip.on{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+      .chip.lv.on{background:var(--accent); border-color:var(--accent); color:#fff}
+
+      /* ---------- lesson grid ---------- */
+      .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+      .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); cursor:pointer; display:flex; flex-direction:column; gap:10px; transition:transform .15s, border-color .15s; text-align:left; font-family:inherit; color:inherit; width:100%}
+      .card:hover{transform:translateY(-3px); border-color:var(--accent)}
+      .card .meta{display:flex; gap:7px; flex-wrap:wrap; align-items:center}
+      .pill{font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:99px; background:var(--panel2); border:1px solid var(--line); color:var(--ink2)}
+      .pill.cat{background:var(--steel-soft); color:var(--steel); border-color:transparent}
+      .pill.done{background:var(--good-soft); color:var(--good); border-color:transparent}
+      .card h3{margin:0; font-size:19px; line-height:1.35}
+      .card .hook{margin:0; font-size:14px; color:var(--ink2)}
+      .card .foot{margin-top:auto; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--ink2); border-top:1px dashed var(--line); padding-top:10px}
+      .card .go{color:var(--accent-ink); font-weight:700}
+      .empty{grid-column:1/-1; text-align:center; color:var(--ink2); padding:44px 0; font-size:15px}
+
+      /* ---------- lesson view ---------- */
+      #lessonView{display:none}
+      .backbtn{border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:10px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin:26px 0 16px}
+      .backbtn:hover{border-color:var(--accent)}
+      .lhead{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px 28px}
+      .lhead h2{margin:8px 0 6px; font-size:clamp(24px,4vw,34px); line-height:1.25}
+      .lhead .analogy{font-size:16px; color:var(--ink2); margin:0}
+      .lhead .analogy b{color:var(--accent-ink)}
+      .cols{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px}
+      .box{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 24px; margin-top:16px}
+      .cols .box{margin-top:0}
+      .box h3{margin:0 0 12px; font-size:17px; display:flex; align-items:center; gap:9px}
+      .box h3 .n{display:inline-flex; width:26px; height:26px; border-radius:8px; background:var(--accent); color:#fff; font-size:14px; align-items:center; justify-content:center; flex:none}
+      .box p{margin:0 0 10px; font-size:14.5px}
+      .box p:last-child{margin-bottom:0}
+      .box ul{margin:6px 0 0; padding-left:20px; font-size:14.5px}
+      .box li{margin-bottom:5px}
+      .formula{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px 16px; font-size:14.5px; margin:10px 0}
+      .casebox{border-left:4px solid var(--steel); background:var(--steel-soft); border-radius:0 12px 12px 0; padding:16px 20px; margin-top:12px}
+      .casebox h4{margin:0 0 6px; font-size:15px; color:var(--steel)}
+      .casebox p{font-size:14.5px; margin:0 0 8px}
+      .kpis{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+      .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px}
+      .kpi b{display:block; font-size:18px; color:var(--accent-ink)}
+
+      /* demo */
+      .demo-controls{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center}
+      .btn{border:1px solid var(--line); background:var(--panel2); color:var(--ink); border-radius:10px; padding:8px 15px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s}
+      .btn:hover{border-color:var(--accent)}
+      .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+      .btn.primary:hover{filter:brightness(1.07)}
+      .btn.warn{background:var(--bad-soft); border-color:var(--bad); color:var(--bad)}
+      .btn:disabled{opacity:.45; cursor:not-allowed}
+      .demo-controls label{font-size:13.5px; color:var(--ink2); display:inline-flex; gap:7px; align-items:center}
+      .demo-controls input[type=range]{accent-color:var(--accent)}
+      .demo-controls select{font-family:inherit; font-size:14px; padding:7px 10px; border-radius:9px; border:1px solid var(--line); background:var(--panel); color:var(--ink)}
+      canvas.demo{width:100%; height:auto; display:block; background:var(--panel2); border:1px solid var(--line); border-radius:12px}
+      .demo-note{font-size:13.5px; color:var(--ink2); margin-top:10px; min-height:22px}
+      .demo-note b{color:var(--ink)}
+      .readout{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+      .readout .ro{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px}
+      .readout .ro b{display:block; font-size:17px}
+
+      /* data table */
+      .tablewrap{overflow-x:auto}
+      table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:520px}
+      th,td{border-bottom:1px solid var(--line); padding:8px 10px; text-align:right; white-space:nowrap}
+      th{color:var(--ink2); font-weight:700; background:var(--panel2)}
+      th:first-child,td:first-child{text-align:left}
+      tr.badrow td{color:var(--bad); font-weight:700}
+      .dlbtn{margin-top:12px}
+
+      /* quiz */
+      .q{margin-bottom:18px}
+      .q p{font-weight:700; margin:0 0 9px}
+      .opts{display:grid; gap:8px}
+      .opt{border:1px solid var(--line); background:var(--panel2); color:var(--ink); border-radius:10px; padding:10px 14px; font-size:14.5px; text-align:left; cursor:pointer; font-family:inherit; transition:all .15s}
+      .opt:hover{border-color:var(--accent)}
+      .opt.right{border-color:var(--good); background:var(--good-soft)}
+      .opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+      .qexp{font-size:13.5px; color:var(--ink2); margin-top:8px; display:none}
+      .qexp.show{display:block}
+      .finishrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:6px}
+      .finishmsg{font-size:14px; color:var(--good); font-weight:700; display:none}
+      .finishmsg.show{display:block}
+
+      footer{margin-top:56px; border-top:1px solid var(--line); padding-top:18px; font-size:13px; color:var(--ink2); display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap}
+
+      @media (max-width:820px){
+        .roadmap{grid-template-columns:1fr}
+        .cols{grid-template-columns:1fr}
+        .lhead{padding:20px}
+        .box{padding:18px}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- ============ HOME ============ -->
+      <div id="homeView">
+        <header class="hero">
+          <div class="hero-top">
+            <div class="hero-main">
+              <span class="crumb">制造业算法学院 · 从零到落地</span>
+              <h1>算法不难，难的是<br />没人拿<span class="hl">工厂里的事</span>给你讲</h1>
+              <p class="hero-sub">这门课把 10 个经典算法全部搬进车间：用轴承尺寸讲统计、用排产讲动态规划、用错峰用电讲贪心。每个算法都能上手玩模拟、看模拟数据、读落地案例——学完就能往自己的产线上套。最后加一节展望课，带你看工业 AI 的下半场：从会报警，到会闭环、会协同、能复制。</p>
+              <div class="hero-stats">
+                <div class="stat"><b class="mono">11</b><span>节课：10 个核心算法 + 1 节展望课</span></div>
+                <div class="stat"><b class="mono">6</b><span>大板块：质量·设备·工艺·能源·计划·综合</span></div>
+                <div class="stat"><b class="mono">11</b><span>个可交互模拟实验</span></div>
+                <div class="stat"><b class="mono">22</b><span>道随堂小测</span></div>
+              </div>
+            </div>
+            <aside class="hero-card">
+              <h3>我的学习进度</h3>
+              <p>按路线图从上往下学，每节课末尾有小测验，答对即掌握。进度只记在本次打开的页面里，关掉不保存。</p>
+              <div class="pbar"><i id="pbarFill"></i></div>
+              <div class="pbar-note" id="pbarNote">已完成 0 / 11 节</div>
+            </aside>
+          </div>
+        </header>
+
+        <section class="roadmap" aria-label="学习路线">
+          <div class="stage s1"><span class="lv">第一阶段</span><span class="tag">打地基</span><h3>基础篇 · 看懂数据</h3><p>排序查找、统计过程控制、贪心策略——不需要数学功底，先会用数据说话。</p></div>
+          <div class="stage s2"><span class="lv">第二阶段</span><span class="tag">建模型</span><h3>进阶篇 · 从数据里找规律</h3><p>回归、决策树、聚类、动态规划——让机器帮你预测、分类和做最优决策。</p></div>
+          <div class="stage s3"><span class="lv">第三阶段</span><span class="tag">上智能</span><h3>高级篇 · 让系统自己进化</h3><p>遗传算法、神经网络、强化学习——排产自己优化、设备自己学会干活。</p></div>
+          <div class="stage s4"><span class="lv">展望阶段</span><span class="tag">看下半场</span><h3>展望篇 · 工业 AI 往哪走</h3><p>从检测预警到受控闭环、混合建模、多智能体协同与规模化复制——模型上线只是起点。</p></div>
+        </section>
+
+        <div class="filters" id="catFilters">
+          <span class="flabel">按板块看：</span>
+        </div>
+        <div class="filters" id="lvFilters" style="margin-top:-8px">
+          <span class="flabel">按阶段看：</span>
+        </div>
+
+        <main class="grid" id="lessonGrid"></main>
+      </div>
+
+      <!-- ============ LESSON ============ -->
+      <div id="lessonView">
+        <button class="backbtn" id="backBtn">← 返回课程目录</button>
+        <div id="lessonBody"></div>
+      </div>
+
+      <footer>
+        <span>制造业算法学院 · 教学案例中的企业与数据均为课堂模拟，用于演示算法原理</span>
+        <span>建议学习顺序：基础篇 → 进阶篇 → 高级篇 → 展望篇</span>
+      </footer>
+    </div>
+
+    <script>
+      "use strict";
+      /* ================= helpers ================= */
+      const $ = (s, el) => (el || document).querySelector(s);
+      const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+      const rand = (a, b) => a + Math.random() * (b - a);
+      const randi = (a, b) => Math.floor(rand(a, b + 1));
+      const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+      const fmt = (n, d) => Number(n).toFixed(d == null ? 2 : d);
+      function setupCanvas(cv, h) {
+        const w = cv.clientWidth || 640;
+        const dpr = window.devicePixelRatio || 1;
+        cv.width = w * dpr; cv.height = h * dpr;
+        cv.style.height = h + "px";
+        const ctx = cv.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w, h };
+      }
+      function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+      function colors() {
+        return {
+          ink: cssVar("--ink"), ink2: cssVar("--ink2"), line: cssVar("--line"),
+          accent: cssVar("--accent"), steel: cssVar("--steel"), good: cssVar("--good"),
+          bad: cssVar("--bad"), panel: cssVar("--panel"), panel2: cssVar("--panel2"), gold: cssVar("--gold")
+        };
+      }
+
+      /* ================= course data ================= */
+      const CATS = ["全部", "质量", "设备", "工艺", "能源", "计划", "综合"];
+      const LEVELS = ["全部", "基础篇", "进阶篇", "高级篇", "展望篇"];
+
+      const LESSONS = [
+        {
+          id: "sort", level: "基础篇", cat: "计划", minutes: 12,
+          title: "排序与查找：给车间排个队",
+          hook: "仓库里 8000 种零件，凭什么老王 3 秒就能找到那颗螺丝？",
+          analogy: "像图书管理员整理书架：书按编号排好（排序），找书时对半翻（查找），比一本本翻快几百倍。",
+          explain: [
+            "排序就是把一堆乱序的东西按规则排整齐。最笨但最好懂的是<b>冒泡排序</b>：相邻两个比一比，大的往后沉，一轮一轮把最大值'冒'到末尾，像水里的气泡往上浮。数据量一大它就慢，于是有了<b>快速排序</b>：随便挑一个'标杆'，比它小的站左边、大的站右边，再对左右两队递归处理——分而治之，通常快几十倍。",
+            "排好序之后，查找就有了神技<b>二分查找</b>：每次翻到中间，看目标在左半还是右半，直接砍掉一半。8000 个零件最多查 13 次（2¹³=8192），而挨个找平均要 4000 次。",
+            "在工厂里，排序无处不在：订单按交期排序决定先做谁、库存按周转率排序决定先盘点谁、设备按故障风险排序决定先保养谁。算法的第一课，就是先学会'排队'。"
+          ],
+          points: ["冒泡排序：相邻比较交换，适合理解原理和小数据", "快速排序：分而治之，是工业界最常用的通用排序", "二分查找：前提是数据已排序，8000 条数据最多 13 步", "时间复杂度：O(n²) 与 O(n log n) 在大数据量下差距是数量级的"],
+          demo: "sort",
+          table: {
+            title: "模拟数据：某仓库 12 种紧固件按库存周转天数排序（节选）",
+            head: ["零件编号", "名称", "周转天数(天)", "二分查找步数", "顺序查找步数"],
+            rows: [["M6-304-020", "内六角螺栓 M6", "4.2", "≤4", "1~12"], ["W-08-SPR", "弹簧垫圈 8mm", "6.8", "≤4", "1~12"], ["N-M10-ZN", "法兰螺母 M10", "9.5", "≤4", "1~12"], ["B-M12-88", "高强螺栓 M12", "15.1", "≤4", "1~12"], ["P-D5-30", "开口销 5×30", "22.7", "≤4", "1~12"], ["R-AL-12", "铝铆钉 4×12", "31.4", "≤4", "1~12"]],
+            note: "全仓 8192 个 SKU 时：二分查找最多 13 步，顺序查找平均 4096 步——差 315 倍。"
+          },
+          caseStudy: {
+            title: "落地案例：汽车零部件厂的立体仓库拣货优化",
+            body: "某汽车零部件厂立体仓库有 8000 多个货位，拣货员按订单逐个找料，平均一单要走 6 分钟。改造分两步：先把全部 SKU 按出库频次排序，高频料自动迁移到离出货口最近的'黄金货位'；再给拣货系统加上按货位编号排序的批量拣货路径，同一趟把相邻货位的料一次取完。",
+            kpis: [["单均拣货时间", "6.0 分钟 → 2.1 分钟"], ["日出库单量", "+38%"], ["改造投入", "仅软件，无硬件采购"]]
+          },
+          quiz: [
+            { q: "二分查找能用的前提条件是什么？", opts: ["数据量必须超过 1000", "数据必须已经排好序", "数据必须是数字"], a: 1, exp: "二分查找靠'砍掉一半'工作，只有排好序才能判断目标在哪一半。" },
+            { q: "8192 条已排序数据，二分查找最多需要多少步？", opts: ["13 步", "128 步", "4096 步"], a: 0, exp: "2¹³ = 8192，每一步砍掉一半，13 步必然找到或确认不存在。" }
+          ]
+        },
+        {
+          id: "spc", level: "基础篇", cat: "质量", minutes: 15,
+          title: "统计过程控制 SPC：给产线装个'体温计'",
+          hook: "轴承外径偶尔超差，到底是正常波动，还是设备在'发烧'？",
+          analogy: "像人的体温：36.5℃ 上下浮动 0.3℃ 是正常的，突然冲到 38℃ 就是生病了——SPC 干的就是给产线量体温。",
+          explain: [
+            "任何工序的输出都有波动，比如轴承外径目标 25.00mm，实际测出来总在 24.98~25.02 之间跳。这种波动分两种：<b>偶然波动</b>（温度、电压的微小变化，人人都有，正常）和<b>异常波动</b>（刀具磨损、夹具松动，必须干预）。SPC 的核心任务就是把这两种波动分开。",
+            "方法很简单：持续抽样测量，算出均值 μ 和标准差 σ，画两条<b>控制限</b>：μ±3σ。点落在控制限内、随机分布，就是'体温正常'；点越线、或连续多点朝一个方向跑，就是异常信号——这时别急着调机，先找原因。",
+            "注意：控制限来自过程自身的波动，不是客户给的规格限。过程'健康'（受控）但能力不足（Cpk 低）和过程失控是两回事，SPC 先解决前者判断。"
+          ],
+          points: ["μ±3σ 控制限内约含 99.73% 的正常数据", "判异准则：点越界、连续 7 点同侧、连续 6 点同向趋势", "先判断'受控与否'，再谈'能力够不够'（Cpk）", "SPC 的价值是提前预警，而不是事后挑废品"],
+          demo: "spc",
+          table: {
+            title: "模拟数据：轴承外径抽样测量（目标 25.00mm，每 30 分钟抽 1 件）",
+            head: ["样本号", "测量值(mm)", "与均值偏差", "判定"],
+            rows: [["1", "25.004", "+0.004", "正常"], ["2", "24.996", "-0.004", "正常"], ["3", "25.008", "+0.008", "正常"], ["4", "25.011", "+0.011", "正常"], ["5", "25.014", "+0.014", "趋势警告"], ["6", "25.019", "+0.019", "越上限·异常"]],
+            note: "μ=25.000，σ=0.006，上控制限 = 25.018。第 6 点越限且前面已连续上行——典型的刀具磨损信号。"
+          },
+          caseStudy: {
+            title: "落地案例：精密轴承厂的刀具磨损预警",
+            body: "某轴承厂外圆磨削工序长期靠老师傅'听声音'判断换刀，废品率在 1.8% 上下。上了 SPC 后，在磨床出口加了自动测量+控制图：连续 6 点上行趋势一出现就自动提醒点检。三个月后确认主因正是砂轮钝化，换刀节点从'坏了再换'变成'趋势到了就换'。",
+            kpis: [["废品率", "1.8% → 0.6%"], ["非计划停机", "-42%"], ["年节约（返工+报废）", "约 210 万元"]]
+          },
+          quiz: [
+            { q: "控制图上的点越过 μ+3σ，最合理的解读是？", opts: ["这件肯定是废品，扔掉即可", "过程可能出现异常原因，应停机排查", "把控制限放宽到 ±4σ"], a: 1, exp: "越界说明波动模式变了，重点不是这一件产品，而是过程出了异常原因。" },
+            { q: "连续 7 个点都落在均值同一侧但都没越界，应该？", opts: ["完全正常，不用管", "触发判异准则，过程均值可能已偏移", "立即报废这 7 件"], a: 1, exp: "链长判异：连续 7 点同侧也是异常信号，说明均值可能已经悄悄漂移。" }
+          ]
+        },
+        {
+          id: "greedy", level: "基础篇", cat: "能源", minutes: 12,
+          title: "贪心算法：错峰用电，眼前最优先拿下",
+          hook: "电费峰谷差 3 倍，怎么排班开机器才能不当'冤大头'？",
+          analogy: "像自助餐夹菜：每次只夹眼前最划算的那盘。不回头、不瞻前顾后——简单粗暴，但很多时候真管用。",
+          explain: [
+            "贪心算法的策略是：<b>每一步都做当前看起来最划算的选择</b>，不纠结全局。比如错峰用电：把每台设备的活儿逐个安排到'当前电价最低、且总负荷还没超限'的时段，排满为止。",
+            "它的优点是快、好懂、容易落地；缺点是眼光短浅——眼前的最优拼起来不一定是全局最优（比如为了省电把关键订单拖到最后，反而误了交期）。所以贪心通常用来快速生成一个'不错'的方案，再用更高级的算法（后面的动态规划、遗传算法）去精修。",
+            "判断一个问题能不能用贪心，关键看它有没有'贪心选择性质'：局部最优能拼出全局最优。找零钱（用最大面额先凑）、活动排期、错峰用电都是经典适用场景。"
+          ],
+          points: ["核心：每一步选当前最优，不回溯", "优点：速度快、实现简单、结果通常'够好'", "缺点：可能错过全局最优，需要业务规则兜底", "常见搭档：先贪心出初版方案，再用优化算法精修"],
+          demo: "greedy",
+          table: {
+            title: "模拟数据：某厂分时电价（元/kWh）",
+            head: ["时段", "电价", "电网负荷水平", "建议"],
+            rows: [["00:00–06:00 谷段", "0.32", "低", "安排可延后工序"], ["06:00–08:00 平段", "0.68", "中", "正常生产"], ["08:00–11:00 峰段", "1.15", "高", "只保留瓶颈设备"], ["11:00–13:00 平段", "0.68", "中", "午间补产"], ["18:00–21:00 尖峰", "1.42", "最高", "大功率设备避让"]],
+            note: "同一度电，尖峰价是谷段的 4.4 倍。注塑机、空压机、热处理炉是'移峰填谷'的主力。"
+          },
+          caseStudy: {
+            title: "落地案例：注塑车间的'夜班电老虎'改造",
+            body: "某家电注塑车间 26 台注塑机全天候开着，白天尖峰时段电费占比惊人。能源团队用贪心策略重排生产：把非紧急订单的成型工序优先塞进 22:00–06:00 谷段，尖峰段只留瓶颈机台和赶交期订单，并给每台机器设了时段功率上限。规则简单到班组长手算都能执行。",
+            kpis: [["月电费", "-18.6%"], ["尖峰负荷", "4200kW → 2900kW"], ["订单准时率", "保持 98% 以上"]]
+          },
+          quiz: [
+            { q: "贪心算法最大的风险是什么？", opts: ["运行速度太慢", "局部最优拼起来可能不是全局最优", "需要大量训练数据"], a: 1, exp: "贪心只看眼前，可能为小利丢大局，所以重要场景常与全局优化算法搭配。" },
+            { q: "下列哪个场景最适合贪心？", opts: ["需要绝对最优的航天轨道计算", "按电价从低到高依次安排可延后工序", "预测下季度销量"], a: 1, exp: "错峰排产每一步选最便宜时段，符合贪心选择性质，且业务上允许近似最优。" }
+          ]
+        },
+        {
+          id: "regression", level: "进阶篇", cat: "工艺", minutes: 16,
+          title: "线性回归：找到工艺参数和良率之间的'暗线'",
+          hook: "注塑温度高 5℃，良率到底涨还是跌？别再拍脑袋了。",
+          analogy: "像老中医号脉积累经验：看得多了，就知道'温度每升 1℃，良率大约动几个点'——回归就是把老师傅的经验变成一条公式。",
+          explain: [
+            "回归分析要回答的是：<b>一个变量变了，另一个变量平均跟着变多少</b>。把历史数据画成散点（横轴注塑温度、纵轴良率），再找一条穿过点云中央的直线，让所有点到直线的总误差最小——这就是最小二乘法。",
+            "直线的斜率就是工艺人员最想要的答案：温度每升高 1℃，良率平均变化几个百分点。有了公式，就能预测没试过的参数组合、反推参数窗口，还能算出 R² 判断这条'暗线'靠不靠谱（越接近 1 越可信）。",
+            "要注意：相关不等于因果。温度与良率相关，可能背后是模具预热状态在同时影响两者。回归给的是强有力的线索，最终结论仍要靠 DOE 试验验证——这正是工艺工程师的价值所在。"
+          ],
+          points: ["斜率 = 自变量每变 1 单位，因变量的平均变化量", "R² 衡量模型解释力，低于 0.5 的结论要谨慎", "残差图能暴露'直线拟合错了'的非线性关系", "多变量回归可同时评估温度、压力、速度的贡献"],
+          demo: "regression",
+          table: {
+            title: "模拟数据：注塑温度与外观良率（30 批次抽样）",
+            head: ["批次", "料筒温度(℃)", "保压(MPa)", "良率(%)"],
+            rows: [["B01", "228", "55", "91.2"], ["B02", "232", "56", "92.8"], ["B03", "238", "58", "94.1"], ["B04", "244", "60", "95.6"], ["B05", "250", "61", "96.3"], ["B06", "258", "63", "95.1（过冲回落）"]],
+            note: "良率随温度先升后降——真实工艺常有最佳窗口，线性回归先帮你找到'上升段'的规律，再定位峰值区。"
+          },
+          caseStudy: {
+            title: "落地案例：家电外壳注塑的良率爬坡",
+            body: "某家电厂注塑外壳缩水缺陷居高不下，工艺组凭经验反复调参两个月无果。数据团队拉出 3 个月 900 多批次记录做多元回归，发现良率对料筒温度的敏感度是保压的 3 倍，且存在交互效应。按模型建议把温度窗口收紧到 242–248℃ 并微调保压，缩水缺陷率一周内从 4.7% 降到 1.1%。",
+            kpis: [["缩水缺陷率", "4.7% → 1.1%"], ["调参试错批次", "-70%"], ["年节约物料", "约 160 万元"]]
+          },
+          quiz: [
+            { q: "回归方程斜率为 0.42（温度→良率），含义是？", opts: ["温度升高 1℃，良率平均提高约 0.42 个百分点", "良率有 42% 由温度决定", "温度和良率无关"], a: 0, exp: "斜率的单位就是'因变量/自变量'，表示平均边际变化量。" },
+            { q: "R² = 0.31 的模型，最稳妥的做法是？", opts: ["直接按它调工艺参数上线", "谨慎使用，继续找遗漏变量或做 DOE 验证", "把数据删一半重算"], a: 1, exp: "R² 低说明大部分波动没被解释，直接上线调参风险大。" }
+          ]
+        },
+        {
+          id: "tree", level: "进阶篇", cat: "设备", minutes: 14,
+          title: "决策树：把老师傅的诊断经验画成流程图",
+          hook: "注塑机又停机了，新人对着报警代码发呆——能不能有个'照着问就能定位'的东西？",
+          analogy: "像玩'二十个问题'猜物游戏：每个问题把可能性砍掉一半，问到最后答案自己浮出来。",
+          explain: [
+            "决策树就是把判断过程组织成一棵树：每个节点问一个问题（温度正常吗？压力有没有？），按答案走分支，最后叶子给出结论（液压泵故障，建议更换）。它最大的好处是<b>完全透明</b>——每一步判断都看得见，老师傅能审核，新人能照着走。",
+            "机器怎么自己'长'出这棵树？原则是每次挑那个<b>最能把故障和正常分开的问题</b>先问（信息增益最大的特征）。比如 200 条维修记录里，先问'电流是否异常'能一下分开 80% 的情况，那就把它放根节点。",
+            "决策树是很多高级模型的地基：随机森林就是'种一片树投票'，后面学的梯度提升也是树的组合。先把一棵树吃透，后面的都不难。"
+          ],
+          points: ["每个节点 = 一个判断问题，叶子 = 一个结论", "选问题原则：优先选区分能力最强（信息增益最大）的特征", "优点：透明、可解释、不需要数据标准化", "缺点：树太深会'死记硬背'（过拟合），需要剪枝限深"],
+          demo: "tree",
+          table: {
+            title: "模拟数据：注塑机停机维修记录（200 条）中的特征区分力",
+            head: ["候选问题", "异常时占比", "信息增益", "在树中的位置"],
+            rows: [["液压油温 > 75℃？", "38%", "0.41", "根节点"], ["系统压力 < 12MPa？", "31%", "0.33", "第二层"], ["伺服电流波动 > 15%？", "27%", "0.28", "第二层"], ["冷却水流量正常？", "12%", "0.12", "第三层"], ["滤芯使用 > 90 天？", "9%", "0.08", "第三层"]],
+            note: "信息增益越高的问题越先问——先问最能缩小范围的问题，是决策树的灵魂。"
+          },
+          caseStudy: {
+            title: "落地案例：设备部的'新员工诊断手册'数字化",
+            body: "某塑胶厂设备部把近三年 1200 条维修工单喂给决策树模型，自动提炼出注塑机、空压机两类设备的诊断树，再由老师傅逐条审核修正，做成平板上的交互式诊断助手。新员工照着树一步步排查，平均故障定位时间从 47 分钟降到 15 分钟，且误换备件的情况大幅减少。",
+            kpis: [["平均故障定位", "47 分钟 → 15 分钟"], ["误换备件率", "-56%"], ["新人独立上岗周期", "3 个月 → 6 周"]]
+          },
+          quiz: [
+            { q: "决策树优先把哪个问题放在根节点？", opts: ["老师傅最常问的", "信息增益最大、最能区分故障与正常的", "最容易检测的"], a: 1, exp: "按区分能力排序提问，才能用最少的步骤定位问题。" },
+            { q: "决策树太深导致过拟合，直观表现是？", opts: ["在历史工单上全对，遇到新故障就抓瞎", "树变透明了", "训练速度变快"], a: 0, exp: "过拟合 = 把历史噪声也背了下来，泛化能力差，需要剪枝或限定深度。" }
+          ]
+        },
+        {
+          id: "kmeans", level: "进阶篇", cat: "质量", minutes: 15,
+          title: "K-Means 聚类：让缺陷自己'物以类聚'",
+          hook: "质检攒了 5000 条缺陷记录，到底有几类问题在反复发生？",
+          analogy: "像开学分宿舍：先随便指几个宿舍长，大家往最近的宿舍长那儿站，再重新选宿舍中心，反复几次，宿舍就分好了。",
+          explain: [
+            "聚类是<b>没有标准答案的分类</b>：没人告诉你数据该分几类，让算法按'距离近 = 相似'自己抱团。K-Means 的流程四步：① 随机选 K 个中心点；② 每个数据点投靠最近的中心；③ 每个团重新计算中心（取平均）；④ 重复②③直到中心不再挪动。",
+            "放到质量管理里：把每条缺陷记录变成一组特征（发生时段、设备温度、产品型号、缺陷尺寸……），聚类后常常会发现惊人的结构——比如缺陷自动聚成'夜班+低温'一团、'某模具'一团，根因分析的方向一下就清楚了。",
+            "用之前有两个坑要知道：一是特征量纲要先标准化（温度几十、尺寸零点几，不处理距离会被温度主导）；二是 K 要自己定，常用'肘部法则'看拐点。"
+          ],
+          points: ["核心循环：投靠最近中心 → 重算中心，直到稳定", "K 是人为指定的簇数，可用肘部法则辅助", "特征必须先标准化，否则大量纲特征会主导距离", "聚类结果需要业务解读：簇是数学结构，根因要人确认"],
+          demo: "kmeans",
+          table: {
+            title: "模拟数据：缺陷记录聚类结果（5000 条 → 4 个簇）",
+            head: ["簇", "记录数", "典型特征", "初步根因指向"],
+            rows: [["簇 1", "1860", "夜班、模温偏低、缩水类", "夜班模具预热不足"], ["簇 2", "1420", "3 号模具、飞边类", "3 号模具配合间隙变大"], ["簇 3", "980", "高温时段、气泡类", "原料含水率超标"], ["簇 4", "740", "分散、无明显共性", "偶发因素，持续观察"]],
+            note: "聚类不直接给根因，但把 5000 条记录变成 4 个可调查的方向——这就是它的价值。"
+          },
+          caseStudy: {
+            title: "落地案例：压铸厂的缺陷'破案'提速",
+            body: "某铝压铸厂月均缺陷记录 4000 余条，质量例会只能挑数量最多的缺陷类型讨论。引入聚类后，把缺陷按设备、班次、温度、压力、合金批次多维聚类，发现占总量 34% 的气孔缺陷高度集中在'雨季 + 某供应商原料'的组合上。更换原料干燥工艺后，该簇缺陷下降 62%。",
+            kpis: [["气孔缺陷", "-62%"], ["根因定位周期", "2 周 → 2 天"], ["质量例会效率", "从报数改为定点攻关"]]
+          },
+          quiz: [
+            { q: "K-Means 中 K 的含义是？", opts: ["迭代次数上限", "预先指定的簇（类别）数量", "数据点总数"], a: 1, exp: "K 是你要分成的团数，需要结合业务和肘部法则确定。" },
+            { q: "聚类前为什么要做特征标准化？", opts: ["让图表更好看", "防止量纲大的特征（如温度）在距离计算中一家独大", "减少数据量"], a: 1, exp: "距离对量纲敏感，不标准化时几十量级的温度会淹没零点几量级的尺寸特征。" }
+          ]
+        },
+        {
+          id: "dp", level: "进阶篇", cat: "计划", minutes: 18,
+          title: "动态规划：排产不是排满就行，是排'最值'",
+          hook: "机时只剩 40 小时，5 个订单抢着上——接哪几个总利润最高？",
+          analogy: "像拼乐高：一座大城堡（大问题）拆成一面面墙（小问题），每面墙的拼法算一次存好，最后组装时不用重拼。",
+          explain: [
+            "动态规划（DP）解决的是<b>'资源有限、选择很多、要全局最划算'的问题</b>。它的做法是：把大问题拆成层层递进的小问题，先解最小的，把答案记在表格里；再借这些答案拼出大一号的问题——每个小问题只算一次，绝不重复劳动。",
+            "经典场景就是背包问题：产能（背包容量）有限，每个订单占工时、带利润，选哪些装进去总利润最大？DP 会逐行填表：'考虑到第 i 个订单、剩余 j 小时'的最优解。表格填满，右下角就是全局最优——这是贪心给不了的保证。",
+            "排产、备件库存、换模顺序、切割下料都藏着 DP 的影子。它的代价是问题规模不能太大（状态爆炸），所以工业现场常把它用在单机台、单班次这种粒度上滚动求解。"
+          ],
+          points: ["核心思想：拆小问题 + 记答案（备忘录）+ 逐层拼大", "状态定义是关键：'处理到哪一步 + 还剩多少资源'", "能保证全局最优，这是与贪心的根本区别", "规模过大时状态爆炸，需配合滚动窗口或近似算法"],
+          demo: "dp",
+          table: {
+            title: "模拟数据：5 个候选订单（本周瓶颈机台剩余 40 小时）",
+            head: ["订单", "占用工时(h)", "利润(万元)", "交期紧迫度", "DP 结论"],
+            rows: [["O1 汽车支架", "12", "9.6", "高", "✅ 接"], ["O2 泵体壳体", "18", "12.4", "中", "✅ 接"], ["O3 法兰盘", "8", "5.1", "低", "❌ 让位"], ["O4 阀体", "10", "8.3", "高", "✅ 接"], ["O5 齿轮箱盖", "15", "10.2", "中", "❌ 超时"]],
+            note: "DP 最优组合 O1+O2+O4 = 40 小时、利润 30.3 万；若按'先来先得'接 O1+O2+O3 只有 27.1 万且 O4 高紧迫订单被误期。"
+          },
+          caseStudy: {
+            title: "落地案例：机加工车间的周排产从'拍脑袋'到'算得出最优'",
+            body: "某机加工车间每周一排产会要开 3 小时，计划员凭经验拼单，仍常出现瓶颈机台超负荷、急单插不进。改用 DP 做单瓶颈滚动排产后：以 4 小时为粒度滚动求解本周订单组合，计划员只需审核例外。排产会缩到 40 分钟，瓶颈机台利用率和急单交付率同时上升。",
+            kpis: [["瓶颈机台利用率", "78% → 91%"], ["急单准时交付率", "82% → 96%"], ["排产会议时长", "3 小时 → 40 分钟"]]
+          },
+          quiz: [
+            { q: "动态规划与贪心最根本的区别是？", opts: ["DP 速度更快", "DP 通过保存子问题答案保证全局最优", "DP 不需要数据"], a: 1, exp: "贪心只顾眼前，DP 系统地比较所有组合（借助子问题答案），能给出可证明的最优解。" },
+            { q: "DP 里'状态'通常怎么定义？", opts: ["随便记个数就行", "'处理进度 + 剩余资源'这类能概括局面的量", "就是最终答案"], a: 1, exp: "状态定义得好，转移方程才写得出——这是 DP 设计的核心功夫。" }
+          ]
+        },
+        {
+          id: "ga", level: "高级篇", cat: "计划", minutes: 18,
+          title: "遗传算法：让排产方案自己'进化'",
+          hook: "光是 20 个工件的全排序就有 2.4×10¹⁸ 种排法，再叠加机台分配根本枚举不完，怎么找好方案？",
+          analogy: "像育种：养一群方案，好的留下配对繁殖，差的淘汰——一代代下来，后代越来越能干。",
+          explain: [
+            "有些优化问题组合爆炸到无法枚举（车间调度就是典型），精确算法算到天荒地老。这时请出进化思路：<b>遗传算法</b>。把每个排产方案编码成一条'染色体'（工件顺序），随机生成一代种群，算每个方案的适应度（比如完工时间越短越好），让优秀方案'交叉配对+少量变异'产生下一代。",
+            "几十代之后，种群整体水平大幅提升，通常能得到非常接近最优的方案。它不保证绝对最优，但能在几分钟内给出人算不出来的好排产——对每天都在变的车间，这就够了。",
+            "关键参数就三个：种群规模（多样性）、变异率（探索新可能）、代数（计算预算）。和后面的强化学习一样，遗传算法属于'不给公式、靠试错进化'的智能优化家族。"
+          ],
+          points: ["编码：把方案变成可交叉、变异的'染色体'", "适应度函数决定进化方向，必须对准业务目标", "交叉保留优良片段，变异防止过早收敛到次优", "适合组合爆炸问题：排产、路径、布局、参数寻优"],
+          demo: "ga",
+          table: {
+            title: "模拟数据：8 工件 × 3 机台排产，遗传算法进化过程",
+            head: ["代数", "最优完工时间(h)", "种群平均(h)", "说明"],
+            rows: [["第 1 代", "46.5", "58.2", "随机方案，惨不忍睹"], ["第 10 代", "38.9", "44.6", "优良顺序片段开始传播"], ["第 25 代", "34.2", "37.8", "整体水平明显抬升"], ["第 50 代", "32.6", "34.1", "接近收敛"], ["人工排产", "41.0", "—", "老师傅经验方案作对照"]],
+            note: "50 代进化把完工时间从随机的 46.5 小时压到 32.6 小时，比人工排产还短 20%。"
+          },
+          caseStudy: {
+            title: "落地案例：多品种小批量工厂的 APS 排产",
+            body: "某精密零件厂产品 300 多种、月订单 2000+，人工排产只能顾大放小，设备闲忙不均。APS 系统以遗传算法为核心：每晚把次日订单、设备状态、换模时间喂进去，20 分钟生成全厂排产甘特图；急单插入时增量重排。运行半年，平均订单周期缩短 19%，计划员从'排产员'转型为'异常处理员'。",
+            kpis: [["平均订单周期", "-19%"], ["设备负荷均衡度", "+27%"], ["排产人力", "3 人 → 1 人审核"]]
+          },
+          quiz: [
+            { q: "遗传算法中'变异'的作用是？", opts: ["让方案随机出错，应避免", "引入新基因，防止种群过早收敛到次优解", "加快计算速度"], a: 1, exp: "没有变异，种群很快会变得千篇一律；适度变异保持探索能力。" },
+            { q: "遗传算法适合哪类问题？", opts: ["答案唯一且能直接算出的公式题", "组合爆炸、无法枚举、需要好方案而非证明最优的问题", "数据清洗"], a: 1, exp: "排产、路径规划等组合优化正是遗传算法的主场。" }
+          ]
+        },
+        {
+          id: "nn", level: "高级篇", cat: "质量", minutes: 20,
+          title: "神经网络：让机器像老师傅一样'看一眼就知道'",
+          hook: "产品表面划痕，老师傅扫一眼就分好坏——机器能学会这份'眼力'吗？",
+          analogy: "像带徒弟：拿一万张'好件/坏件'照片反复给他看、纠错，看多了他自己就摸到了门道——虽然说不清具体规则。",
+          explain: [
+            "神经网络由一层层'神经元'组成：输入层接收数据（像素、传感器读数），隐藏层逐层提取特征（先认边缘、再认形状、最后认缺陷模式），输出层给出判断（合格概率 97%）。每个连接都有一个权重，训练就是用大量标注样本反复微调这些权重，让判断越来越准——这个过程叫反向传播。",
+            "在工厂里它最出圈的应用是<b>机器视觉质检</b>：摄像头拍下产品，网络在几十毫秒内判出划痕、凹坑、污渍。传统算法要工程师手写规则，新缺陷一出就抓瞎；神经网络只要补样本重训就能跟上。",
+            "它的短板也要心里有数：是个'黑盒'，说不清为什么判坏；吃数据，小样本场景反而是决策树这类模型更稳。所以现场常是组合拳：神经网络负责看，SPC 负责监控它的稳定性。"
+          ],
+          points: ["结构：输入层 → 隐藏层（提特征）→ 输出层（给判断）", "训练 = 用标注样本反复调权重（反向传播）", "强项：图像、声音、振动等'说不清规则'的感知任务", "短板：黑盒、吃数据，上线后要用 SPC 思维监控漂移"],
+          demo: "nn",
+          table: {
+            title: "模拟数据：视觉质检模型在验证集上的表现（2000 张）",
+            head: ["缺陷类型", "样本数", "检出率", "误报率"],
+            rows: [["划痕", "420", "98.6%", "1.2%"], ["凹坑", "310", "97.4%", "1.8%"], ["污渍", "380", "96.8%", "2.4%"], ["裂纹", "150", "99.3%", "0.7%"], ["合格品", "740", "—", "总误报 1.6%"]],
+            note: "裂纹漏检代价最高，所以单独看它的检出率；误报率决定人工复检工作量，要一起权衡。"
+          },
+          caseStudy: {
+            title: "落地案例：手机盖板玻璃的 AI 视觉质检",
+            body: "某消费电子代工厂盖板玻璃质检岗有 46 名检验员，三班倒仍漏检不断，不同检验员标准还不一致。部署视觉检测系统后：高速相机+深度学习模型在线全检，存疑件自动分流人工复检。上线 3 个月，漏检率从 2.3% 降到 0.2% 以下，检验员转岗到复检与设备维护岗，标准一致性问题彻底消失。",
+            kpis: [["漏检率", "2.3% → 0.2%"], ["单件检测耗时", "3.2 秒 → 0.4 秒"], ["检验人力", "46 人 → 9 人（复检+维护）"]]
+          },
+          quiz: [
+            { q: "神经网络训练时调整的是什么？", opts: ["摄像头的角度", "神经元之间连接的权重", "产品的规格限"], a: 1, exp: "反向传播根据预测误差逐层调整权重，让网络的判断逐步贴近标注答案。" },
+            { q: "下列哪个任务最适合神经网络？", opts: ["按固定公式算工资", "从照片中识别表面缺陷", "按交期给订单排序"], a: 1, exp: "图像识别这类'有规律但写不出规则'的感知任务，正是神经网络的强项。" }
+          ]
+        },
+        {
+          id: "rl", level: "高级篇", cat: "设备", minutes: 20,
+          title: "强化学习：让 AGV 和设备在试错中'自己长本事'",
+          hook: "新来的 AGV 小车总堵在路口——能不能让它自己跑几千趟把路'跑熟'？",
+          analogy: "像学骑自行车：没人给你公式，摔一次（负反馈）就少犯一次，骑顺了（正反馈）就强化——练得多了自然成老手。",
+          explain: [
+            "强化学习只有四个要素：<b>智能体</b>（AGV）、<b>环境</b>（车间通道）、<b>动作</b>（走哪条路）、<b>奖励</b>（按时送达 +10，堵车 -5，绕远 -1）。智能体在环境中反复试错，把'在什么状态下做什么动作好'记成一张经验表（或一个神经网络），目标是让长期总奖励最大。",
+            "它和前面算法最大的不同：<b>没有标准答案给它抄</b>，全靠奖励信号自己摸索。所以它特别适合规则复杂、环境多变、又难以建模的场景：AGV 路径、多机协同、空压站群控、工艺参数自寻优。",
+            "落地时有个关键技巧：先在仿真环境里让它'跑几万趟'练好，再迁移到真实设备小步验证——没人敢让一台没练过的 AGV 直接在车间里横冲直撞找经验。"
+          ],
+          points: ["四要素：智能体、环境、动作、奖励", "学的是'状态→动作'的策略，目标是长期总奖励", "探索 vs 利用：偶尔试新路，才不会错过更优解", "工业落地标配：仿真预训练 + 真实环境小步验证"],
+          demo: "rl",
+          table: {
+            title: "模拟数据：AGV 在仿真车间中的训练进程（单趟任务）",
+            head: ["训练轮次", "平均送达时间", "堵车次数/百趟", "平均绕行距离"],
+            rows: [["第 100 趟", "312 秒", "41", "+38%"], ["第 1000 趟", "228 秒", "17", "+19%"], ["第 5000 趟", "186 秒", "6", "+7%"], ["第 20000 趟", "174 秒", "3", "+3%"], ["固定路线方案", "205 秒", "11", "+12%"]],
+            note: "练到 2 万趟后，AGV 学会提前避开高峰通道，全面超过工程师设定的固定路线。"
+          },
+          caseStudy: {
+            title: "落地案例：空压站群控的'自学'节能",
+            body: "某轮胎厂空压站 7 台空压机靠 PLC 按压力阈值启停，加载率长期只有 55%，电费居高不下。改造时先用历史数据搭了仿真环境，让强化学习智能体在里面练了相当于 3 年的启停调度，再上线接管建议模式、一个月后转自动。策略学会了'预判班次用气高峰提前蓄压、低谷让高效机多干活'。",
+            kpis: [["空压站电耗", "-13.8%"], ["平均加载率", "55% → 74%"], ["年节约电费", "约 340 万元"]]
+          },
+          quiz: [
+            { q: "强化学习靠什么信号学习？", opts: ["人工标注的正确答案", "动作带来的奖励与惩罚（长期累计）", "老师傅的口头指导"], a: 1, exp: "RL 没有标准答案，靠奖励信号在试错中摸索长期最优策略。" },
+            { q: "工业现场部署强化学习前通常先做什么？", opts: ["直接全量上线边跑边学", "在仿真环境预训练，再小步迁移到真机验证", "先写一份详细规则手册"], a: 1, exp: "仿真里试错零成本、零风险，是 RL 工业落地的标准路径。" }
+          ]
+        },
+        {
+          id: "outlook", level: "展望篇", cat: "综合", minutes: 22,
+          title: "展望课：工业 AI 的下半场，六个值得提升的方向",
+          hook: "模型上线只是起点——为什么很多工厂的 AI 演示时惊艳，三个月后就没人用了？",
+          analogy: "像一家餐厅从'能炒出一盘好菜'到'能稳定开连锁'：前者靠一位大厨，后者靠标准、品控、供应链和复制能力。工业 AI 也一样，拼的不是单个模型多聪明，而是整套系统能不能持续、协同、可复制地赚钱。",
+          explain: [
+            "前面十节课，我们把单个算法一个个练成了'单项技能'：会检测、会预测、会排产。但走进真实工厂你会发现，天花板不在算法本身，而在六个系统问题上。这一课不讲新公式，讲路线图——<b>先看清自己卡在哪一层，再决定下一笔钱投哪儿</b>，别一上来就追最热的模型。",
+            "<b>方向一 · 从检测预警到受控闭环控制。</b>现在多数 AI 只做到'看见和报警'：发现缺陷、发出预警，调不调、调多少全靠人。下一步是让 AI 在安全护栏内直接调参——但必须分级：低风险参数自动调（受控自动）、中风险先弹确认（人工确认）、高风险只给建议（关闭自动）。就像把新手司机升级成老司机，不是一下子放手，而是先在空旷路段让他练，护栏、限速、随时接管一样不能少。闭环的价值不在'全自动'三个字，而在响应从'小时级'压到'分钟级'。",
+            "<b>方向二 · 机理模型与数据模型混合建模。</b>纯数据模型有个硬伤：它只见过历史工况，新配方、新原料一来就抓瞎，还容易学出'违背物理常识'的结论。机理模型正好相反：懂传热、懂流体、懂反应动力学，算得慢但不会胡说。把两者拼起来——<b>机理给边界和骨架，数据补经验和细节</b>——就像老师傅带徒弟：老师傅讲清原理和禁区，徒弟负责在禁区内快速试错。发泡、注塑、热处理这类强物理过程，尤其适合这条路，物理信息神经网络（PINN）就是把方程直接写进训练目标的新玩法。",
+            "<b>方向三 · 小样本与数据治理。</b>工厂最缺的从来不是算法，是干净、带标签的数据：缺陷样本一个月才攒几十个，标注还全靠老师傅肉眼，MES、PLC、质检系统各说各话、时间戳都对不齐。提升办法分两手：一手治数据——统一编码、自动打标、把老师傅的判断沉淀成案例库（还记得决策树那节的诊断手册吗？）；一手练'少吃多餐'的本事——迁移学习借别家产线的经验、合成数据补稀有缺陷、主动学习专挑最值得标注的样本让老师傅看。<b>数据治理听着不性感，却是决定上限的地基。</b>",
+            "<b>方向四 · 从单工序到全价值链多智能体协同。</b>单条线优化到头，只是局部最优：发泡调得再好，前道注塑来料波动、后道总装节拍跟不上，整体收益还是被卡住。下一步是让质检、排产、设备维护、能耗几个智能体（Agent）坐到一张桌子上算总账——排产 Agent 想赶交期，维护 Agent 说设备该保养了，能耗 Agent 提醒现在是尖峰电价，它们协商出一个全局方案，而不是各管一段、互相打架。这是从'一个聪明工具'到'一个会配合的班组'的跃迁。",
+            "<b>方向五 · 可靠性、可解释与模型持续运维（MLOps）。</b>模型上线那天不是终点，是衰老的开始：原料批次变了、设备大修了、季节换了，数据分布悄悄漂移，准确率三个月掉一截还没人发现。靠谱的做法是给模型也装上 SPC 控制图（对，就是基础篇那节）——监控它的输入分布、置信度和误报漏报率，漂移越线就报警、触发再训练；同时让它能'说人话'：为什么判这件是缺陷、依据是哪几个特征，老师傅信得过，才会真的用。<b>没有运维的 AI 项目，本质上是一次性演示。</b>",
+            "<b>方向六 · 规模化复制与 ROI。</b>一条灯塔线跑通，只证明了'能做'，没证明'划算'。真正的分水岭是复制：第二条线要改多少参数？换个工厂、换批设备还能不能用？答案藏在标准化里——数据接口标准化、模型做成可配置的'模板'、新线只做小样本校准。算 ROI 时也别只算省了几个人，要算全账：良率提升、停机减少、能耗下降是收益，标注、运维、算力、改造停机是成本，<b>回收期算得过来，项目才活得下去</b>。",
+            "六个方向不是要你同时开工。给个实用的优先级口诀：<b>先补地基（方向三、五），再挖深度（方向一、二），最后扩版图（方向四、六）</b>。地基不牢时追闭环和多智能体，就像地基没打就盖三楼——下面的模拟实验里，你可以亲手推演一家工厂三年怎么走这张路线图。"
+          ],
+          points: ["方向一 闭环控制：分级下发（关闭/人工确认/受控自动）+ 安全护栏 + 可回退", "方向二 混合建模：机理给物理边界，数据补经验细节，强物理过程优先用", "方向三 小样本与数据治理：统一编码、案例库、迁移学习、合成数据、主动学习", "方向四 多智能体协同：质检/排产/维护/能耗共同算总账，跳出单工序局部最优", "方向五 可靠与运维：用 SPC 思维监控模型漂移，可解释赢信任，再训练成常态", "方向六 规模化与 ROI：模板化复制、小样本校准新线，全账算回收期"],
+          demo: "outlook",
+          table: {
+            title: "模拟数据：某中型制造企业工业 AI 成熟度评估（课堂模拟，满分 100）",
+            head: ["提升方向", "现状得分", "一年目标", "当前最明显的短板"],
+            rows: [["① 受控闭环控制", "35", "60", "只报警不调参，响应靠人工"], ["② 混合建模", "40", "65", "纯数据模型，换配方就漂移"], ["③ 小样本与数据治理", "30", "62", "标签靠人工，系统间编码不一"], ["④ 多智能体协同", "20", "45", "各工序系统互不通气"], ["⑤ 可靠性与持续运维", "28", "60", "无漂移监控，上线后无人管"], ["⑥ 规模化复制与 ROI", "22", "50", "每条线都要从头定制"]],
+            note: "六个方向里得分最低的恰恰是最'不性感'的两项：数据治理（30）和持续运维（28）——这也是多数 AI 项目悄悄烂尾的真正起点。先补地基，再谈进阶。"
+          },
+          caseStudy: {
+            title: "落地案例（课堂模拟）：汽车内饰发泡车间的三年升级之路",
+            body: "某汽车内饰厂（课堂模拟企业）第一年先补地基：统一三套系统的物料编码，把老师傅的调参经验做成案例库，并给已上线的缺陷检测模型加上漂移监控——先止住'模型越用越不准'的漏。第二年在一条发泡线上试点受控闭环：温度、压力两个低风险参数改为受控自动下发（带上下限护栏和一键回退），其余仍走人工确认；同时上线机理+数据混合模型，换新配方时先用机理模型圈定安全窗口，再让数据模型在窗口内寻优，调试周期明显缩短。第三年把质检、排产、维护、能耗四个智能体联起来算总账，并把整套方案做成模板复制到另外两个工厂，新厂只用两周小样本校准就达到老厂九成水平。",
+            kpis: [["综合良率", "91.2% → 96.5%"], ["参数调整响应", "45 分钟 → 8 分钟（受控自动）"], ["新配方调试周期", "12 天 → 4 天"], ["复制到新工厂周期", "约 3 个月 → 3 周 · 回收期约 11 个月"]]
+          },
+          quiz: [
+            { q: "推进受控闭环控制时，最关键的设计是什么？", opts: ["自动调参的比例越高越好，尽快实现全自动", "分级下发 + 安全护栏 + 随时可回退，先低风险参数试点", "先把人工岗位全部撤掉再上线"], a: 1, exp: "闭环拼的不是胆量是分寸：关闭/人工确认/受控自动三级分开，低风险先行、护栏和回退齐全，自动比例才敢慢慢放大。" },
+            { q: "模型上线三个月后准确率明显下滑，最优先排查什么？", opts: ["立刻换一个更大的模型", "数据分布是否漂移，并检查再训练与监控机制（MLOps）", "把报警阈值调松一点，眼不见为净"], a: 1, exp: "原料、设备、季节变化都会让数据漂移。没有漂移监控和再训练机制，换再大的模型也会重蹈覆辙——先查漂移，再谈换模型。" }
+          ]
+        }
+      ];
+
+      /* ================= home render ================= */
+      let curCat = "全部", curLv = "全部";
+      const done = {}; // in-memory only
+      const grid = $("#lessonGrid");
+
+      function renderFilters() {
+        const cf = $("#catFilters");
+        cf.querySelectorAll(".chip").forEach(n => n.remove());
+        CATS.forEach(c => {
+          const b = document.createElement("button");
+          b.className = "chip" + (c === curCat ? " on" : "");
+          b.textContent = c === "全部" ? "全部板块" : c;
+          b.onclick = () => { curCat = c; renderFilters(); renderGrid(); };
+          cf.appendChild(b);
+        });
+        const lf = $("#lvFilters");
+        lf.querySelectorAll(".chip").forEach(n => n.remove());
+        LEVELS.forEach(l => {
+          const b = document.createElement("button");
+          b.className = "chip lv" + (l === curLv ? " on" : "");
+          b.textContent = l === "全部" ? "全部阶段" : l;
+          b.onclick = () => { curLv = l; renderFilters(); renderGrid(); };
+          lf.appendChild(b);
+        });
+      }
+
+      function renderGrid() {
+        grid.innerHTML = "";
+        const list = LESSONS.filter(l => (curCat === "全部" || l.cat === curCat) && (curLv === "全部" || l.level === curLv));
+        if (!list.length) {
+          grid.innerHTML = '<div class="empty">这个组合下暂时没有课程，换个筛选试试。</div>';
+          return;
+        }
+        list.forEach(l => {
+          const card = document.createElement("button");
+          card.className = "card";
+          card.innerHTML =
+            '<div class="meta"><span class="pill cat">' + l.cat + '板块</span><span class="pill">' + l.level + '</span>' +
+            (done[l.id] ? '<span class="pill done">✓ 已学完</span>' : '') + '</div>' +
+            "<h3>" + l.title + "</h3>" +
+            '<p class="hook">' + l.hook + "</p>" +
+            '<div class="foot"><span>⏱ 约 ' + l.minutes + ' 分钟 · 含模拟实验</span><span class="go">开始学习 →</span></div>';
+          card.onclick = () => openLesson(l.id);
+          grid.appendChild(card);
+        });
+      }
+
+      function updateProgress() {
+        const n = Object.keys(done).filter(k => done[k]).length;
+        $("#pbarFill").style.width = (n / LESSONS.length * 100) + "%";
+        $("#pbarNote").textContent = "已完成 " + n + " / " + LESSONS.length + " 节" + (n === LESSONS.length ? " · 全部学完，🎉 你已经打通从基础到高级的完整链路！" : "");
+      }
+
+      /* ================= lesson view ================= */
+      let animTimers = [];
+      function clearAnims() { animTimers.forEach(t => { cancelAnimationFrame(t.raf); clearInterval(t.iv); clearTimeout(t.to); }); animTimers = []; }
+
+      function openLesson(id) {
+        const l = LESSONS.find(x => x.id === id);
+        if (!l) return;
+        clearAnims();
+        $("#homeView").style.display = "none";
+        $("#lessonView").style.display = "block";
+        window.scrollTo({ top: 0 });
+        const body = $("#lessonBody");
+        body.innerHTML =
+          '<div class="lhead"><div class="meta" style="display:flex;gap:7px;flex-wrap:wrap"><span class="pill cat">' + l.cat + '板块</span><span class="pill">' + l.level + '</span><span class="pill">⏱ 约 ' + l.minutes + ' 分钟</span></div>' +
+          "<h2>" + l.title + "</h2>" +
+          '<p class="analogy">先打个比方：<b>' + l.analogy + "</b></p></div>" +
+
+          '<div class="box"><h3><span class="n">1</span>通俗讲解</h3>' +
+          l.explain.map(p => "<p>" + p + "</p>").join("") +
+          '<div class="formula"><b>记住这几点：</b><ul>' + l.points.map(p => "<li>" + p + "</li>").join("") + "</ul></div></div>" +
+
+          '<div class="box"><h3><span class="n">2</span>动手模拟实验</h3><div id="demoMount"></div></div>' +
+
+          '<div class="cols"><div class="box"><h3><span class="n">3</span>模拟数据</h3><p style="font-weight:700">' + l.table.title + '</p><div class="tablewrap"><table><thead><tr>' +
+          l.table.head.map(h => "<th>" + h + "</th>").join("") + "</tr></thead><tbody>" +
+          l.table.rows.map(r => "<tr>" + r.map(c => "<td>" + c + "</td>").join("") + "</tr>").join("") +
+          "</tbody></table></div><p style='margin-top:10px;color:var(--ink2);font-size:13.5px'>" + l.table.note + "</p>" +
+          '<button class="btn dlbtn" id="dlCsv">⬇ 下载这份模拟数据 (CSV)</button></div>' +
+
+          '<div class="box"><h3><span class="n">4</span>制造业落地案例</h3><div class="casebox"><h4>' + l.caseStudy.title + "</h4><p>" + l.caseStudy.body + '</p><div class="kpis">' +
+          l.caseStudy.kpis.map(k => '<div class="kpi">' + k[0] + "<b>" + k[1] + "</b></div>").join("") + "</div></div></div></div>" +
+
+          '<div class="box"><h3><span class="n">5</span>随堂小测</h3><div id="quizMount"></div>' +
+          '<div class="finishrow"><button class="btn primary" id="finishBtn">' + (done[l.id] ? "已学完 ✓ 再点一次可取消" : "我学完了，标记完成") + '</button><span class="finishmsg" id="finishMsg">🎉 本节已计入学习进度</span></div></div>';
+
+        // quiz
+        const qm = $("#quizMount");
+        l.quiz.forEach((q, qi) => {
+          const div = document.createElement("div");
+          div.className = "q";
+          div.innerHTML = "<p>" + (qi + 1) + ". " + q.q + '</p><div class="opts"></div><div class="qexp">' + q.exp + "</div>";
+          const optsEl = div.querySelector(".opts");
+          q.opts.forEach((o, oi) => {
+            const b = document.createElement("button");
+            b.className = "opt";
+            b.textContent = "ABCD"[oi] + ". " + o;
+            b.onclick = () => {
+              optsEl.querySelectorAll(".opt").forEach(x => x.classList.remove("right", "wrong"));
+              b.classList.add(oi === q.a ? "right" : "wrong");
+              optsEl.children[q.a].classList.add("right");
+              div.querySelector(".qexp").classList.add("show");
+            };
+            optsEl.appendChild(b);
+          });
+          qm.appendChild(div);
+        });
+
+        // csv download
+        $("#dlCsv").onclick = () => {
+          const rows = [l.table.head].concat(l.table.rows).map(r => r.map(c => '"' + String(c).replace(/✅|❌/g, "").replace(/"/g, '""') + '"').join(",")).join("\n");
+          const blob = new Blob(["\ufeff" + rows], { type: "text/csv;charset=utf-8" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = l.id + "-模拟数据.csv";
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        };
+
+        // finish
+        $("#finishBtn").onclick = () => {
+          done[l.id] = !done[l.id];
+          $("#finishBtn").textContent = done[l.id] ? "已学完 ✓ 再点一次可取消" : "我学完了，标记完成";
+          $("#finishMsg").classList.toggle("show", !!done[l.id]);
+          updateProgress();
+        };
+        if (done[l.id]) $("#finishMsg").classList.add("show");
+
+        // demo
+        DEMOS[l.demo]($("#demoMount"));
+      }
+
+      $("#backBtn").onclick = () => {
+        clearAnims();
+        $("#lessonView").style.display = "none";
+        $("#homeView").style.display = "block";
+        renderGrid();
+        window.scrollTo({ top: 0 });
+      };
+
+      /* ================= DEMOS ================= */
+      const DEMOS = {};
+
+      function mountShell(mount, controlsHTML, noteText) {
+        mount.innerHTML =
+          '<div class="demo-controls">' + controlsHTML + "</div>" +
+          '<canvas class="demo"></canvas>' +
+          '<div class="readout"></div>' +
+          '<p class="demo-note">' + (noteText || "") + "</p>";
+        return { cv: mount.querySelector("canvas"), note: mount.querySelector(".demo-note"), ro: mount.querySelector(".readout") };
+      }
+      function setRO(roEl, items) {
+        roEl.innerHTML = items.map(i => '<div class="ro">' + i[0] + "<b>" + i[1] + "</b></div>").join("");
+      }
+
+      /* ---------- 1. sorting ---------- */
+      DEMOS.sort = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn primary" data-a="bubble">▶ 冒泡排序</button>' +
+          '<button class="btn primary" data-a="quick">▶ 快速排序</button>' +
+          '<button class="btn" data-a="shuffle">打乱数据</button>',
+          "柱子是 24 个零件的库存周转天数。点一种排序看它怎么归位——注意两种算法的步数差距。");
+        let data = [], steps = [], idx = 0, timer = null, comparisons = 0;
+        function shuffle() {
+          data = Array.from({ length: 24 }, () => randi(8, 98));
+          steps = []; idx = 0; comparisons = 0;
+          stop(); draw(null, new Set());
+          setRO(ro, [["当前状态", "乱序"], ["已比较次数", "0"]]);
+        }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+        function buildSteps(kind) {
+          const a = data.slice(), st = [];
+          const sorted = new Set();
+          if (kind === "bubble") {
+            for (let end = a.length - 1; end > 0; end--) {
+              for (let i = 0; i < end; i++) {
+                st.push({ a: a.slice(), cmp: [i, i + 1], sorted: new Set(sorted) });
+                if (a[i] > a[i + 1]) { const t = a[i]; a[i] = a[i + 1]; a[i + 1] = t; st.push({ a: a.slice(), cmp: [i, i + 1], sorted: new Set(sorted) }); }
+              }
+              sorted.add(end);
+            }
+          } else {
+            const qs = (lo, hi) => {
+              if (lo > hi) { if (lo === hi) sorted.add(lo); return; }
+              if (lo === hi) { sorted.add(lo); return; }
+              const pivot = a[hi]; let i = lo;
+              for (let j = lo; j < hi; j++) {
+                st.push({ a: a.slice(), cmp: [j, hi], sorted: new Set(sorted) });
+                if (a[j] < pivot) { const t = a[i]; a[i] = a[j]; a[j] = t; st.push({ a: a.slice(), cmp: [i, j], sorted: new Set(sorted) }); i++; }
+              }
+              const t = a[i]; a[i] = a[hi]; a[hi] = t;
+              sorted.add(i);
+              st.push({ a: a.slice(), cmp: [i, hi], sorted: new Set(sorted) });
+              qs(lo, i - 1); qs(i + 1, hi);
+            };
+            qs(0, a.length - 1);
+            for (let k = 0; k < a.length; k++) sorted.add(k);
+          }
+          st.push({ a: a.slice(), cmp: [], sorted: new Set(Array.from({ length: a.length }, (_, i) => i)) });
+          return st;
+        }
+        function draw(cmp, sortedSet) {
+          const { ctx, w } = setupCanvas(cv, 260); const c = colors();
+          const bw = w / data.length;
+          data.forEach((v, i) => {
+            const h = (v / 100) * 210;
+            ctx.fillStyle = sortedSet.has(i) ? c.good : (cmp && cmp.includes(i) ? c.accent : c.steel);
+            ctx.fillRect(i * bw + 3, 240 - h, bw - 6, h);
+            ctx.fillStyle = c.ink2; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
+            ctx.fillText(v, i * bw + bw / 2, 254);
+          });
+        }
+        function play(kind) {
+          stop(); steps = buildSteps(kind); idx = 0; comparisons = 0;
+          timer = setInterval(() => {
+            if (idx >= steps.length) {
+              stop(); data = steps.length ? steps[steps.length - 1].a : data; draw([], new Set(data.map((_, i) => i)));
+              setRO(ro, [["当前状态", "已排好序 ✓"], ["总比较次数", comparisons]]);
+              note.innerHTML = kind === "bubble"
+                ? "<b>冒泡排序</b>一步步把大值往后沉，24 条数据比较了 <b>" + comparisons + "</b> 次。数据量涨到 8000 时，这个数字会涨到约 3200 万次。"
+                : "<b>快速排序</b>靠分而治之，24 条数据只比较了 <b>" + comparisons + "</b> 次。排好序后，二分查找 8000 条数据最多只要 13 步。";
+              return;
+            }
+            const s = steps[idx++]; data = s.a; comparisons++;
+            draw(s.cmp, s.sorted);
+            setRO(ro, [["当前状态", "排序中…"], ["已比较次数", comparisons]]);
+          }, 30);
+          animTimers.push({ iv: timer });
+        }
+        mount.querySelector('[data-a="bubble"]').onclick = () => play("bubble");
+        mount.querySelector('[data-a="quick"]').onclick = () => play("quick");
+        mount.querySelector('[data-a="shuffle"]').onclick = shuffle;
+        shuffle();
+      };
+
+      /* ---------- 2. SPC control chart ---------- */
+      DEMOS.spc = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn primary" data-a="normal">生成：正常过程</button>' +
+          '<button class="btn warn" data-a="drift">注入异常：刀具磨损漂移</button>',
+          "控制限 = 均值 ± 3σ。正常波动在限内随机跳动；一旦越线或连续上行，就是过程在'喊疼'。");
+        const MU = 25.0, SIG = 0.006;
+        let pts = [];
+        function gen(drift) {
+          pts = [];
+          for (let i = 0; i < 36; i++) {
+            let v = MU + gauss() * SIG * 1.6;
+            if (drift && i >= 17) v += (i - 16) * 0.0016;
+            pts.push(v);
+          }
+          draw(drift);
+        }
+        function draw(drift) {
+          const { ctx, w } = setupCanvas(cv, 280); const c = colors();
+          const lo = MU - 4.5 * SIG, hi = MU + 4.5 * SIG;
+          const Y = v => 250 - (v - lo) / (hi - lo) * 220;
+          const X = i => 44 + i * (w - 60) / 35;
+          ctx.strokeStyle = c.line; ctx.fillStyle = c.ink2; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+          [MU + 3 * SIG, MU, MU - 3 * SIG].forEach(v => {
+            ctx.beginPath(); ctx.moveTo(40, Y(v)); ctx.lineTo(w - 12, Y(v));
+            ctx.strokeStyle = v === MU ? c.steel : c.bad; ctx.setLineDash(v === MU ? [] : [6, 4]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillText(fmt(v, 3), 38, Y(v) + 4);
+          });
+          ctx.fillStyle = c.bad; ctx.textAlign = "left";
+          ctx.fillText("上控制限 UCL", w - 108, Y(MU + 3 * SIG) - 7);
+          ctx.fillText("下控制限 LCL", w - 108, Y(MU - 3 * SIG) + 15);
+          ctx.fillStyle = c.steel; ctx.fillText("目标均值 25.000", w - 130, Y(MU) - 7);
+          ctx.beginPath();
+          pts.forEach((v, i) => { i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); });
+          ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.4; ctx.stroke(); ctx.lineWidth = 1;
+          let ooc = 0, runUp = 1, maxRun = 1;
+          pts.forEach((v, i) => {
+            if (i && v > pts[i - 1]) { runUp++; maxRun = Math.max(maxRun, runUp); } else runUp = 1;
+            const bad = v > MU + 3 * SIG || v < MU - 3 * SIG;
+            if (bad) ooc++;
+            ctx.beginPath(); ctx.arc(X(i), Y(v), bad ? 5 : 3.4, 0, 7);
+            ctx.fillStyle = bad ? c.bad : c.accent; ctx.fill();
+          });
+          const mean = pts.reduce((s, v) => s + v, 0) / pts.length;
+          setRO(ro, [["样本均值", fmt(mean, 3) + " mm"], ["越界点数", ooc + " 个"], ["最长连续上升", maxRun + " 点"]]);
+          note.innerHTML = drift
+            ? "第 18 件起刀具开始磨损，尺寸一路爬升，<b>" + ooc + " 个点越过上控制限</b>且出现长串上升趋势——SPC 在批量报废之前就报警了。"
+            : "点子在控制限内随机分布、无趋势——这就是<b>受控状态</b>：波动只是'体温的正常起伏'，不要乱调机，越调越乱（过度调整是新手最常见的错）。";
+        }
+        mount.querySelector('[data-a="normal"]').onclick = () => gen(false);
+        mount.querySelector('[data-a="drift"]').onclick = () => gen(true);
+        gen(false);
+      };
+
+      /* ---------- 3. greedy peak shaving ---------- */
+      DEMOS.greedy = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn" data-a="before">方案 A：全部 8 点开工</button>' +
+          '<button class="btn primary" data-a="greedy">方案 B：贪心错峰</button>',
+          "4 个可延后的活儿：注塑机组 800kW×6h、热处理炉 600kW×4h、空压机增开 450kW×5h、清洗线 300kW×3h。贪心逐个把它们塞进'电价最低且不超负荷上限'的时段。");
+        const price = h => h < 6 ? 0.32 : h < 8 ? 0.68 : h < 11 ? 1.15 : h < 13 ? 0.68 : h < 18 ? 0.92 : h < 21 ? 1.42 : 0.32;
+        const base = Array.from({ length: 24 }, (_, h) => 900 + 1500 * Math.exp(-Math.pow(h - 10, 2) / 18) + 1300 * Math.exp(-Math.pow(h - 19, 2) / 8) + rand(-60, 60));
+        const jobs = [
+          { name: "注塑机组", kw: 800, dur: 6 }, { name: "热处理炉", kw: 600, dur: 4 },
+          { name: "空压机增开", kw: 450, dur: 5 }, { name: "清洗线", kw: 300, dur: 3 }
+        ];
+        const CAP = 3300;
+        function schedule(greedyMode) {
+          const load = base.slice(), place = [];
+          jobs.forEach(j => {
+            let bestStart = 8, bestCost = Infinity;
+            const starts = greedyMode ? Array.from({ length: 24 - j.dur + 1 }, (_, i) => i) : [8];
+            starts.forEach(s => {
+              let cost = 0, ok = true;
+              for (let h = s; h < s + j.dur; h++) { cost += price(h) * j.kw; if (load[h] + j.kw > CAP && greedyMode) { ok = false; break; } }
+              if (ok && cost < bestCost) { bestCost = cost; bestStart = s; }
+            });
+            for (let h = bestStart; h < bestStart + j.dur; h++) load[h] += j.kw;
+            place.push({ name: j.name, start: bestStart, dur: j.dur });
+          });
+          const jobCost = jobs.reduce((s, j, i) => {
+            let cst = 0; for (let h = place[i].start; h < place[i].start + j.dur; h++) cst += price(h) * j.kw;
+            return s + cst;
+          }, 0);
+          return { load, place, jobCost };
+        }
+        function draw(mode) {
+          const r = schedule(mode === "greedy");
+          const { ctx, w } = setupCanvas(cv, 280); const c = colors();
+          const bw = (w - 50) / 24, maxV = 4200;
+          for (let h = 0; h < 24; h++) {
+            const x = 34 + h * bw;
+            const bh = base[h] / maxV * 200, jh = (r.load[h] - base[h]) / maxV * 200;
+            ctx.fillStyle = price(h) >= 1.15 ? c.bad : price(h) >= 0.9 ? c.gold : c.steel;
+            ctx.globalAlpha = 0.75; ctx.fillRect(x + 1, 236 - bh, bw - 2, bh); ctx.globalAlpha = 1;
+            if (jh > 0) { ctx.fillStyle = c.accent; ctx.fillRect(x + 1, 236 - bh - jh, bw - 2, jh); }
+            if (h % 3 === 0) { ctx.fillStyle = c.ink2; ctx.font = "10px sans-serif"; ctx.textAlign = "center"; ctx.fillText(h + ":00", x + bw / 2, 252); }
+          }
+          ctx.strokeStyle = c.bad; ctx.setLineDash([6, 4]);
+          ctx.beginPath(); ctx.moveTo(30, 236 - CAP / maxV * 200); ctx.lineTo(w - 8, 236 - CAP / maxV * 200); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle = c.bad; ctx.textAlign = "left"; ctx.font = "11px sans-serif";
+          ctx.fillText("负荷上限 " + CAP + " kW", 36, 236 - CAP / maxV * 200 - 6);
+          ctx.fillStyle = c.ink2; ctx.fillText("■ 基础负荷（红=尖峰价时段）", 36, 18); ctx.fillStyle = c.accent; ctx.fillText("■ 可延后工序", 260, 18);
+          const peak = Math.max.apply(null, r.load);
+          setRO(ro, [["全厂峰值负荷", Math.round(peak) + " kW"], ["这批活儿的电费", "¥" + Math.round(r.jobCost)], ["排布", r.place.map(p => p.name + " " + p.start + "点").join(" · ")]]);
+          note.innerHTML = mode === "greedy"
+            ? "贪心把活儿逐个塞进谷段和午间平段：<b>峰值从超限压回上限以内</b>，同一批活儿电费明显下降——规则简单到班组长手算就能执行。"
+            : "全部 8 点开工：基础负荷叠上 4 个活儿，<b>峰值冲破上限</b>，不但要交高额需量电费，还可能被限电。点一下方案 B 看贪心怎么拆。";
+        }
+        mount.querySelector('[data-a="before"]').onclick = () => draw("before");
+        mount.querySelector('[data-a="greedy"]').onclick = () => draw("greedy");
+        draw("before");
+      };
+
+      /* ---------- 4. regression ---------- */
+      DEMOS.regression = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<label>设定料筒温度 <input type="range" min="220" max="262" value="244" data-r="temp"> <b class="mono" data-r="tv">244℃</b></label>' +
+          '<button class="btn" data-a="regen">换一批数据</button>',
+          "每批数据都由'温度→良率'的真实规律加随机噪声生成。调温度滑杆，看模型预测的良率怎么走。");
+        let pts = [], fit = null, tempSet = 244;
+        function gen() {
+          pts = [];
+          for (let i = 0; i < 42; i++) {
+            const x = rand(221, 261);
+            const y = Math.min(98.5, 58 + 0.155 * (x - 220) - 0.0035 * Math.pow(Math.max(0, x - 250), 2) + gauss() * 1.5);
+            pts.push([x, y]);
+          }
+          const n = pts.length, mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+          let sxy = 0, sxx = 0, syy = 0;
+          pts.forEach(p => { sxy += (p[0] - mx) * (p[1] - my); sxx += Math.pow(p[0] - mx, 2); syy += Math.pow(p[1] - my, 2); });
+          const b = sxy / sxx, a = my - b * mx;
+          fit = { a, b, r2: Math.pow(sxy / Math.sqrt(sxx * syy), 2) };
+          draw();
+        }
+        function draw() {
+          const { ctx, w } = setupCanvas(cv, 280); const c = colors();
+          const X = v => 46 + (v - 218) / 46 * (w - 66), Y = v => 244 - (v - 52) / 48 * 204;
+          ctx.strokeStyle = c.line; ctx.strokeRect(46, 40, w - 66, 204);
+          ctx.fillStyle = c.ink2; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("料筒温度 (℃)", w / 2, 266);
+          ctx.save(); ctx.translate(13, 142); ctx.rotate(-Math.PI / 2); ctx.fillText("良率 (%)", 0, 0); ctx.restore();
+          pts.forEach(p => { ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 3.6, 0, 7); ctx.fillStyle = c.steel; ctx.globalAlpha = .75; ctx.fill(); ctx.globalAlpha = 1; });
+          ctx.beginPath(); ctx.moveTo(X(220), Y(fit.a + fit.b * 220)); ctx.lineTo(X(262), Y(fit.a + fit.b * 262));
+          ctx.strokeStyle = c.accent; ctx.lineWidth = 2.4; ctx.stroke(); ctx.lineWidth = 1;
+          const pred = fit.a + fit.b * tempSet;
+          ctx.strokeStyle = c.bad; ctx.setLineDash([5, 4]);
+          ctx.beginPath(); ctx.moveTo(X(tempSet), Y(52)); ctx.lineTo(X(tempSet), Y(pred)); ctx.lineTo(X(218), Y(pred)); ctx.stroke(); ctx.setLineDash([]);
+          ctx.beginPath(); ctx.arc(X(tempSet), Y(pred), 5.5, 0, 7); ctx.fillStyle = c.bad; ctx.fill();
+          setRO(ro, [["回归方程", "良率 = " + fmt(fit.a, 1) + " + " + fmt(fit.b, 3) + " × 温度"], ["R²", fmt(fit.r2, 2)], [tempSet + "℃ 预测良率", fmt(pred, 1) + "%"]]);
+          note.innerHTML = "斜率 <b>" + fmt(fit.b, 3) + "</b> 的含义：温度每升高 1℃，良率平均提高约 " + fmt(fit.b, 2) + " 个百分点（在当前数据范围内）。注意 250℃ 后数据开始回落——真实工艺有最佳窗口，线性模型只在拟合区间内可信。";
+        }
+        const slider = mount.querySelector('[data-r="temp"]');
+        slider.oninput = () => { tempSet = +slider.value; mount.querySelector('[data-r="tv"]').textContent = tempSet + "℃"; draw(); };
+        mount.querySelector('[data-a="regen"]').onclick = gen;
+        gen();
+      };
+
+      /* ---------- 5. decision tree ---------- */
+      DEMOS.tree = function (mount) {
+        mount.innerHTML =
+          '<p style="margin:0 0 6px;font-size:14.5px">场景：注塑机无报警停机。跟着决策树一步步回答问题，看它怎么定位故障。点答案往下走：</p>' +
+          '<div class="readout" data-r="path"></div><div data-r="stage" style="margin-top:14px"></div>';
+        const N = {
+          q1: { q: "① 液压油温是否超过 75℃？", yes: "q2", no: "q4" },
+          q2: { q: "② 系统压力是否低于 12MPa？", yes: "leaf_pump", no: "q3" },
+          q3: { q: "③ 冷却水流量是否正常？", yes: "leaf_oil", no: "leaf_cooler" },
+          q4: { q: "② 伺服电机电流波动是否超过 15%？", yes: "leaf_servo", no: "q5" },
+          q5: { q: "③ 滤芯使用是否已超过 90 天？", yes: "leaf_filter", no: "leaf_watch" },
+          leaf_pump: { leaf: "液压泵磨损 / 内泄", act: "停机检查液压泵容积效率，更换密封件，复测压力。" },
+          leaf_oil: { leaf: "油液劣化或溢流阀持续发热", act: "化验油液清洁度与黏度，检查溢流阀设定，必要时换油。" },
+          leaf_cooler: { leaf: "冷却器堵塞或冷却水泵故障", act: "清洗冷却器水路，检查水泵扬程与阀门开度。" },
+          leaf_servo: { leaf: "伺服驱动器或编码器异常", act: "调取驱动报警历史，检查编码器线缆与接地，备件替换验证。" },
+          leaf_filter: { leaf: "液压滤芯堵塞", act: "更换滤芯并记录压差，纳入 90 天周期点检。" },
+          leaf_watch: { leaf: "未见典型异常", act: "恢复运行并加密巡检频次，同步采集振动频谱待进一步分析。" }
+        };
+        let cur = "q1", path = [];
+        const stage = mount.querySelector('[data-r="stage"]'), pathEl = mount.querySelector('[data-r="path"]');
+        function render() {
+          pathEl.innerHTML = path.map(p => '<div class="ro">' + p + "</div>").join("") || '<div class="ro">诊断路径会显示在这里</div>';
+          const n = N[cur];
+          if (n.leaf) {
+            stage.innerHTML = '<div class="casebox" style="margin-top:0"><h4>🎯 定位结论：' + n.leaf + "</h4><p>" + n.act + '</p></div>' +
+              '<button class="btn primary" data-a="restart" style="margin-top:12px">↺ 再诊一次</button>';
+          } else {
+            stage.innerHTML = '<p style="font-weight:700;font-size:16px;margin:4px 0 12px">' + n.q + "</p>" +
+              '<div style="display:flex;gap:10px"><button class="btn primary" data-a="yes">是</button><button class="btn" data-a="no">否</button></div>';
+          }
+          const y = stage.querySelector('[data-a="yes"]'), nn = stage.querySelector('[data-a="no"]'), rs = stage.querySelector('[data-a="restart"]');
+          if (y) y.onclick = () => { path.push(N[cur].q.replace(/^[①②③]\s*/, "") + " → 是"); cur = N[cur].yes; render(); };
+          if (nn) nn.onclick = () => { path.push(N[cur].q.replace(/^[①②③]\s*/, "") + " → 否"); cur = N[cur].no; render(); };
+          if (rs) rs.onclick = () => { cur = "q1"; path = []; render(); };
+        }
+        render();
+      };
+
+      /* ---------- 6. k-means ---------- */
+      DEMOS.kmeans = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<label>簇数 K <select data-r="k"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>' +
+          '<button class="btn primary" data-a="step">单步迭代</button>' +
+          '<button class="btn" data-a="auto">自动跑完</button>' +
+          '<button class="btn" data-a="regen">换一批缺陷数据</button>',
+          "每个点 = 一条缺陷记录（横轴：发生时段对应的模温偏差，纵轴：压力偏差）。× 是簇中心。反复点'单步迭代'，看点如何'投靠'最近的中心、中心又如何移动。");
+        let pts = [], centers = [], assign = [], iter = 0, timer = null;
+        const PALETTE = ["#e07b1f", "#31597a", "#1e8a4c", "#c93a2e", "#b8860b"];
+        function gen() {
+          pts = [];
+          const blobs = [[0.28, 0.3], [0.68, 0.62], [0.45, 0.8], [0.8, 0.25]];
+          const nb = randi(3, 4);
+          for (let b = 0; b < nb; b++) for (let i = 0; i < 34; i++)
+            pts.push([Math.min(0.98, Math.max(0.02, blobs[b][0] + gauss() * 0.09)), Math.min(0.98, Math.max(0.02, blobs[b][1] + gauss() * 0.09))]);
+          reset();
+        }
+        function reset() {
+          const K = +mount.querySelector('[data-r="k"]').value;
+          centers = []; iter = 0;
+          const used = new Set();
+          while (centers.length < K) { const i = randi(0, pts.length - 1); if (!used.has(i)) { used.add(i); centers.push(pts[i].slice()); } }
+          assign = pts.map(() => -1);
+          if (timer) { clearInterval(timer); timer = null; }
+          draw(); setRO(ro, [["迭代次数", "0"], ["簇内误差 SSE", "—"]]);
+          note.innerHTML = "已随机撒下 <b>" + K + " 个中心</b>。点'单步迭代'开始第一次投靠。";
+        }
+        function step() {
+          let moved = 0;
+          assign = pts.map(p => { let bi = 0, bd = 1e9; centers.forEach((c, i) => { const d = Math.pow(p[0] - c[0], 2) + Math.pow(p[1] - c[1], 2); if (d < bd) { bd = d; bi = i; } }); return bi; });
+          centers = centers.map((c, i) => {
+            const mem = pts.filter((_, j) => assign[j] === i);
+            if (!mem.length) return c;
+            const nc = [mem.reduce((s, p) => s + p[0], 0) / mem.length, mem.reduce((s, p) => s + p[1], 0) / mem.length];
+            moved += Math.abs(nc[0] - c[0]) + Math.abs(nc[1] - c[1]);
+            return nc;
+          });
+          iter++;
+          const sse = pts.reduce((s, p, j) => s + Math.pow(p[0] - centers[assign[j]][0], 2) + Math.pow(p[1] - centers[assign[j]][1], 2), 0);
+          draw(); setRO(ro, [["迭代次数", iter], ["簇内误差 SSE", fmt(sse, 3)], ["中心移动量", fmt(moved, 3)]]);
+          note.innerHTML = moved < 0.005
+            ? "中心几乎不再移动——<b>收敛了</b>。现在回看每个簇的业务含义：它们是不是分别对应'夜班低温''某号模具'？聚类给方向，根因靠人确认。"
+            : "第 " + iter + " 次迭代：点重新投靠、中心跟着人群挪。误差 SSE 在下降，说明簇越来越'紧实'。";
+          return moved;
+        }
+        function draw() {
+          const { ctx, w } = setupCanvas(cv, 300); const c = colors();
+          ctx.strokeStyle = c.line; ctx.strokeRect(30, 14, w - 44, 252);
+          ctx.fillStyle = c.ink2; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("模温偏差 →", w / 2, 288);
+          const X = v => 30 + v * (w - 44), Y = v => 266 - v * 252;
+          pts.forEach((p, i) => {
+            ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 4, 0, 7);
+            ctx.fillStyle = assign[i] < 0 ? c.ink2 : PALETTE[assign[i] % PALETTE.length]; ctx.fill();
+          });
+          centers.forEach((cn, i) => {
+            ctx.strokeStyle = PALETTE[i % PALETTE.length]; ctx.lineWidth = 3;
+            const x = X(cn[0]), y = Y(cn[1]);
+            ctx.beginPath(); ctx.moveTo(x - 8, y - 8); ctx.lineTo(x + 8, y + 8); ctx.moveTo(x + 8, y - 8); ctx.lineTo(x - 8, y + 8); ctx.stroke(); ctx.lineWidth = 1;
+          });
+        }
+        mount.querySelector('[data-a="step"]').onclick = () => step();
+        mount.querySelector('[data-a="regen"]').onclick = gen;
+        mount.querySelector('[data-r="k"]').onchange = reset;
+        mount.querySelector('[data-a="auto"]').onclick = () => {
+          if (timer) return;
+          timer = setInterval(() => { if (step() < 0.005) { clearInterval(timer); timer = null; } }, 550);
+          animTimers.push({ iv: timer });
+        };
+        gen();
+      };
+
+      /* ---------- 7. dynamic programming ---------- */
+      DEMOS.dp = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<label>可用机时 <input type="range" min="10" max="30" value="24" data-r="cap"> <b class="mono" data-r="cv">24 小时</b></label>',
+          "表格每一格 = '考虑到第 i 个订单、可用 j 小时'时的最高利润。拖动机时滑杆，看 DP 填出的最优解怎么变——这是贪心给不了的全局最优保证。");
+        const orders = [
+          { n: "O1 支架", h: 6, p: 5.2 }, { n: "O2 泵体", h: 10, p: 8.0 },
+          { n: "O3 法兰", h: 8, p: 5.6 }, { n: "O4 阀体", h: 12, p: 10.8 },
+          { n: "O5 箱盖", h: 14, p: 11.2 }, { n: "O6 齿轮", h: 9, p: 8.1 }
+        ];
+        function solve(cap) {
+          const dp = [Array(cap + 1).fill(0)];
+          orders.forEach(o => {
+            const prev = dp[dp.length - 1], row = [];
+            for (let j = 0; j <= cap; j++) row.push(j >= o.h ? Math.max(prev[j], prev[j - o.h] + o.p) : prev[j]);
+            dp.push(row);
+          });
+          const chosen = []; let j = cap;
+          for (let i = orders.length; i >= 1; i--) if (dp[i][j] !== dp[i - 1][j]) { chosen.push(i - 1); j -= orders[i - 1].h; }
+          return { dp, chosen: chosen.reverse(), cap };
+        }
+        function draw(cap) {
+          const r = solve(cap);
+          const { ctx, w } = setupCanvas(cv, 250); const c = colors();
+          const cols = cap + 1, rows = orders.length + 1;
+          const cw = (w - 86) / cols, chh = 30;
+          ctx.font = "10px sans-serif"; ctx.textAlign = "center";
+          for (let i = 0; i < rows; i++) {
+            ctx.fillStyle = c.ink2; ctx.textAlign = "left";
+            ctx.fillText(i === 0 ? "不接单" : orders[i - 1].n, 4, 30 + i * chh + chh / 2 + 3);
+            ctx.textAlign = "center";
+            for (let j = 0; j < cols; j++) {
+              const x = 84 + j * cw, y = 30 + i * chh;
+              const inPath = r.chosen.includes(i - 1) && i > 0;
+              ctx.fillStyle = inPath ? c.accentSoft || c.panel2 : c.panel2;
+              ctx.fillStyle = (i === rows - 1 && j === cap) ? c.accent : (inPath ? "#fdeed9" : c.panel2);
+              if (document.documentElement.classList.contains("dark")) ctx.fillStyle = c.panel2;
+              ctx.fillRect(x + 0.5, y + 0.5, cw - 1, chh - 1);
+              ctx.fillStyle = (i === rows - 1 && j === cap) ? "#fff" : c.ink;
+              ctx.fillText(fmt(r.dp[i][j], 1), x + cw / 2, y + chh / 2 + 3);
+            }
+          }
+          ctx.fillStyle = c.ink2; ctx.textAlign = "center";
+          for (let j = 0; j < cols; j += 2) ctx.fillText(j + "h", 84 + j * cw + cw / 2, 20);
+          const usedH = r.chosen.reduce((s, i) => s + orders[i].h, 0);
+          setRO(ro, [["最优总利润", fmt(r.dp[orders.length][cap], 1) + " 万元"], ["接单组合", r.chosen.map(i => orders[i].n).join(" + ") || "无"], ["占用机时", usedH + " / " + cap + " 小时"]]);
+          note.innerHTML = "右下角的 <b>" + fmt(r.dp[orders.length][cap], 1) + "</b> 就是答案：它由左上方一格格子问题的答案逐层拼出。试着把机时拖到 30 或 14，看最优组合如何整体换人——这正是'全局最优'和'先来先得'的区别。";
+        }
+        const sl = mount.querySelector('[data-r="cap"]');
+        sl.oninput = () => { mount.querySelector('[data-r="cv"]').textContent = sl.value + " 小时"; draw(+sl.value); };
+        draw(24);
+      };
+
+      /* ---------- 8. genetic algorithm ---------- */
+      DEMOS.ga = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn primary" data-a="run">▶ 开始进化</button>' +
+          '<button class="btn" data-a="reset">重置种群</button>',
+          "8 个工件在 3 台机床上流水加工，染色体 = 加工顺序。每一代：选优 → 交叉 → 变异，看完工时间怎么被'进化'压下来。");
+        const T = [
+          [4, 3, 5], [2, 6, 3], [5, 2, 4], [3, 4, 2], [6, 3, 3], [2, 5, 6], [4, 4, 2], [3, 2, 5]
+        ];
+        function makespan(seq) {
+          const c = [0, 0, 0];
+          seq.forEach(j => { let prev = 0; for (let m = 0; m < 3; m++) { c[m] = Math.max(c[m], prev) + T[j][m]; prev = c[m]; } });
+          return c[2];
+        }
+        const MANUAL = makespan([0, 1, 2, 3, 4, 5, 6, 7]);
+        let pop = [], genN = 0, hist = [], timer = null, bestSeq = null;
+        function randomSeq() { const s = [0, 1, 2, 3, 4, 5, 6, 7]; for (let i = 7; i > 0; i--) { const j = randi(0, i); const t = s[i]; s[i] = s[j]; s[j] = t; } return s; }
+        function reset() {
+          pop = Array.from({ length: 40 }, randomSeq); genN = 0; hist = [];
+          if (timer) { clearInterval(timer); timer = null; }
+          evolve(true); draw();
+        }
+        function evolve(first) {
+          pop.sort((a, b) => makespan(a) - makespan(b));
+          bestSeq = pop[0].slice();
+          hist.push(makespan(pop[0]));
+          if (first) return;
+          const next = pop.slice(0, 6);
+          while (next.length < 40) {
+            const p1 = pop[randi(0, 12)], p2 = pop[randi(0, 12)];
+            const cut = randi(2, 5);
+            let child = p1.slice(0, cut);
+            p2.forEach(g => { if (!child.includes(g)) child.push(g); });
+            if (Math.random() < 0.25) { const i = randi(0, 7), j = randi(0, 7); const t = child[i]; child[i] = child[j]; child[j] = t; }
+            next.push(child);
+          }
+          pop = next; genN++;
+        }
+        function draw() {
+          const { ctx, w } = setupCanvas(cv, 260); const c = colors();
+          ctx.strokeStyle = c.line; ctx.strokeRect(44, 16, w - 60, 190);
+          const maxY = Math.max.apply(null, hist.concat([MANUAL])) * 1.08, minY = Math.min.apply(null, hist) * 0.9;
+          const X = i => 44 + i / Math.max(60, hist.length) * (w - 60), Y = v => 206 - (v - minY) / (maxY - minY) * 190;
+          ctx.strokeStyle = c.bad; ctx.setLineDash([6, 4]);
+          ctx.beginPath(); ctx.moveTo(44, Y(MANUAL)); ctx.lineTo(w - 16, Y(MANUAL)); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle = c.bad; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+          ctx.fillText("人工排产 " + MANUAL + "h", 48, Y(MANUAL) - 6);
+          ctx.beginPath();
+          hist.forEach((v, i) => { i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); });
+          ctx.strokeStyle = c.accent; ctx.lineWidth = 2.4; ctx.stroke(); ctx.lineWidth = 1;
+          ctx.fillStyle = c.ink2; ctx.fillText("最优完工时间 (h)", 48, 30);
+          const best = hist[hist.length - 1];
+          setRO(ro, [["进化代数", genN], ["当前最优完工", best + " 小时"], ["比人工排产", (best < MANUAL ? "快 " + (MANUAL - best) + " 小时 🎉" : "还在进化中")], ["最优顺序", bestSeq.map(i => "J" + (i + 1)).join("→")]]);
+          note.innerHTML = genN === 0
+            ? "初始种群全是随机顺序，最优完工时间 <b>" + best + " 小时</b>，还不如老师傅。点'开始进化'看它反超。"
+            : "第 " + genN + " 代最优 <b>" + best + " 小时</b>。" + (best < MANUAL ? "已经反超人工排产（" + MANUAL + " 小时）——优良的'顺序片段'在种群里传播开来，这就是交叉的力量。" : "优秀基因正在传播，继续跑几代看看。");
+        }
+        mount.querySelector('[data-a="run"]').onclick = (e) => {
+          if (timer) { clearInterval(timer); timer = null; e.target.textContent = "▶ 继续进化"; return; }
+          e.target.textContent = "⏸ 暂停";
+          timer = setInterval(() => { for (let k = 0; k < 3; k++) evolve(false); draw(); if (genN >= 90) { clearInterval(timer); timer = null; e.target.textContent = "▶ 开始进化"; } }, 120);
+          animTimers.push({ iv: timer });
+        };
+        mount.querySelector('[data-a="reset"]').onclick = reset;
+        reset();
+      };
+
+      /* ---------- 9. neural network ---------- */
+      DEMOS.nn = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<label>表面亮度差 <input type="range" min="0" max="100" value="30" data-r="f0"></label>' +
+          '<label>划痕长度 <input type="range" min="0" max="100" value="20" data-r="f1"></label>' +
+          '<label>凹坑深度 <input type="range" min="0" max="100" value="15" data-r="f2"></label>',
+          "拖动三个特征，看信号怎样流过隐藏层、最后汇成一个'缺陷概率'。权重是离线用 2 万张标注照片训练好的，这里只做演示推断。");
+        const W1 = [[1.4, -0.6, 0.9, 0.3], [0.8, 1.7, -0.4, 1.1], [1.9, 0.5, 1.2, -0.7]];
+        const B1 = [-0.9, -1.2, -0.7, -0.5];
+        const W2 = [1.6, 1.3, 1.5, 0.9], B2 = -1.6;
+        const sig = x => 1 / (1 + Math.exp(-x));
+        const relu = x => Math.max(0, x);
+        function forward(f) {
+          const h = W1[0].map((_, j) => relu(f[0] * W1[0][j] + f[1] * W1[1][j] + f[2] * W1[2][j] + B1[j]));
+          const out = sig(h.reduce((s, v, j) => s + v * W2[j], 0) + B2);
+          return { h, out };
+        }
+        function draw() {
+          const f = [0, 1, 2].map(i => +mount.querySelector('[data-r="f' + i + '"]').value / 100);
+          const { h, out } = forward(f);
+          const { ctx, w } = setupCanvas(cv, 280); const c = colors();
+          const layers = [{ x: w * 0.16, vals: f, labels: ["亮度差", "划痕", "凹坑"] }, { x: w * 0.52, vals: h.map(v => Math.min(1, v)), labels: ["特征1", "特征2", "特征3", "特征4"] }, { x: w * 0.86, vals: [out], labels: ["缺陷概率"] }];
+          const Ys = n => Array.from({ length: n }, (_, i) => 150 + (i - (n - 1) / 2) * 62);
+          for (let l = 0; l < 2; l++) {
+            const A = layers[l], B = layers[l + 1], ya = Ys(A.vals.length), yb = Ys(B.vals.length);
+            A.vals.forEach((_, i) => B.vals.forEach((_, j) => {
+              const wgt = l === 0 ? W1[i][j] : W2[j];
+              ctx.strokeStyle = wgt > 0 ? c.accent : c.steel; ctx.globalAlpha = 0.18 + Math.min(0.6, Math.abs(wgt) / 3);
+              ctx.lineWidth = 1 + Math.abs(wgt); ctx.beginPath(); ctx.moveTo(A.x, ya[i]); ctx.lineTo(B.x, yb[j]); ctx.stroke();
+            }));
+          }
+          ctx.globalAlpha = 1; ctx.lineWidth = 1;
+          layers.forEach((L, li) => {
+            const ys = Ys(L.vals.length);
+            L.vals.forEach((v, i) => {
+              ctx.beginPath(); ctx.arc(L.x, ys[i], li === 2 ? 30 : 21, 0, 7);
+              ctx.fillStyle = li === 2 ? (out > 0.5 ? c.bad : c.good) : c.panel; ctx.fill();
+              ctx.strokeStyle = c.ink2; ctx.stroke();
+              ctx.beginPath(); ctx.arc(L.x, ys[i], (li === 2 ? 30 : 21) * Math.max(0.12, v), 0, 7);
+              ctx.fillStyle = li === 2 ? "#fff" : c.accent; ctx.globalAlpha = li === 2 ? 0.92 : 0.75; ctx.fill(); ctx.globalAlpha = 1;
+              ctx.fillStyle = c.ink2; ctx.font = "11.5px sans-serif"; ctx.textAlign = "center";
+              ctx.fillText(L.labels[i], L.x, ys[i] + (li === 2 ? 52 : 40));
+              if (li === 2) { ctx.fillStyle = "#fff"; ctx.font = "bold 15px sans-serif"; ctx.fillText(Math.round(out * 100) + "%", L.x, ys[i] + 5); }
+            });
+          });
+          ctx.fillStyle = c.ink2; ctx.font = "12px sans-serif";
+          ctx.fillText("输入层（传感器特征）", layers[0].x, 26); ctx.fillText("隐藏层（自动提取特征）", layers[1].x, 26); ctx.fillText("输出层", layers[2].x, 26);
+          const verdict = out > 0.65 ? "判定：缺陷件，自动剔除" : out > 0.4 ? "判定：存疑，分流人工复检" : "判定：合格，放行";
+          setRO(ro, [["缺陷概率", Math.round(out * 100) + "%"], ["结论", verdict]]);
+          note.innerHTML = "注意：你全程<b>没有写过一条判断规则</b>——'划痕多长算坏'这类知识全藏在权重数字里，是训练数据一点点'教'出来的。这既是它的强大之处，也是它黑盒难解释的原因。";
+        }
+        [0, 1, 2].forEach(i => { mount.querySelector('[data-r="f' + i + '"]').oninput = draw; });
+        draw();
+      };
+
+      /* ---------- 10. reinforcement learning (AGV grid) ---------- */
+      DEMOS.rl = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn primary" data-a="train">▶ 训练 2000 趟</button>' +
+          '<button class="btn" data-a="reset">重置经验</button>',
+          "6×6 车间网格：左下是上料点，右上是卸货点，灰格是货架。AGV 每走一步 -1 分，撞墙 -5 分，按时到达 +20 分。它不知道地图，全靠试错攒经验（Q 表）。");
+        const N = 6, OBS = new Set(["2,1", "2,2", "2,3", "3,3", "1,4", "4,1"]);
+        const START = [0, 5], GOAL = [5, 0];
+        let Q = {}, episodes = 0, recent = [];
+        const key = (x, y, a) => x + "," + y + "," + a;
+        function qv(x, y, a) { return Q[key(x, y, a)] || 0; }
+        function bestA(x, y) { let ba = 0, bv = -1e9; for (let a = 0; a < 4; a++) if (qv(x, y, a) > bv) { bv = qv(x, y, a); ba = a; } return ba; }
+        function stepEnv(x, y, a) {
+          const dx = [0, 1, 0, -1][a], dy = [-1, 0, 1, 0][a];
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= N || ny >= N || OBS.has(nx + "," + ny)) return [x, y, -5, false];
+          if (nx === GOAL[0] && ny === GOAL[1]) return [nx, ny, 20, true];
+          return [nx, ny, -1, false];
+        }
+        function episode() {
+          let x = START[0], y = START[1], steps = 0;
+          const eps = Math.max(0.06, 0.5 - episodes / 4000);
+          while (steps < 120) {
+            const a = Math.random() < eps ? randi(0, 3) : bestA(x, y);
+            const r = stepEnv(x, y, a);
+            const maxNext = Math.max.apply(null, [0, 1, 2, 3].map(aa => qv(r[0], r[1], aa)));
+            Q[key(x, y, a)] = qv(x, y, a) + 0.25 * (r[2] + 0.92 * (r[3] ? 0 : maxNext) - qv(x, y, a));
+            x = r[0]; y = r[1]; steps++;
+            if (r[3]) break;
+          }
+          episodes++; recent.push(steps); if (recent.length > 100) recent.shift();
+        }
+        function greedyPath() {
+          const path = [[START[0], START[1]]]; let x = START[0], y = START[1];
+          for (let i = 0; i < 30; i++) {
+            if (x === GOAL[0] && y === GOAL[1]) break;
+            const r = stepEnv(x, y, bestA(x, y));
+            if (r[0] === x && r[1] === y) break;
+            x = r[0]; y = r[1]; path.push([x, y]);
+          }
+          return path;
+        }
+        function draw() {
+          const { ctx, w } = setupCanvas(cv, 320); const c = colors();
+          const cell = Math.min(52, (w - 30) / N), ox = (w - cell * N) / 2, oy = 8;
+          let maxQ = 0.001;
+          for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) maxQ = Math.max(maxQ, qv(x, y, bestA(x, y)));
+          for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
+            const px = ox + x * cell, py = oy + y * cell;
+            if (OBS.has(x + "," + y)) { ctx.fillStyle = c.ink2; ctx.fillRect(px + 1, py + 1, cell - 2, cell - 2); }
+            else {
+              const v = Math.max(0, qv(x, y, bestA(x, y))) / maxQ;
+              ctx.fillStyle = c.panel2; ctx.fillRect(px + 1, py + 1, cell - 2, cell - 2);
+              ctx.fillStyle = c.good; ctx.globalAlpha = v * 0.45; ctx.fillRect(px + 1, py + 1, cell - 2, cell - 2); ctx.globalAlpha = 1;
+            }
+            ctx.strokeStyle = c.line; ctx.strokeRect(px + 1, py + 1, cell - 2, cell - 2);
+          }
+          ctx.fillStyle = c.good; ctx.fillRect(ox + GOAL[0] * cell + 1, oy + GOAL[1] * cell + 1, cell - 2, cell - 2);
+          ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+          ctx.fillText("卸货", ox + GOAL[0] * cell + cell / 2, oy + GOAL[1] * cell + cell / 2 + 4);
+          const path = greedyPath();
+          ctx.strokeStyle = c.accent; ctx.lineWidth = 3.4; ctx.beginPath();
+          path.forEach((p, i) => { const cx = ox + p[0] * cell + cell / 2, cy = oy + p[1] * cell + cell / 2; i ? ctx.lineTo(cx, cy) : ctx.moveTo(cx, cy); });
+          ctx.stroke(); ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(ox + START[0] * cell + cell / 2, oy + START[1] * cell + cell / 2, 9, 0, 7); ctx.fillStyle = c.accent; ctx.fill();
+          ctx.fillStyle = "#fff"; ctx.font = "bold 10px sans-serif"; ctx.fillText("车", ox + START[0] * cell + cell / 2, oy + START[1] * cell + cell / 2 + 3.5);
+          const avg = recent.length ? recent.reduce((s, v) => s + v, 0) / recent.length : 0;
+          const reached = path[path.length - 1][0] === GOAL[0] && path[path.length - 1][1] === GOAL[1];
+          setRO(ro, [["已训练趟数", episodes], ["最近百趟平均步数", recent.length ? fmt(avg, 1) : "—"], ["当前最优路线", reached ? (path.length - 1) + " 步到达" : "还没找到路"]]);
+          note.innerHTML = episodes === 0
+            ? "还没训练：AGV 只会乱撞，绿色经验值全空。点'训练 2000 趟'——在仿真里它几秒钟就能跑完。"
+            : reached
+              ? "训练后它找到了一条 <b>" + (path.length - 1) + " 步</b>的路线（理论最短 10 步），绿色越深的格子它越'有把握'。真实上线前还会加安全规则兜底，经验只负责效率。"
+              : "还在摸索中，继续训练——它离找到稳定路线不远了。";
+        }
+        mount.querySelector('[data-a="train"]').onclick = () => { for (let i = 0; i < 2000; i++) episode(); draw(); };
+        mount.querySelector('[data-a="reset"]').onclick = () => { Q = {}; episodes = 0; recent = []; draw(); };
+        draw();
+      };
+
+      /* ---------- 11. outlook roadmap ---------- */
+      DEMOS.outlook = function (mount) {
+        const { cv, note, ro } = mountShell(mount,
+          '<button class="btn" data-a="now">① 现状：只会报警</button>' +
+          '<button class="btn primary" data-a="y1">② 第一年：先补地基</button>' +
+          '<button class="btn primary" data-a="y3">③ 第三年：闭环 + 协同 + 复制</button>',
+          "六个方向的成熟度（课堂模拟评估，满分 100）。依次点三个阶段，看一家工厂的升级顺序——注意第一年涨得最快的不是最炫的闭环，而是数据治理和持续运维这两块地基。");
+        const labels = ["受控闭环", "混合建模", "小样本·治理", "多智能体", "可靠·运维", "规模复制"];
+        const stages = {
+          now: { vals: [35, 40, 30, 20, 28, 22], label: "现状", yield: "91.2%", payback: "—", msg: "<b>现状画像：</b>模型能检测、能报警，但调参靠人、换工况就漂、上线后无人运维。综合成熟度只有 <b>29 分</b>——这不是算法不行，是地基和运维没跟上。" },
+          y1: { vals: [48, 52, 62, 30, 60, 34], label: "第一年", yield: "93.8%", payback: "开始回本", msg: "<b>第一年先补地基：</b>数据治理 30→62、持续运维 28→60 涨幅最大；闭环只在低风险参数上小步试点。综合成熟度 <b>48 分</b>，良率先涨 2.6 个点——钱花在刀刃上。" },
+          y3: { vals: [85, 88, 84, 80, 86, 82], label: "第三年", yield: "96.5%", payback: "约 11 个月（新厂复制）", msg: "<b>第三年扩版图：</b>地基牢了，闭环、多智能体和规模复制才敢全面铺开，六个方向齐头并进到 80+。综合成熟度 <b>84 分</b>——这时拼的已经不是单个模型，而是整套可复制的系统。" }
+        };
+        let cur = "now";
+        function draw() {
+          const s = stages[cur];
+          const { ctx, w } = setupCanvas(cv, 300); const c = colors();
+          const maxBarW = w - 190;
+          ctx.font = "12.5px sans-serif";
+          s.vals.forEach((v, i) => {
+            const y = 26 + i * 44;
+            ctx.fillStyle = c.ink; ctx.textAlign = "right";
+            ctx.fillText(labels[i], 108, y + 16);
+            ctx.fillStyle = c.panel; ctx.strokeStyle = c.line;
+            ctx.fillRect(118, y, maxBarW, 22); ctx.strokeRect(118, y, maxBarW, 22);
+            const isBase = (i === 2 || i === 4);
+            ctx.fillStyle = cur === "now" ? c.steel : (isBase && cur === "y1" ? c.good : c.accent);
+            ctx.fillRect(118, y, maxBarW * v / 100, 22);
+            ctx.fillStyle = c.ink; ctx.textAlign = "left"; ctx.font = "bold 12.5px sans-serif";
+            ctx.fillText(v + " 分", 124 + maxBarW * v / 100, y + 16);
+            ctx.font = "12.5px sans-serif";
+          });
+          ctx.fillStyle = c.ink2; ctx.textAlign = "left";
+          ctx.fillText("0", 118, 292); ctx.fillText("成熟度（满分 100）", w / 2 - 50, 292); ctx.fillText("100", 112 + maxBarW, 292);
+          const avg = Math.round(s.vals.reduce((a, b) => a + b, 0) / s.vals.length);
+          setRO(ro, [["阶段", s.label], ["综合成熟度", avg + " / 100"], ["综合良率（模拟）", s.yield], ["回收期（模拟）", s.payback]]);
+          note.innerHTML = s.msg;
+        }
+        ["now", "y1", "y3"].forEach(k => {
+          mount.querySelector('[data-a="' + k + '"]').onclick = () => { cur = k; draw(); };
+        });
+        draw();
+      };
+
+      /* ================= init ================= */
+      renderFilters();
+      renderGrid();
+      updateProgress();
+    </script>
+  </body>
+</html>
