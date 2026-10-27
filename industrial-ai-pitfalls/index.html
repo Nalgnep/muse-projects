@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>工业 AI 落地避坑手册 — 10 个最常见的翻车点</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#f4f2ed; --surface:#ffffff; --surface2:#eceae3; --ink:#16181d; --muted:#5d646f; --line:#ddd8cc;
+--amber:#d97706; --amber-bg:#fef3c7; --red:#c2410c; --red-bg:#fff1e6; --teal:#0f766e; --teal-bg:#e6f4f1;
+--blue:#1d4ed8; --blue-bg:#e8eefc; --dark:#16181d; --hazard:#facc15;
+--radius:14px;
+}
+@media (prefers-color-scheme: dark){
+:root{ --bg:#121316; --surface:#1c1e22; --surface2:#26282e; --ink:#eceae3; --muted:#a7adb8; --line:#343740; --amber-bg:#3a2a07; --red-bg:#3a1e10; --teal-bg:#0f2e2a; --blue-bg:#1a2440;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",system-ui,-apple-system,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.mono{font-family:"JetBrains Mono",monospace}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.hazard{height:10px;background:repeating-linear-gradient(-45deg,#111 0 14px,var(--hazard) 14px 28px)}
+/* HERO */
+.hero{background:var(--dark);color:#f5f2e9;padding:36px 0 44px}
+.hero-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;letter-spacing:.06em;color:#c9c4b3}
+.hero-top b{color:#fff}
+.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;letter-spacing:-.02em;margin:22px 0 14px;font-weight:900}
+.hero h1 em{font-style:normal;color:var(--hazard)}
+.hero p.lead{font-size:17px;line-height:1.7;color:#d8d3c3;max-width:680px;margin:0}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:28px}
+.stat{border:1px solid #33363e;background:#1e2026;padding:16px;border-radius:12px}
+.stat b{display:block;font-size:26px;line-height:1}
+.stat span{font-size:13px;color:#a9a493}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid transparent;cursor:pointer}
+.btn-solid{background:var(--hazard);color:#111}
+.btn-ghost{background:transparent;color:#fff;border-color:#4a4d55}
+/* NAV */
+.tocbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tocbar-inner{display:flex;gap:8px;overflow-x:auto;padding:10px 20px;max-width:1080px;margin:0 auto;scrollbar-width:none}
+.tocbar-inner::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer}
+.chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* SECTIONS */
+section{padding:36px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.sec-head h2{font-size:26px;margin:0;letter-spacing:-.02em}
+.sec-head p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:560px}
+.kicker{font-size:12px;letter-spacing:.14em;font-weight:700;text-transform:uppercase}
+/* Catalog */
+.catalog{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.cat-card h3{margin:0 0 4px;font-size:16px}
+.cat-card.desc{font-size:13px;color:var(--muted);margin:0 0 12px}
+.pit-link{display:flex;gap:10px;padding:10px 0;border-top:1px dashed var(--line);text-decoration:none;align-items:flex-start}
+.pit-link:hover strong{text-decoration:underline}
+.pit-link.no{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:12px;background:var(--surface2);padding:3px 7px;border-radius:6px;white-space:nowrap;margin-top:2px}
+.pit-link strong{font-size:14px;line-height:1.4;display:block}
+.pit-link span{font-size:12px;color:var(--muted);display:block}
+/* Overview grid */
+.grid10{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.mini{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;gap:14px;text-decoration:none}
+.mini:hover{border-color:var(--ink)}
+.mini.num{font-size:22px;font-weight:900;line-height:1}
+.mini h4{margin:0;font-size:15px}
+.mini p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.04em}
+.tag-data{background:var(--blue-bg);color:var(--blue)}.tag-accept{background:var(--amber-bg);color:#92400e}.tag-ops{background:var(--teal-bg);color:var(--teal)}
+@media(prefers-color-scheme:dark){.tag-accept{color:#fbbf24}}
+.tag-risk{background:var(--red-bg);color:var(--red)}
+/* Detail */
+.pit{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:18px}
+.pit-head{padding:22px 22px 0;display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+.pit-head h3{font-size:22px;margin:6px 0 6px;line-height:1.25}
+.pit-head.one{color:var(--muted);font-size:14px;max-width:640px;margin:0}
+.pit-no{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700}
+.pit-body{padding:18px 22px 22px;display:grid;grid-template-columns:1.15fr.85fr;gap:20px}
+.case{background:var(--surface2);border-radius:12px;padding:16px}
+.case h5,.check h5,.root h5{margin:0 0 10px;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.case p{font-size:14px;margin:0 0 10px}
+.case.nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.case.nums div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px}
+.case.nums b{display:block;font-size:16px}
+.case.nums span{font-size:12px;color:var(--muted)}
+.root ul{margin:0;padding-left:18px;font-size:14px}
+.root li{margin-bottom:6px}
+.timeline{display:flex;flex-direction:column;gap:0;margin:14px 0}
+.timeline div{padding:10px 12px;border-left:3px solid var(--line);position:relative;font-size:14px}
+.timeline div b{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.checklist li{display:flex;gap:10px;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;line-height:1.5}
+.checklist li::before{content:"□";font-size:16px;line-height:1.2;color:var(--amber);font-weight:900;flex-shrink:0}
+.fix{margin:0 22px 22px;background:#111;color:#fef9c3;border-radius:12px;padding:14px 16px;font-size:14px;display:flex;gap:12px}
+.fix b{color:var(--hazard);white-space:nowrap}
+/* Self test */
+.test{background:var(--dark);color:#f3f0e6;border-radius:18px;padding:24px}
+.test h3{margin:0 0 6px;font-size:22px}
+.test p{color:#c9c4b3;font-size:14px;margin:0 0 18px}
+.q{border-top:1px solid #33363e;padding:14px 0}
+.q p{margin:0 0 10px;color:#fff;font-size:15px;font-weight:600}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap}
+.qbtn{padding:8px 14px;border-radius:999px;border:1px solid #4a4d55;background:transparent;color:#e8e3d3;cursor:pointer;font-size:13px;font-weight:600}
+.qbtn.sel-risk{background:#dc2626;border-color:#dc2626;color:#fff}
+.qbtn.sel-safe{background:#0f766e;border-color:#0f766e;color:#fff}
+.result{margin-top:18px;background:#1e2026;border:1px solid #33363e;border-radius:12px;padding:16px;display:none}
+.result.show{display:block}
+.result b{font-size:20px}
+/* Redline */
+.redline{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.redline div{background:var(--surface);border:1px solid var(--line);border-left:5px solid #dc2626;border-radius:10px;padding:13px 14px;font-size:14px}
+.redline b{font-family:"JetBrains Mono",monospace;font-size:12px;display:block;color:var(--red)}
+.note{font-size:13px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:14px}
+footer{padding:28px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.hidden{display:none!important}
+@media(max-width:760px){
+.hero-stats{grid-template-columns:repeat(2,1fr)}
+.catalog,.grid10,.pit-body,.redline{grid-template-columns:1fr}
+.pit-body{gap:14px}
+.fix{flex-direction:column;gap:4px}
+}
+</style>
+</head>
+<body>
+<div class="hazard"></div>
+<header class="hero">
+<div class="wrap">
+<div class="hero-top"><span><b>工业 AI 落地避坑手册</b> · 反向教材</span><span>制造业算法学院 · 姊妹篇</span></div>
+<h1>学院教你怎么做对，<br>这本教你<em>怎么不翻车</em>。</h1>
+<p class="lead">工业 AI 项目很少死在算法不够先进，更多死在数据对不上、验收说不清、上线没人管。这本手册把最常见的 10 个翻车点按数据、验收、运维分好类，每个都配一个模拟案例和一份能直接拿去开会用的自查清单。</p>
+<div class="hero-stats">
+<div class="stat"><b>10</b><span>个高频翻车点</span></div>
+<div class="stat"><b>3</b><span>大类 · 数据 / 验收 / 运维</span></div>
+<div class="stat"><b>50</b><span>项自查清单条目</span></div>
+<div class="stat"><b>10</b><span>个课堂模拟案例</span></div>
+</div>
+<div class="hero-actions">
+<a class="btn btn-solid" href="#catalog">按目录看 10 个坑 ↓</a>
+<a class="btn btn-ghost" href="#selftest">先做 3 分钟风险自测</a>
+<button class="btn btn-ghost" onclick="downloadChecklist()">⬇ 下载完整自查清单</button>
+</div>
+</div>
+</header>
+
+<nav class="tocbar"><div class="tocbar-inner" id="filters">
+<button class="chip active" data-f="all">全部 10 个</button>
+<button class="chip" data-f="data">📊 数据翻车 · 4 个</button>
+<button class="chip" data-f="accept">🧾 验收翻车 · 3 个</button>
+<button class="chip" data-f="ops">🔧 运维翻车 · 3 个</button>
+<a class="chip" href="#selftest" style="text-decoration:none">风险自测</a>
+<a class="chip" href="#redline" style="text-decoration:none">上线红线</a>
+</div></nav>
+
+<main class="wrap">
+
+<!-- 目录 -->
+<section id="catalog">
+<div class="sec-head"><div><div class="kicker" style="color:var(--amber)">目录 · 按翻车阶段分类</div><h2>先看目录，再对号入座</h2><p>项目死法有阶段：数据坑在立项后 1 个月就会埋下，验收坑在交付时爆，运维坑在上线 3 个月后才慢慢渗血。</p></div></div>
+<div class="catalog">
+<div class="cat-card"><span class="tag tag-data">第一类</span><h3 style="margin-top:8px">数据翻车</h3><p class="desc">模型还没开始练，地基已经歪了。最隐蔽，也最贵。</p>
+<a class="pit-link" href="#pit-01"><span class="no">01</span><span><strong>数据孤岛，口径各说各话</strong><span>MES / ERP / PLC 三套时间、三套编码</span></span></a>
+<a class="pit-link" href="#pit-02"><span class="no">02</span><span><strong>标签泄漏，离线虚高</strong><span>把未来的答案喂进了训练集</span></span></a>
+<a class="pit-link" href="#pit-03"><span class="no">03</span><span><strong>只采“好天气”数据</strong><span>异常样本几乎为零</span></span></a>
+<a class="pit-link" href="#pit-04"><span class="no">04</span><span><strong>传感器漂移没人管</strong><span>输入悄悄变质，模型还在硬撑</span></span></a>
+</div>
+<div class="cat-card"><span class="tag tag-accept">第二类</span><h3 style="margin-top:8px">验收翻车</h3><p class="desc">技术指标全绿，业务方却说“这不能用”。分歧在验收那一刻总爆发。</p>
+<a class="pit-link" href="#pit-05"><span class="no">05</span><span><strong>拿实验室精度当上线标准</strong><span>离线 99%，产线 62%</span></span></a>
+<a class="pit-link" href="#pit-06"><span class="no">06</span><span><strong>没有基线，就没有验收</strong><span>不跟人工和旧系统比，永远说不清值不值</span></span></a>
+<a class="pit-link" href="#pit-07"><span class="no">07</span><span><strong>只验模型，不验业务</strong><span>准确率达标，节拍和误报成本却爆了</span></span></a>
+</div>
+<div class="cat-card"><span class="tag tag-ops">第三类</span><h3 style="margin-top:8px">运维翻车</h3><p class="desc">上线不是终点。没监控、没责任人、没预算，模型会自己烂掉。</p>
+<a class="pit-link" href="#pit-08"><span class="no">08</span><span><strong>上线即巅峰，无监控无回滚</strong><span>衰减三个月，无人发现</span></span></a>
+<a class="pit-link" href="#pit-09"><span class="no">09</span><span><strong>责任真空，出事互相指</strong><span>IT、工艺、供应商三方踢皮球</span></span></a>
+<a class="pit-link" href="#pit-10"><span class="no">10</span><span><strong>越用越贵，成本失控</strong><span>推理、回流、重训练都没算进预算</span></span></a>
+</div>
+</div>
+<p class="note" style="margin-top:14px">说明：本手册所有工厂名称、金额、良率与停机数据均为<strong>课堂模拟案例</strong>，用于讲清翻车机制，不是真实企业数据。清单可直接借用到你的项目评审会上。</p>
+</section>
+
+<!-- 总览 -->
+<section style="padding-top:0">
+<div class="sec-head"><div><h2>10 个坑 · 一眼总览</h2><p>点任意一张卡跳到详解。用上方筛选只看某一类。</p></div></div>
+<div class="grid10" id="grid10"></div>
+</section>
+
+<!-- 详解容器 -->
+<section style="padding-top:0"><div id="details"></div></section>
+
+<!-- 自测 -->
+<section id="selftest" style="padding-top:6px">
+<div class="test">
+<div class="kicker" style="color:var(--hazard)">3 分钟自测</div>
+<h3>你的项目现在有几颗雷？</h3>
+<p>每题对应一个翻车点。选“有这情况”记 1 颗雷，选“已规避”记 0。答完 10 题出风险等级——结果只在本次打开内计算，不保存。</p>
+<div id="questions"></div>
+<div class="result" id="result"></div>
+</div>
+</section>
+
+<!-- 红线 -->
+<section id="redline">
+<div class="sec-head"><div><div class="kicker" style="color:#dc2626">上线前红线</div><h2>这 10 条，缺一条就别上线</h2><p>把这页打印出来贴在项目墙上。评审时逐条过，任何一条答不上来，先延期，别赌。</p></div></div>
+<div class="redline">
+<div><b>红线 01 · 数据</b>核心字段口径已写成一页纸，MES / ERP / 设备三方都签过字。</div>
+<div><b>红线 02 · 数据</b>训练集做过时间切分检查，确认没有用到预测时刻之后的信息。</div>
+<div><b>红线 03 · 数据</b>异常 / 缺陷样本有真实数量统计，不是靠过采样“造”出来的繁荣。</div>
+<div><b>红线 04 · 数据</b>关键传感器有校准计划和漂移报警阈值，责任人写在表上。</div>
+<div><b>红线 05 · 验收</b>验收集来自真实产线连续时段，不是精挑细选的演示样本。</div>
+<div><b>红线 06 · 验收</b>有明确基线：人工水平 / 旧系统水平，白纸黑字写进合同附件。</div>
+<div><b>红线 07 · 验收</b>业务指标（节拍、误报成本、停机）与模型指标一起验收。</div>
+<div><b>红线 08 · 运维</b>上线后有每日监控看板 + 一键回滚方案，且演练过一次。</div>
+<div><b>红线 09 · 运维</b>模型出问题时，值班人、升级路径、供应商响应时限都已明确。</div>
+<div><b>红线 10 · 运维</b>第二年的推理、存储、重训练预算已单列，不是“到时候再说”。</div>
+</div>
+</section>
+
+</main>
+<footer><div class="wrap">工业 AI 落地避坑手册 · 与《制造业算法学院》《工业 AI 实战项目》配套阅读：学院讲方法，实战项目讲落地，本手册专讲排雷。全部案例为课堂模拟。</div></footer>
+<div class="hazard"></div>
+
+<script>
+var PITS=[
+{id:"pit-01",no:"01",cat:"data",catLabel:"数据翻车",title:"数据孤岛，口径各说各话",one:"同一个“停机时长”，MES 算 42 分钟，设备台账算 18 分钟，模型到底跟谁学？",risk:"极高",symptom:"联调时才发现三套系统对不上",
+caseTitle:"模拟案例 · 某汽配压铸厂的预测性维护项目",caseBody:"工厂想用振动+温度预测主轴故障。IT 拉了 MES 的停机记录，设备部给的是 PLC 原始日志，工艺部还有一份 Excel 点检表。三份数据时间戳差了 7 分钟（PLC 没对时），设备编码也不同：MES 用 A-01，PLC 用 SPINDLE_1，Excel 写“1号主轴”。团队花了 5 周才对齐，上线又发现 MES 里的“故障”含计划保养，模型把保养学成了故障前兆。",
+nums:[["5 周","仅数据对齐就耗掉的工期"],["23%","被误标为故障的保养记录占比"],["7 分钟","三套系统的时间偏差"],["延期 6 周","最终上线延期"]],
+roots:["立项时只谈算法，没人负责出《数据字典》","设备编码、时间基准、状态定义从未统一","历史数据从没做过跨系统抽样核对"],
+timeline:[["第 1 周","立项会上只展示了算法路线图，没人提数据在哪"],["第 4 周","联调发现编码对不上，项目暂停对齐"],["第 9 周","模型误报频发，追查发现标签口径错了"]],
+checks:["核心字段（设备、时间、状态、缺陷码）有一页纸口径定义，三方签字","随机抽 20 条记录，跨系统逐条核对能对上","所有设备时间已统一对时（NTP），偏差 < 1 秒","计划停机 / 非计划停机 / 保养在标签里分开编码","数据负责人是具体的人，不是“IT 部门”"],
+fix:"立项第一周就开 2 小时口径对齐会，产出一页《数据字典 v1》，比任何模型选型都优先。"},
+
+{id:"pit-02",no:"02",cat:"data",catLabel:"数据翻车",title:"标签泄漏，离线虚高",one:"离线准确率 98%，一上线就掉到 60%——大概率不是产线变了，是训练时偷看了答案。",risk:"极高",symptom:"离线神准，上线现形",
+caseTitle:"模拟案例 · 某注塑厂的缺陷预测项目",caseBody:"团队用“当班质检结果”做特征去预测“产品是否缺陷”，离线 AUC 高达 0.98。但质检结果是在产品下线后才产生的——预测时刻根本拿不到。另一个泄漏更隐蔽：用全量数据做归一化时，统计量里混进了未来月份的分布。上线切到实时特征后，模型直接失效，产线试运行两周被叫停。",
+nums:[["0.98 → 0.61","AUC 从离线到上线的跌幅"],["2 周","试运行后被叫停"],["1 个特征","泄漏主因：事后质检字段"],["重训 3 次","才定位到泄漏点"]],
+roots:["建特征时没问一句：这个字段在预测那一刻存在吗？","随机切分训练/测试集，同一批次产品被拆到两边","预处理（归一化/填缺失）在切分前就做完了"],
+timeline:[["训练期","离线指标漂亮，汇报一路绿灯"],["试运行","实时管道没有那个关键字段，用 0 填充硬跑"],["复盘","按时间切分重验，指标立刻回到真实水平"]],
+checks:["每个特征都标注“产生时刻”，晚于预测时刻的一律剔除","训练/测试按时间切分，不用随机切分","同一批次/同一订单的产品不跨训练与测试集","预处理只在训练集上拟合，再应用到测试集","留一份“泄漏自查表”，上线前由非建模人员复核"],
+fix:"把验收方式改成“按时间回放”：拿上个月的数据假装今天上线，跑一遍就知道有没有泄漏。"},
+
+{id:"pit-03",no:"03",cat:"data",catLabel:"数据翻车",title:"只采“好天气”数据",one:"在设备最稳、师傅最熟、原料最好时采的数据，训出的模型只会过晴天。",risk:"高",symptom:"一换班、一换料就失灵",
+caseTitle:"模拟案例 · 某食品包装厂的视觉质检项目",caseBody:"采集图像的 3 周正好是 A 班老师傅当班、新批次包材、光照充足。模型上线后轮到夜班：灯光偏暗、新包材反光不同、操作手法也不同，漏检率从 1% 飙到 9%。更糟的是缺陷样本总共只有 47 张，团队靠复制+翻转凑了 2000 张“缺陷”，模型记住的是复制痕迹，不是缺陷本身。",
+nums:[["47 张","真实缺陷样本总量"],["1% → 9%","夜班漏检率变化"],["3 周","采集期只覆盖了白班"],["62%","合成样本占缺陷集比例"]],
+roots:["采集计划没覆盖班次、季节、原料批次、设备状态","缺陷太少就急着合成，没先攒真实样本","采集期避开了停机、换模、清洗等‘脏’时段"],
+timeline:[["采集期","专挑产线最稳的时段拍，数据‘很干净’"],["上线首周","夜班漏检爆增，工人开始不信任系统"],["补救","重新跨班次采集 6 周，项目多花近一倍时间"]],
+checks:["采集计划明确覆盖：班次 × 原料批次 × 设备状态的组合","缺陷样本有真实计数，合成样本单独标记且占比受控","换模、清洗、启停等过渡时段的数据也进了样本池","至少留一个完整班次的数据只做测试、不参与训练","极端工况（高温、高湿、电压波动）有无样本，心里有数"],
+fix:"先定《采集覆盖表》再开机采集：格子没填满，模型就不许开始训练。"},
+
+{id:"pit-04",no:"04",cat:"data",catLabel:"数据翻车",title:"传感器漂移没人管",one:"模型没变，世界也没变，是温度探头在半年里悄悄偏了 3℃。",risk:"高",symptom:"精度每月掉一点，没人察觉",
+caseTitle:"模拟案例 · 某化工车间的工艺优化项目",caseBody:"模型靠温度、压力推荐反应参数，前 3 个月效果很好，良率 +2.1%。第 4 个月起推荐开始‘发飘’，工艺员手动修正越来越频繁。排查两周才发现：温度传感器结垢漂移，实际温度比读数高 3.2℃，模型一直在基于错误输入做正确计算。期间不合格品已流出 4 批。",
+nums:[["+3.2℃","传感器半年漂移量"],["4 批","受影响的不合格品批次"],["2 周","定位漂移所用时间"],["0 次","半年内的传感器校准次数"]],
+roots:["传感器校准靠‘坏了再修’，没有周期计划","输入分布从没和训练期做过对比监控","工艺员的手动修正没被记录，漂移信号被掩盖"],
+timeline:[["上线 1–3 月","效果达标，大家放松了警惕"],["第 4 月","推荐发飘，靠人工修正硬撑"],["第 6 月","客诉倒查，才锁定传感器结垢"]],
+checks:["关键传感器有校准周期表，到期自动提醒","每日对比输入分布与训练期基线，偏移超阈值报警","双传感器/冗余测点的重要参数有交叉校验","人工修正模型的每一次操作都被记录成日志","数据质量（缺失、跳变、恒值）有自动巡检"],
+fix:"给输入也上监控：模型输出要看，输入分布更要看——漂移报警比精度报警更早救命。"},
+
+{id:"pit-05",no:"05",cat:"accept",catLabel:"验收翻车",title:"拿实验室精度当上线标准",one:"演示集是挑出来的，产线是活出来的。用演示集签的合同，上线必吵架。",risk:"极高",symptom:"演示惊艳，交付拉胯",
+caseTitle:"模拟案例 · 某电子厂的 AOI 缺陷识别验收纠纷",caseBody:"供应商演示时用 500 张精选图，识别率 99.2%，合同照此签约。交付验收抽的是产线连续 3 天的全部产品：光照波动、新机种混线、脏污镜头都在里面，识别率只有 87%，误报还把良品打掉了一批。双方争执两个月：供应商说‘你们产线和演示不一样’，工厂说‘你们宣传的就是这个数’。最后按连续时段重验、降价收尾，双方都输。",
+nums:[["99.2% → 87%","演示精度 vs 产线精度"],["500 张","演示集（精选）"],["3 天连续量","验收集（全量抽取）"],["2 个月","纠纷处理周期"]],
+roots:["验收样本的抽取方式从没写进合同","演示环境（光照、机种、速度）和产线不一致","只签了精度数字，没签测试条件"],
+timeline:[["售前","精选集演示，皆大欢喜"],["交付","全量抽验收，数字跳水"],["扯皮","测试条件无据可依，只能协商收尾"]],
+checks:["验收集抽取规则（时段、比例、机种覆盖）写进合同附件","验收在真实产线速度与光照下进行，不搭演示台","误报率与漏报率分别设阈值，不只看总准确率","新机种/新物料的验收方式提前约定","验收不通过的整改与复验流程白纸黑字"],
+fix:"签合同前先签《验收协议》：怎么抽、抽多少、什么条件、不过怎么办——比精度数字本身更重要。"},
+
+{id:"pit-06",no:"06",cat:"accept",catLabel:"验收翻车",title:"没有基线，就没有验收",one:"模型准确率 92% 听着不错——可老师傅光靠听声就能到 91%，这钱花得值吗？",risk:"高",symptom:"说不清到底进步了多少",
+caseTitle:"模拟案例 · 某机加工厂的声音异常检测项目",caseBody:"项目花了 40 万（模拟）上线异常声音检测，验收报告写‘准确率 92%，达到合同要求’。三个月后老板追问效益，团队才发现从没测过基线：老师傅人工巡检的检出率其实是 89%，旧阈值报警系统是 85%。92% 相对人工只高 3 个点，却多了设备维护和订阅费。不是项目没用，是没基线就永远算不清账，下期预算直接被砍。",
+nums:[["92%","模型准确率（验收值）"],["89%","人工巡检基线（事后补测）"],["40 万","模拟投入（首年）"],["3 个点","相对人工的真实提升"]],
+roots:["立项时没做基线测量（人工/旧系统/不做的代价）","验收只对合同数字，不对业务增量","效益测算放在上线后，而不是立项前"],
+timeline:[["立项","只写了目标精度，没测现状"],["验收","对着合同数字签字通过"],["算账","补测基线才发现增量很薄，预算被砍"]],
+checks:["立项前测过基线：人工水平、旧系统水平、无系统时的损失","合同里同时写绝对指标和相对基线的提升幅度","基线测量方法（样本、时段、人员）有记录可复现","效益口径（省人/省料/少停机）财务确认过","基线会随人员变动更新，不是三年前的一次性数字"],
+fix:"立项三问先答第一问：现在不用 AI，我们的数字是多少？答不上来，先花两周测基线再谈立项。"},
+
+{id:"pit-07",no:"07",cat:"accept",catLabel:"验收翻车",title:"只验模型，不验业务",one:"准确率达标了，但每报一次警就停线 3 分钟——产线宁可它不存在。",risk:"高",symptom:"技术验收通过，产线投票下线",
+caseTitle:"模拟案例 · 某家电总装线的预测报警项目",caseBody:"报警模型召回率 95% 验收通过，但误报率没设上限：平均每 40 分钟误报一次，每次按流程停线排查 3 分钟，一班少产 30 多台。班组长第二周就把报警声关了，系统形同虚设。复盘才明白：对产线来说，一次误报的成本是漏报的 1/5，验收时却把两者等同看待，只考核了召回率。",
+nums:[["95%","召回率（验收达标）"],["每 40 分钟","误报频率"],["-30 台/班","误报停线造成的产量损失"],["第 2 周","报警被一线静音的时间"]],
+roots:["验收指标只有模型指标，没有节拍/成本/体验指标","误报与漏报的业务成本不对称，却用了对称指标","一线使用者没参与验收标准制定"],
+timeline:[["验收","技术组签字，指标全绿"],["上线","误报扰动节拍，班组抵触"],["静音","系统还在跑，但已没人看报警"]],
+checks:["误报成本与漏报成本分别估算，阈值按成本定","验收包含节拍影响：因系统造成的停线时长有上限","一线班组长是验收签字人之一","报警分级（提示/预警/停线）与处置流程一起验收","试运行期收集一线反馈并计入最终验收结论"],
+fix:"验收表加一列‘业务代价’：每个指标后面写清超标一小时损失多少钱，阈值自然就定对了。"},
+
+{id:"pit-08",no:"08",cat:"ops",catLabel:"运维翻车",title:"上线即巅峰，无监控无回滚",one:"模型不是软件，装好不会一劳永逸——它会随着产线变化悄悄过期。",risk:"极高",symptom:"衰减三个月，无人发现",
+caseTitle:"模拟案例 · 某纺织厂的疵点检测衰减事件",caseBody:"系统上线时漏检率 1.2%，皆大欢喜，项目组解散。半年后工厂换了新批次坯布，纹理分布变了，漏检率爬到 6.8%，因为没有监控看板，没人发现，直到客户退货才倒查出来。想回滚旧版本？旧模型文件在已离职工程师的电脑里。想重训练？这半年的数据根本没留标注。",
+nums:[["1.2% → 6.8%","漏检率半年变化"],["6 个月","无监控运行期"],["1 笔退货","问题暴露方式：客户投诉"],["0 份","留存的模型版本备份"]],
+roots:["项目制思维：验收=结束，运维没人接棒","没有精度/分布的持续监控与报警线","模型、代码、数据版本没有统一归档"],
+timeline:[["上线","指标达标，项目组解散庆功"],["换料","输入分布变化，精度开始爬坡式下跌"],["爆雷","客户退货倒查，才知已衰减数月"]],
+checks:["上线即有监控：精度抽检、输入分布、报警量每日可见","精度跌破阈值有自动通知到具体责任人","模型/代码/训练数据版本统一归档，可一键回滚","回滚演练至少做过一次（不是只写在文档里）","原料、机种、工艺变更时有模型复评触发机制"],
+fix:"上线标准里加一条：监控看板和回滚演练没做完，不算上线完成。"},
+
+{id:"pit-09",no:"09",cat:"ops",catLabel:"运维翻车",title:"责任真空，出事互相指",one:"凌晨两点模型停了，值班表上没有它——IT 说归工艺，工艺说归供应商，供应商说合同只保工作日。",risk:"高",symptom:"响应以天计，损失以小时计",
+caseTitle:"模拟案例 · 某汽配厂夜班模型宕机事件",caseBody:"夜班 2:10 质检模型服务崩溃，产线要么停、要么放行无检产品。值班电工不敢重启（怕担责），工艺员说模型归 IT，IT 值班说 AI 系统是供应商部署的，供应商合同写的是 5×8 支持。最后厂长电话协调，天亮才恢复，一夜的产品全部隔离复检，直接损失模拟估算 18 万元。事后开会才发现：从立项到上线，没人写过一页《运维责任表》。",
+nums:[["5.5 小时","从宕机到恢复的时长"],["18 万","模拟估算的隔离复检损失"],["3 方","互相认为对方负责的部门"],["0 页","项目文档中的运维责任说明"]],
+roots:["合同只买了‘交付’，没买‘运行时支持’等级","内部 RACI 缺失：谁监控、谁处置、谁拍板放行","降级方案（模型停了产线怎么走）从没演练"],
+timeline:[["2:10","模型崩溃，夜班发现无处置权限"],["3:00–6:00","三方电话踢皮球，产线隔离待检"],["7:30","管理层协调恢复，全批复检"]],
+checks:["有一页《运维责任表》：监控/处置/决策/供应商四类角色具名","供应商支持等级（7×24 或 5×8）与产线班次匹配","模型宕机时的降级流程（人工顶班/抽检比例）已成文","一线有明确的临时处置授权，不用层层请示","每季度至少一次故障演练并记录响应时长"],
+fix:"上线前填一张责任表贴在中控室：出事打给谁、谁能拍板、供应商多久到——填不出来就别上线。"},
+
+{id:"pit-10",no:"10",cat:"ops",catLabel:"运维翻车",title:"越用越贵，成本失控",one:"立项算的是买断价，运行时烧的是推理、存储、重训练和涨价的订阅费。",risk:"中高",symptom:"第二年账单翻倍，预算会上才发现",
+caseTitle:"模拟案例 · 某园区多厂视觉平台的成本失控",caseBody:"立项时按‘一套平台 60 万’（模拟）报的预算。第二年摊开账单：相机路数从 12 路扩到 40 路，云端推理按量计费翻了 3 倍；视频留存从 7 天改 90 天合规要求，存储费暴涨；每季度重训练的人工标注费从没入过预算；供应商订阅还涨了 15%。全年实际运维成本是立项预估的 2.3 倍，财务在年中直接冻结了扩点计划。",
+nums:[["2.3 倍","实际运维成本 / 立项预估"],["12 → 40 路","相机路数扩张"],["7 → 90 天","视频留存要求变化"],["+15%","供应商订阅年涨幅"]],
+roots:["立项只算 CAPEX，没算 OPEX 的量价模型","用量增长（路数、留存、调用量）没做敏感性测算","重训练与标注的人力成本被默认为‘顺手做’","合同没锁价、没设涨幅上限与退出条款"],
+timeline:[["立项","按买断价报预算，顺利过会"],["扩点","用量涨、留存涨，账单逐月爬坡"],["年中","财务冻结扩点，平台半途而废"]],
+checks:["预算含 3 年 OPEX：推理/存储/标注/重训练/订阅分项列清","用量翻倍/留存延长等情景做过成本敏感性测算","合同有锁价期、涨幅上限和数据可迁移的退出条款","每月有成本看板，异常增长有人解释","能本地跑的推理尽量本地化，云端只做增量部分"],
+fix:"立项模板加一页《三年总成本表》：第二年、第三年的钱从哪来，先答完再批第一年的钱。"}
+];
+
+var QS=[
+"三套系统（MES/设备/台账）对同一个字段的口径，你现在说得清吗？",
+"你的训练集里，有没有预测时刻之后才产生的数据？",
+"你的样本覆盖夜班、换料、换模这些‘脏’时段吗？",
+"关键传感器上次校准是什么时候，谁负责？",
+"验收样本是产线连续抽取，还是演示用的精选集？",
+"你测过人工/旧系统的基线数字吗？",
+"误报一次的业务成本，你们算过并写进验收了吗？",
+"模型精度如果下月跌 5 个点，谁会第一个发现？",
+"凌晨模型宕机，值班的人知道打给谁、能拍板吗？",
+"第二年的推理、存储、重训练预算，单列了吗？"
+];
+
+function tagClass(c){return c==='data'?'tag-data':c==='accept'?'tag-accept':'tag-ops'}
+function renderGrid(){
+document.getElementById('grid10').innerHTML=PITS.map(function(p){
+return '<a class="mini pit-item" data-cat="'+p.cat+'" href="#'+p.id+'"><div class="num mono">'+p.no+'</div><div><h4>'+p.title+'</h4><p>'+p.one+'</p><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><span class="tag '+tagClass(p.cat)+'">'+p.catLabel+'</span><span class="tag tag-risk">危险 · '+p.risk+'</span></div></div></a>'
+}).join('');
+}
+function renderDetails(){
+document.getElementById('details').innerHTML=PITS.map(function(p){
+var nums=p.nums.map(function(n){return '<div><b>'+n[0]+'</b><span>'+n[1]+'</span></div>'}).join('');
+var roots=p.roots.map(function(r){return '<li>'+r+'</li>'}).join('');
+var tl=p.timeline.map(function(t){return '<div><b>'+t[0]+'</b>'+t[1]+'</div>'}).join('');
+var checks=p.checks.map(function(c){return '<li>'+c+'</li>'}).join('');
+return '<article class="pit pit-item" data-cat="'+p.cat+'" id="'+p.id+'">'
++'<div class="pit-head"><div><span class="pit-no">PIT-'+p.no+'</span> <span class="tag '+tagClass(p.cat)+'">'+p.catLabel+'</span> <span class="tag tag-risk">危险等级 · '+p.risk+'</span><h3>'+p.title+'</h3><p class="one">'+p.one+'<br><span style="font-size:13px">典型症状：'+p.symptom+'</span></p></div></div>'
++'<div class="pit-body"><div><div class="case"><h5>'+p.caseTitle+'</h5><p>'+p.caseBody+'</p><div class="nums">'+nums+'</div></div><div class="timeline">'+tl+'</div></div>'
++'<div><div class="root"><h5>根因拆解</h5><ul>'+roots+'</ul></div><div class="check" style="margin-top:16px"><h5>自查清单 · 逐条对照</h5><ul class="checklist">'+checks+'</ul></div></div></div>'
++'<div class="fix"><b>⚠ 避坑动作</b><span>'+p.fix+'</span></div></article>'
+}).join('');
+}
+function renderQuiz(){
+document.getElementById('questions').innerHTML=QS.map(function(q,i){
+return '<div class="q"><p>'+(i+1)+'. '+q+'</p><div class="qbtns"><button class="qbtn" data-q="'+i+'" data-v="1">有这情况 · 是颗雷</button><button class="qbtn" data-q="'+i+'" data-v="0">已规避 / 不适用</button></div></div>'
+}).join('');
+var answers={};
+document.querySelectorAll('.qbtn').forEach(function(b){
+b.addEventListener('click',function(){
+var q=b.getAttribute('data-q'); answers[q]=+b.getAttribute('data-v');
+document.querySelectorAll('.qbtn[data-q="'+q+'"]').forEach(function(x){x.classList.remove('sel-risk','sel-safe')});
+b.classList.add(answers[q]===1?'sel-risk':'sel-safe');
+var done=Object.keys(answers).length;
+if(done===10){
+var score=Object.values(answers).reduce(function(a,c){return a+c},0);
+var r=document.getElementById('result'); r.classList.add('show');
+var level,advice;
+if(score<=2){level='🟢 低风险 · '+score+' 颗雷';advice='地基不错。把剩下的雷写进项目风险表，每月复查一次即可。'}
+else if(score<=5){level='🟡 中风险 · '+score+' 颗雷';advice='有明确的爆点。建议两周内对着本手册对应章节逐个整改，尤其是标“极高”的 01 / 02 / 05 / 08。'}
+else{level='🔴 高风险 · '+score+' 颗雷';advice='现在上线大概率翻车。先暂停排期，用红线清单逐条过，缺项补齐再谈上线日期。'}
+r.innerHTML='<b>'+level+'</b><p style="color:#d8d3c3;margin:8px 0 0">'+advice+'</p>';
+r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+});
+});
+}
+function downloadChecklist(){
+var lines=['工业 AI 落地避坑手册 · 完整自查清单','（全部案例为课堂模拟）',''];
+PITS.forEach(function(p){ lines.push('PIT-'+p.no+' '+p.title); p.checks.forEach(function(c){lines.push(' □ '+c)}); lines.push(' 避坑动作：'+p.fix,'');});
+lines.push('上线红线：10 条缺一不可，见手册末尾。');
+var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='工业AI避坑自查清单.txt'; a.click(); URL.revokeObjectURL(a.href);
+}
+document.getElementById('filters').addEventListener('click',function(e){
+var btn=e.target.closest('[data-f]'); if(!btn) return;
+document.querySelectorAll('#filters.chip[data-f]').forEach(function(c){c.classList.remove('active')});
+btn.classList.add('active');
+var f=btn.getAttribute('data-f');
+document.querySelectorAll('.pit-item').forEach(function(el){ el.classList.toggle('hidden', f!=='all' && el.getAttribute('data-cat')!==f);});
+});
+renderGrid(); renderDetails(); renderQuiz();
+</script>
+</body>
+</html>

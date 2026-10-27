@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>IoT 看板实战 · 阿里云 × ThingsBoard × VPS × DeepSeek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f1; --surface:#ffffff; --surface2:#eef1ec; --ink:#18211c; --muted:#5c6b62; --line:#dde3dc;
+  --teal:#0f766e; --teal2:#0b5e57; --amber:#b45309; --amber-bg:#fef3c7; --red:#dc2626; --red-bg:#fee2e2; --green:#15803d; --green-bg:#dcfce7; --blue:#1d4ed8;
+  --code-bg:#101613; --code-ink:#d7e8dc;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0d1310; --surface:#151d18; --surface2:#1c2721; --ink:#e8eee9; --muted:#9fb0a4; --line:#2a3830; --amber-bg:#3a2c0e; --red-bg:#3d1414; --green-bg:#14331e; --code-bg:#0a0e0b; }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Noto Sans SC",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px}
+a{color:var(--teal);text-decoration:none}
+.mono{font-family:"JetBrains Mono",monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px 72px}
+/* hero */
+.hero{padding:34px 0 8px}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tag{font-size:12px;font-weight:700;letter-spacing:.04em;padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.tag.hot{background:var(--teal);color:#fff;border-color:var(--teal)}
+h1{font-size:clamp(30px,5.4vw,52px);line-height:1.08;font-weight:900;margin:0 0 14px;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--teal)}
+.lede{font-size:17px;color:var(--muted);max-width:760px;margin:0 0 20px}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 6px}
+.hstat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.hstat b{display:block;font-size:24px;line-height:1;font-weight:900}
+.hstat span{font-size:13px;color:var(--muted)}
+/* dir nav */
+.dir{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.dir-title{font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.dir-links{display:flex;flex-wrap:wrap;gap:7px}
+.dir-links a{font-size:13px;font-weight:700;color:var(--ink);background:var(--surface);border:1px solid var(--line);padding:7px 11px;border-radius:999px}
+.dir-links a:hover{border-color:var(--teal);color:var(--teal)}
+.cat{font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin:34px 0 6px}
+h2{font-size:clamp(23px,3.6vw,32px);line-height:1.2;margin:0 0 10px;font-weight:900}
+h3{font-size:19px;margin:0 0 8px;font-weight:800}
+.sub{color:var(--muted);margin:0 0 16px;max-width:820px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+/* dashboard */
+.dash-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.live-dot{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:13px}
+.live-dot i{width:9px;height:9px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 0 5px rgba(34,197,94,.18)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-family:inherit;font-weight:700;font-size:13px;padding:9px 13px;border-radius:10px;cursor:pointer}
+.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn.warn{background:#fff7ed;border-color:#fdba74;color:#9a3412}
+@media (prefers-color-scheme: dark){.btn.warn{background:#2b1a0c;color:#fdba74}}
+.btn:active{transform:translateY(1px)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.kpi{background:var(--surface2);border-radius:12px;padding:13px}
+.kpi span{font-size:12px;color:var(--muted);display:block}
+.kpi b{font-size:24px;line-height:1.1}
+.kpi small{font-size:12px;color:var(--muted)}
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+canvas#mainChart{width:100%;height:240px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{width:18px;height:3px;display:inline-block;vertical-align:middle;margin-right:5px;border-radius:2px}
+.devices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.device{border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--surface)}
+.device-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.device h4{margin:0;font-size:15px}
+.device .loc{font-size:12px;color:var(--muted)}
+.badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--green-bg);color:var(--green);white-space:nowrap}
+.badge.warnb{background:var(--amber-bg);color:var(--amber)}
+.badge.alarmb{background:var(--red-bg);color:var(--red)}
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;text-align:left}
+.metrics div{background:var(--surface2);border-radius:8px;padding:7px 8px}
+.metrics span{font-size:11px;color:var(--muted);display:block}
+.metrics b{font-size:15px}
+.feed{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:12px}
+.log{list-style:none;margin:0;padding:0;max-height:250px;overflow:auto}
+.log li{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.log li:last-child{border-bottom:0}
+.log time{color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:11px}
+.ai-box{background:#0f1d19;color:#e7f2ec;border-radius:12px;padding:16px}
+@media (prefers-color-scheme: light){.ai-box{background:#12211c}}
+.ai-box h4{margin:0 0 6px;color:#fff}
+.ai-box p{font-size:14px;color:#cfe3d8}
+.ai-meta{font-size:12px;color:#8fb3a4}
+/* arch */
+.arch{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{flex:1 1 130px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.node b{display:block;font-size:14px}
+.node span{font-size:12px;color:var(--muted)}
+.node.hl{border-color:var(--teal)}
+.arrow{align-self:center;font-weight:900;color:var(--teal)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted)}
+/* steps */
+.step{display:grid;grid-template-columns:52px 1fr;gap:14px;margin-bottom:14px}
+.step-no{width:46px;height:46px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px}
+pre{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:14px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.code-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.code-head span{font-size:12px;font-weight:800;color:var(--muted)}
+.copy-btn{font-size:12px;padding:5px 9px}
+.check{list-style:none;margin:10px 0 0;padding:0}
+.check li{padding:7px 0 7px 28px;position:relative;font-size:14px;border-bottom:1px dashed var(--line)}
+.check li:before{content:"✓";position:absolute;left:0;top:7px;width:19px;height:19px;border-radius:50%;background:var(--green-bg);color:var(--green);display:grid;place-items:center;font-size:12px;font-weight:900}
+.note{border-radius:12px;padding:13px 15px;font-size:14px;background:var(--amber-bg);color:var(--ink);margin:12px 0}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label.fl{font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+input[type=range]{width:100%}
+input[type=number],select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font-family:inherit}
+.rule-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end}
+.quiz-q{margin-bottom:14px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}
+.result{font-size:14px;font-weight:700;margin-top:7px;min-height:22px}
+.small{font-size:13px;color:var(--muted)}
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media(max-width:860px){
+  .hero-stats,.kpis{grid-template-columns:1fr 1fr}
+  .grid2,.grid3,.devices,.feed,.sliders{grid-template-columns:1fr}
+  .rule-row{grid-template-columns:1fr}
+  .step{grid-template-columns:38px 1fr}.step-no{width:36px;height:36px;font-size:15px}
+  canvas#mainChart{height:200px}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-tags"><span class="tag hot">手把手实战 · 可直接照着搭</span><span class="tag">阿里云 ECS / VPS</span><span class="tag">ThingsBoard</span><span class="tag">MQTT</span><span class="tag">DeepSeek API</span></div>
+    <h1>把一台设备，<br>接到<em>会自己报警、会写日报</em>的看板上。</h1>
+    <p class="lede">这不是概念课。下面就是一套能跑通的链路：模拟传感器用 MQTT 把温度、振动、功率发上云，ThingsBoard 做看板和规则告警，VPS 上的小服务定时调用 DeepSeek 把一小时的数据写成人话摘要。页面上半部分是可交互的实时仿真，先玩熟，再照着步骤搭你自己的。</p>
+    <div class="hero-stats">
+      <div class="hstat"><b>6 台</b><span>模拟设备 · 3 条产线</span></div>
+      <div class="hstat"><b>8 步</b><span>从开服务器到上线</span></div>
+      <div class="hstat"><b>≈ ¥115/月</b><span>入门配置参考成本 *</span></div>
+      <div class="hstat"><b>1 次</b><span>跑通数据 → 告警 → AI 摘要全链路</span></div>
+    </div>
+    <p class="small">* 成本为课堂估算：阿里云 ECS 2核4G + DeepSeek 按量调用，小规模验证够用；正式选型请以阿里云与 DeepSeek 官网当日价格为准。本页所有设备与数据均为课堂模拟。</p>
+  </header>
+
+  <nav class="dir" aria-label="目录">
+    <div class="dir-title">目录 · 按类找内容</div>
+    <div class="dir-links">
+      <a href="#live">① 实时看板仿真</a><a href="#arch">② 架构与选型</a><a href="#steps">③ 八步实操</a><a href="#mqtt-lab">④ 数据接入实验</a><a href="#rules">⑤ 规则告警实验</a><a href="#ai">⑥ AI 摘要实验</a><a href="#deploy">⑦ 上线清单</a><a href="#trouble">⑧ 排障手册</a><a href="#quiz">⑨ 小测</a>
+    </div>
+  </nav>
+
+  <!-- LIVE -->
+  <section id="live">
+    <p class="cat">Lab 01 · 先玩起来</p>
+    <h2>实时看板仿真：数据、告警、AI 摘要在同一屏跑通</h2>
+    <p class="sub">这块仿真和真实链路一一对应：曲线 = ThingsBoard 时序数据，右侧日志 = 规则链告警，下方黑框 = DeepSeek 摘要。点「注入异常」看完整链路怎么反应。</p>
+    <div class="card">
+      <div class="dash-head">
+        <span class="live-dot"><i></i><span id="liveLabel">LIVE · 仿真数据每 2 秒刷新</span></span>
+        <div style="display:flex;flex-wrap:wrap;gap:7px">
+          <button class="btn" id="pauseBtn">暂停</button>
+          <button class="btn warn" id="heatBtn">注入高温异常</button>
+          <button class="btn warn" id="vibBtn">注入振动异常</button>
+          <button class="btn" id="recoverBtn">恢复正常</button>
+          <button class="btn primary" id="csvBtn">下载模拟数据 CSV</button>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><span>在线设备</span><b id="kOnline">6 / 6</b><small> 心跳正常</small></div>
+        <div class="kpi"><span>车间平均温度</span><b id="kTemp">-- ℃</b><small> 阈值 85 ℃</small></div>
+        <div class="kpi"><span>总功率</span><b id="kPower">-- kW</b><small> 6 台合计</small></div>
+        <div class="kpi"><span>本次告警</span><b id="kAlerts" style="color:var(--red)">0</b><small> 条 · 规则链触发</small></div>
+      </div>
+      <div class="chart-box">
+        <strong style="font-size:14px">注塑机 A1 · 温度走势（℃）</strong>
+        <canvas id="mainChart" width="1040" height="240" aria-label="注塑机温度实时曲线"></canvas>
+        <div class="legend"><span><i style="background:#0f766e"></i>温度</span><span><i style="background:#dc2626"></i>告警阈值 85℃</span><span>横轴为最近 60 个采样点</span></div>
+      </div>
+      <div class="devices" id="devices"></div>
+      <div class="feed">
+        <div>
+          <h3 style="font-size:15px">规则链 · 告警与事件流</h3>
+          <ul class="log" id="eventLog"><li><time>--:--:--</time> 系统启动，6 台设备已接入，规则链「温度/振动双阈值」已启用。</li></ul>
+        </div>
+        <div class="ai-box">
+          <h4>✦ DeepSeek AI 摘要</h4>
+          <p id="aiText">点下方按钮，AI 会读取最近一段时间的聚合数据（均值、峰值、告警次数），生成一段给班组长看的人话摘要——这正是第 7 步里 VPS 定时任务在做的事。</p>
+          <p class="ai-meta" id="aiMeta">模型：deepseek-chat · 触发方式：手动（真实环境为每小时定时）</p>
+          <button class="btn primary" id="aiBtn" style="background:#fff;color:#12211c;border-color:#fff">生成 AI 摘要</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCH -->
+  <section id="arch">
+    <p class="cat">Blueprint · 架构与选型</p>
+    <h2>四个部件，各管一段，别混着买</h2>
+    <p class="sub">新手最容易踩的坑是把所有东西塞进一个平台。这套分工很清楚：阿里云管「机器」，ThingsBoard 管「物联网业务」，VPS 管「胶水代码」，DeepSeek 管「把数据说成人话」。</p>
+    <div class="arch" aria-label="架构图">
+      <div class="node"><b>传感器 / PLC</b><span>温度 · 振动 · 功率<br>真实环境接网关</span></div><div class="arrow">→</div>
+      <div class="node"><b>MQTT Broker</b><span>EMQX / Mosquitto<br>1883 端口</span></div><div class="arrow">→</div>
+      <div class="node hl"><b>ThingsBoard</b><span>设备管理 · 时序库<br>看板 · 规则链</span></div><div class="arrow">→</div>
+      <div class="node"><b>VPS 胶水服务</b><span>FastAPI · 定时聚合<br>调 DeepSeek</span></div><div class="arrow">→</div>
+      <div class="node hl"><b>看板 + 告警</b><span>大屏 · 钉钉/企微<br>AI 日报</span></div>
+    </div>
+    <div class="card" style="margin-top:12px;padding:6px 16px;overflow-x:auto">
+      <table>
+        <tr><th>部件</th><th>在这套里干什么</th><th>入门选型</th><th>别踩的坑</th></tr>
+        <tr><td><b>阿里云 ECS</b></td><td>跑 ThingsBoard + 数据库，就是你的 VPS</td><td>2核4G / Ubuntu 22.04 / 40G 盘起步</td><td>安全组只开 22、443、8080、1883，其余全关</td></tr>
+        <tr><td><b>ThingsBoard CE</b></td><td>设备、遥测、看板、规则链，开源免费</td><td>Docker 单机版先跑通，别一上来上集群/K8s</td><td>默认管理员密码必须改；时序数据要设保留期</td></tr>
+        <tr><td><b>MQTT</b></td><td>设备上报协议，轻量、断线可重连</td><td>先用 ThingsBoard 自带 MQTT 接入</td><td>Topic 和设备 Token 要一一对应，别共用一个 Token</td></tr>
+        <tr><td><b>DeepSeek API</b></td><td>把聚合数字写成摘要、归因、建议</td><td>按量付费，先喂聚合值，不要喂原始流水</td><td>API Key 只放 VPS 环境变量，绝不写进前端页面</td></tr>
+      </table>
+    </div>
+    <div class="note"><b>为什么不全用阿里云 IoT 平台？</b> 完全可以——阿里云物联网平台更省运维，适合设备量大、要合规的正式项目。但学习阶段用 ThingsBoard 的好处是：看板、规则链、数据全在自己手里，任何一环都能拆开看懂。先在这套上跑通，再迁移不迟。</div>
+  </section>
+
+  <!-- STEPS -->
+  <section id="steps">
+    <p class="cat">Hands-on · 八步实操</p>
+    <h2>照着做：从开服务器到 AI 日报</h2>
+    <p class="sub">每步都有可复制的命令/代码和完成标志。没看到完成标志，不要往下走——IoT 排障最耗时的就是带着上一步的错搭下一步。</p>
+
+    <div class="step"><div class="step-no">1</div><div class="card">
+      <h3>开一台 VPS（阿里云 ECS）并装好 Docker</h3>
+      <p class="small">控制台选 Ubuntu 22.04、2核4G，按量或包月均可。安全组放行：22（SSH）、8080（ThingsBoard）、1883（MQTT）、443（后面配 HTTPS）。</p>
+      <div class="code-head"><span>终端 · SSH 登录后执行</span><button class="btn copy-btn" data-copy="c1">复制</button></div>
+      <pre id="c1">sudo apt update &amp;&amp; sudo apt install -y docker.io docker-compose-plugin
+sudo systemctl enable --now docker
+sudo docker run --rm hello-world   # 看到 Hello from Docker 才算装好</pre>
+      <ul class="check"><li>完成标志：hello-world 正常输出</li><li>云防火墙与系统防火墙规则一致，没有多开端口</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">2</div><div class="card">
+      <h3>用 Docker Compose 拉起 ThingsBoard</h3>
+      <p class="small">单机学习版用官方镜像 + 内置 PostgreSQL 即可。数据目录挂到宿主机，重启不丢数据。</p>
+      <div class="code-head"><span>docker-compose.yml</span><button class="btn copy-btn" data-copy="c2">复制</button></div>
+      <pre id="c2">services:
+  thingsboard:
+    image: thingsboard/tb-postgres:latest
+    ports:
+      - "8080:9090"
+      - "1883:1883"
+    volumes:
+      - ./tb-data:/data
+      - ./tb-logs:/var/log/thingsboard
+    restart: unless-stopped</pre>
+      <div class="code-head"><span>启动</span><button class="btn copy-btn" data-copy="c2b">复制</button></div>
+      <pre id="c2b">mkdir -p tb-data tb-logs &amp;&amp; sudo chown -R 799:799 tb-data tb-logs
+docker compose up -d
+# 浏览器打开 http://你的服务器IP:8080
+# 系统管理员：sysadmin@thingsboard.org / sysadmin（登录后立刻改密码）</pre>
+      <ul class="check"><li>完成标志：能打开登录页并进入租户后台</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">3</div><div class="card">
+      <h3>建设备与遥测字段：先定“字典”，再谈数据</h3>
+      <p class="small">在 ThingsBoard 里建 1 个设备档案（Device Profile）+ 6 台设备，每台会拿到一个 Access Token。全车间统一遥测键名，后面规则和 AI 都靠它：</p>
+      <pre>temperature  温度 ℃      vibration  振动 mm/s
+pressure     压力 MPa    power      功率 kW
+humidity     湿度 %RH    rpm        转速 r/min
+status       状态码：0 停机 / 1 运行 / 2 待机</pre>
+      <ul class="check"><li>完成标志：6 台设备各有独立 Token，键名表贴在工位上（真的，贴纸质版最有效）</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">4</div><div class="card">
+      <h3>模拟数据接入：用 Python 当“假传感器”</h3>
+      <p class="small">没有硬件也能练全链路。这个脚本就是本页上方仿真的真实版：正弦趋势 + 随机噪声 + 偶发异常，每 2 秒发一包 MQTT。</p>
+      <div class="code-head"><span>simulator.py · pip install paho-mqtt</span><button class="btn copy-btn" data-copy="c4">复制</button></div>
+      <pre id="c4">import json, math, random, time
+import paho.mqtt.client as mqtt
+
+HOST, TOKEN = "你的服务器IP", "设备AccessToken"
+client = mqtt.Client()
+client.username_pw_set(TOKEN)          # ThingsBoard 用 Token 作用户名
+client.connect(HOST, 1883, 60)
+
+t = 0
+while True:
+    t += 1
+    temp = 62 + 10 * math.sin(t / 18) + random.uniform(-1.5, 1.5)
+    if random.random() &lt; 0.04:        # 4% 概率模拟一次异常升温
+        temp += random.uniform(22, 30)
+    payload = {
+        "temperature": round(temp, 1),
+        "vibration": round(2.1 + random.uniform(-0.5, 0.7), 2),
+        "power": round(38 + random.uniform(-4, 5), 1),
+        "status": 1,
+    }
+    client.publish("v1/devices/me/telemetry", json.dumps(payload))
+    print("sent:", payload)
+    time.sleep(2)</pre>
+      <ul class="check"><li>完成标志：设备详情页 Latest telemetry 实时跳动</li><li>断开脚本 30 秒，看板能看出“掉线”——这一步验证的是心跳，不是数据</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">5</div><div class="card">
+      <h3>搭看板：四类组件就够，别堆满屏</h3>
+      <p class="small">新建 Dashboard，按这个顺序放组件，班组长 3 秒内能找到答案：</p>
+      <ul class="check">
+        <li><b>状态区：</b>设备卡片（名称 + 在线状态 + 当前温度），红/黄/绿只表示状态，不做装饰</li>
+        <li><b>趋势区：</b>温度、振动时序曲线，默认看最近 1 小时，带阈值线</li>
+        <li><b>告警区：</b>Alarm 表格（时间、设备、级别、确认按钮）</li>
+        <li><b>摘要区：</b>放一个文本卡片，URL 指向第 7 步 VPS 服务返回的 AI 摘要</li>
+      </ul>
+      <div class="note">排版原则：一块屏只回答一个问题——“现在有没有事？”趋势和明细点进去再看。大屏上塞 20 个图表，结果是谁都不看。</div>
+    </div></div>
+
+    <div class="step"><div class="step-no">6</div><div class="card">
+      <h3>规则链告警：阈值 + 持续时间，缺一不可</h3>
+      <p class="small">在规则链里串：Message Type Switch → Telemetry 过滤 → Script 节点判阈值 → Create Alarm → 通知节点（邮件 / Webhook 到钉钉、企微）。核心判断逻辑长这样：</p>
+      <div class="code-head"><span>规则链 Script 节点（JavaScript）</span><button class="btn copy-btn" data-copy="c6">复制</button></div>
+      <pre id="c6">// 只看温度遥测，超过 85℃ 才往下走
+if (msgType !== 'POST_TELEMETRY_REQUEST') return { msg: msg, metadata: metadata, msgType: msgType };
+var temp = msg.temperature;
+if (temp === undefined) return { msg: msg, metadata: metadata, msgType: 'IGNORE' };
+metadata.alarmText = '温度 ' + temp + '℃，超过阈值 85℃';
+return { msg: msg, metadata: metadata, msgType: temp &gt; 85 ? 'ALARM' : 'OK' };</pre>
+      <ul class="check"><li>关键设置：告警要加「持续 30 秒才触发」+「恢复后自动清除」，否则传感器抖一下就刷屏</li><li>完成标志：跑第 4 步脚本造一次异常，告警表出现记录，手机收到通知</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">7</div><div class="card">
+      <h3>接 DeepSeek：在 VPS 上加一个 AI 摘要小服务</h3>
+      <p class="small">思路：服务每小时从 ThingsBoard REST API 拉聚合值（均值/峰值/告警数），拼成提示词调 DeepSeek，把结果存下来给看板文本卡片读。<b>喂聚合，不喂流水</b>——省钱、更快、摘要质量反而更高。</p>
+      <div class="code-head"><span>ai_summary.py · 核心片段</span><button class="btn copy-btn" data-copy="c7">复制</button></div>
+      <pre id="c7">import os, requests
+
+DEEPSEEK_KEY = os.environ["DEEPSEEK_API_KEY"]  # 只放环境变量
+
+def make_summary(stats: dict) -&gt; str:
+    prompt = f"""你是车间设备助理。根据最近1小时数据写一段80字以内的中文摘要，
+包含：整体状态、最值得关注的一台设备、一条明确建议。数据：
+平均温度 {stats['avg_temp']}℃，峰值 {stats['max_temp']}℃（{stats['max_device']}），
+平均振动 {stats['avg_vib']} mm/s，告警 {stats['alarms']} 次，总功率 {stats['power']} kW。
+不要编造数据里没有的数字。"""
+    r = requests.post(
+        "https://api.deepseek.com/chat/completions",
+        headers={"Authorization": f"Bearer {DEEPSEEK_KEY}"},
+        json={"model": "deepseek-chat",
+              "messages": [{"role": "user", "content": prompt}],
+              "temperature": 0.3},
+        timeout=30)
+    return r.json()["choices"][0]["message"]["content"]</pre>
+      <div class="code-head"><span>定时执行（crontab）</span><button class="btn copy-btn" data-copy="c7b">复制</button></div>
+      <pre id="c7b">0 * * * * cd /opt/iot-ai &amp;&amp; DEEPSEEK_API_KEY=你的Key /usr/bin/python3 ai_summary.py &gt;&gt; summary.log 2&gt;&amp;1</pre>
+      <ul class="check"><li>完成标志：看板摘要区每小时自动换一段新文字，且数字和曲线对得上</li><li>温度参数 0.2–0.4：摘要要稳，不要文采</li></ul>
+    </div></div>
+
+    <div class="step"><div class="step-no">8</div><div class="card">
+      <h3>上线：域名、HTTPS、备份，三件套别省</h3>
+      <ul class="check">
+        <li><b>反向代理：</b>Nginx 把 8080 藏到 443 后面，Certbot 申请 Let's Encrypt 免费证书</li>
+        <li><b>账号：</b>关掉默认管理员，给班组长开只读看板账号，操作账号单独建</li>
+        <li><b>备份：</b>每天打包 tb-data 目录 + docker-compose.yml，存到阿里云 OSS 一份</li>
+        <li><b>数据保留：</b>遥测原始数据留 90 天，聚合数据长期留，别让磁盘被时序数据吃满</li>
+      </ul>
+      <div class="code-head"><span>Nginx 反代片段</span><button class="btn copy-btn" data-copy="c8">复制</button></div>
+      <pre id="c8">location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;      # ThingsBoard 实时刷新走 WebSocket
+    proxy_set_header Connection "upgrade";
+}</pre>
+    </div></div>
+  </section>
+
+  <!-- MQTT LAB -->
+  <section id="mqtt-lab">
+    <p class="cat">Lab 02 · 数据接入实验</p>
+    <h2>亲手调一包数据：看懂 MQTT 报文长什么样</h2>
+    <p class="sub">拖动滑杆改变模拟传感器的温度与振动，下方就是这一刻会发往 ThingsBoard 的真实报文格式。真实调试时用 <span class="mono">mosquitto_sub</span> 订阅同一 Topic，对照着看，一模一样。</p>
+    <div class="card">
+      <div class="sliders">
+        <div><label class="fl" for="sTemp">温度 <span id="sTempV" class="mono">68.0 ℃</span></label><input type="range" id="sTemp" min="20" max="110" step="0.5" value="68"></div>
+        <div><label class="fl" for="sVib">振动 <span id="sVibV" class="mono">2.4 mm/s</span></label><input type="range" id="sVib" min="0" max="9" step="0.1" value="2.4"></div>
+        <div><label class="fl" for="sPow">功率 <span id="sPowV" class="mono">41.0 kW</span></label><input type="range" id="sPow" min="0" max="90" step="0.5" value="41"></div>
+        <div><label class="fl" for="sHum">湿度 <span id="sHumV" class="mono">46 %RH</span></label><input type="range" id="sHum" min="10" max="95" step="1" value="46"></div>
+      </div>
+      <div class="code-head" style="margin-top:14px"><span>MQTT · Topic: v1/devices/me/telemetry</span><button class="btn copy-btn" data-copy="payloadPre">复制报文</button></div>
+      <pre id="payloadPre">{}</pre>
+      <p class="small" id="payloadJudge"></p>
+      <div class="code-head"><span>命令行验证（装了 mosquitto-clients 后）</span><button class="btn copy-btn" data-copy="cMq">复制</button></div>
+      <pre id="cMq">mosquitto_pub -h 你的服务器IP -p 1883 -u "设备AccessToken" \
+  -t v1/devices/me/telemetry -m '{"temperature": 68.0, "vibration": 2.4}'</pre>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section id="rules">
+    <p class="cat">Lab 03 · 规则告警实验</p>
+    <h2>配一条你自己的告警规则</h2>
+    <p class="sub">选指标、定阈值、选级别，保存后规则立刻对上方实时仿真生效。试试把温度阈值调到 60℃——你会马上明白为什么真实产线要加“持续时间”和“恢复回差”。</p>
+    <div class="card">
+      <div class="rule-row">
+        <div><label class="fl" for="rMetric">指标</label><select id="rMetric"><option value="temperature">温度 ℃</option><option value="vibration">振动 mm/s</option><option value="power">功率 kW</option></select></div>
+        <div><label class="fl" for="rThresh">阈值（大于则告警）</label><input type="number" id="rThresh" value="85" step="0.5"></div>
+        <div><label class="fl" for="rLevel">级别</label><select id="rLevel"><option>严重</option><option selected>警告</option><option>提示</option></select></div>
+        <button class="btn primary" id="ruleSave">保存并启用规则</button>
+      </div>
+      <p class="small" id="ruleList" style="margin-top:12px">当前生效规则：温度 &gt; 85℃（警告）· 振动 &gt; 4.5 mm/s（严重）</p>
+      <div class="note" style="margin-bottom:0"><b>好规则的三要素：</b>阈值（多少算异常）+ 持续时间（抖动不算）+ 通知对象（谁必须处理）。只有阈值的规则，上线一周就会被班组静音。</div>
+    </div>
+  </section>
+
+  <!-- AI LAB -->
+  <section id="ai">
+    <p class="cat">Lab 04 · AI 摘要实验</p>
+    <h2>DeepSeek 摘要的提示词，拆开给你看</h2>
+    <p class="sub">AI 摘要质量差，通常不是模型问题，是喂的数据和提示词问题。记住这个结构：<b>角色 + 数据 + 输出约束 + 禁止编造</b>。回到上方看板点「生成 AI 摘要」，生成逻辑就是按这份模板、用实时聚合值在本页现场拼出来的（本页为课堂仿真，不会真的调用你的 API Key）。</p>
+    <div class="grid2">
+      <div class="card"><h3>喂什么数据</h3><ul class="check"><li>最近 1 小时：各指标均值、峰值及峰值设备</li><li>同期告警次数与未确认告警</li><li>与上一时段的环比变化（涨/跌多少）</li><li>不喂：秒级原始流水、设备 Token、任何密钥</li></ul></div>
+      <div class="card"><h3>摘要分工</h3><ul class="check"><li><b>整点摘要：</b>给班组长，80 字内，只讲异常和建议</li><li><b>日报：</b>下班前生成，含能耗、停机、告警 Top 3</li><li><b>异常归因：</b>告警触发时单独调一次，结合前后 10 分钟数据给排查方向——只给方向，不下结论</li></ul></div>
+    </div>
+  </section>
+
+  <!-- DEPLOY -->
+  <section id="deploy">
+    <p class="cat">Go-live · 上线清单与成本</p>
+    <h2>上线前逐项打勾</h2>
+    <div class="grid2">
+      <div class="card"><h3>上线清单</h3><ul class="check"><li>默认密码已改，账号按角色分权</li><li>HTTPS 已启用，8080 不再对公网直开</li><li>告警通知真发到人（钉钉/企微/邮件任一跑通）</li><li>断电/断网演练过一次：设备重连后数据补得上</li><li>备份脚本跑过一次，并真的恢复验证过</li><li>磁盘告警已设：时序数据是最先吃满盘的</li></ul></div>
+      <div class="card"><h3>入门成本参考（课堂估算）</h3>
+        <table><tr><th>项目</th><th>参考</th></tr>
+        <tr><td>阿里云 ECS 2核4G</td><td>约 ¥80–110 / 月</td></tr>
+        <tr><td>ThingsBoard CE</td><td>开源免费</td></tr>
+        <tr><td>DeepSeek API（整点摘要+日报）</td><td>约 ¥5–15 / 月</td></tr>
+        <tr><td>域名 + HTTPS 证书</td><td>证书免费，域名约 ¥55 / 年</td></tr>
+        <tr><td><b>合计</b></td><td><b>约 ¥115 / 月起</b></td></tr></table>
+        <p class="small">价格会变，正式采购以官网当日价为准；设备量上百台后先压测 再升配，别按感觉买大机器。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TROUBLE -->
+  <section id="trouble">
+    <p class="cat">Troubleshooting · 排障手册</p>
+    <h2>最常见的 5 个“没数据”，按这个顺序查</h2>
+    <div class="card" style="padding:6px 16px;overflow-x:auto"><table>
+      <tr><th>现象</th><th>先查</th><th>常见真因</th></tr>
+      <tr><td>设备一直离线</td><td>服务器 1883 端口、安全组、Token 是否填错</td><td>Token 复制时带了空格；安全组只开了 8080</td></tr>
+      <tr><td>有连接但看板没数</td><td>遥测键名与看板组件绑定的键是否一致</td><td>键名大小写不一致，如 Temp 与 temperature</td></tr>
+      <tr><td>告警不触发</td><td>规则链是否设为当前 Root 链、告警持续时间设置</td><td>改完规则链忘了保存，或阈值单位看错</td></tr>
+      <tr><td>AI 摘要数字对不上</td><td>聚合时间窗口与时区</td><td>服务器 UTC 与北京时间差 8 小时，窗口错位</td></tr>
+      <tr><td>跑一周后磁盘满</td><td>tb-data 体积、日志轮转、数据保留期</td><td>遥测没设 TTL，秒级数据无限堆积</td></tr>
+    </table></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <p class="cat">Check · 小测</p>
+    <h2>三道题，检验链路有没有真懂</h2>
+    <div class="card">
+      <div class="quiz-q"><h3>1. 为什么给 DeepSeek 喂“每小时聚合值”，而不是秒级原始数据？</h3>
+        <button class="btn opt" data-q="1" data-ok="0">因为原始数据格式太复杂，模型读不懂</button>
+        <button class="btn opt" data-q="1" data-ok="1">聚合后更省调用成本、摘要更稳定，且原始流水对写摘要没有额外信息量</button>
+        <button class="btn opt" data-q="1" data-ok="0">因为 DeepSeek 不支持接收数字</button>
+        <p class="result" id="r1"></p></div>
+      <div class="quiz-q"><h3>2. 告警规则只设阈值、不设持续时间，最可能发生什么？</h3>
+        <button class="btn opt" data-q="2" data-ok="1">传感器瞬时抖动就触发，告警刷屏，很快被一线人员静音</button>
+        <button class="btn opt" data-q="2" data-ok="0">告警会变得更准确</button>
+        <button class="btn opt" data-q="2" data-ok="0">ThingsBoard 会自动补上持续时间</button>
+        <p class="result" id="r2"></p></div>
+      <div class="quiz-q"><h3>3. DeepSeek 的 API Key 应该放在哪里？</h3>
+        <button class="btn opt" data-q="3" data-ok="0">写进看板页面的前端代码里，方便调试</button>
+        <button class="btn opt" data-q="3" data-ok="0">写进 MQTT 报文一起上报</button>
+        <button class="btn opt" data-q="3" data-ok="1">只放在 VPS 服务的环境变量里，前端永远不接触</button>
+        <p class="result" id="r3"></p></div>
+    </div>
+    <p class="foot">IoT 看板实战 · 制造业算法学院系列的动手篇。链路：阿里云 ECS（VPS）→ ThingsBoard → MQTT 模拟接入 → 规则链告警 → DeepSeek AI 摘要。本页设备、数据与成本均为课堂模拟，代码可直接用于自建学习环境；生产上线前请按第 8 步做完安全与备份清单。</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- simulated devices ----------
+  var DEVICES = [
+    {id:"A1", name:"注塑机 A1", loc:"一车间 · 1号线", baseT:64, baseV:2.2, baseP:42},
+    {id:"B2", name:"空压机 B2", loc:"动力站", baseT:58, baseV:3.1, baseP:55},
+    {id:"C1", name:"CNC 加工中心 C1", loc:"二车间 · 精加工区", baseT:47, baseV:1.8, baseP:26},
+    {id:"W3", name:"焊接机器人 W3", loc:"一车间 · 焊装线", baseT:71, baseV:2.6, baseP:48},
+    {id:"L1", name:"输送线 L1", loc:"物流通道", baseT:39, baseV:1.4, baseP:12},
+    {id:"K2", name:"冷水机 K2", loc:"动力站", baseT:33, baseV:2.0, baseP:31}
+  ];
+  var state = { running:true, tick:0, alerts:0, anomaly:null, anomalyUntil:0,
+    rules:[{metric:"temperature",thresh:85,level:"警告"},{metric:"vibration",thresh:4.5,level:"严重"}],
+    history:[], logEl:null };
+  DEVICES.forEach(function(d){ d.t=d.baseT; d.v=d.baseV; d.p=d.baseP; d.cool=0; });
+  var a1 = DEVICES[0];
+  for(var i=0;i<40;i++){ state.history.push(62+Math.sin(i/6)*6); }
+
+  var devWrap = document.getElementById("devices");
+  DEVICES.forEach(function(d){
+    var el=document.createElement("div"); el.className="device"; el.id="dev-"+d.id;
+    el.innerHTML='<div class="device-top"><div><h4>'+d.name+'</h4><div class="loc">'+d.loc+'</div></div><span class="badge" data-role="badge">运行</span></div>'+
+      '<div class="metrics"><div><span>温度 ℃</span><b data-role="t">--</b></div><div><span>振动 mm/s</span><b data-role="v">--</b></div><div><span>功率 kW</span><b data-role="p">--</b></div></div>';
+    devWrap.appendChild(el); d.el=el;
+  });
+
+  function pad(n){return (n<10?"0":"")+n;}
+  function now(){ var d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); }
+  function log(msg, isAlarm){
+    var ul=document.getElementById("eventLog");
+    var li=document.createElement("li");
+    li.innerHTML="<time>"+now()+"</time> "+(isAlarm?'<b style="color:var(--red)">告警</b> ':"")+msg;
+    ul.insertBefore(li, ul.firstChild);
+    while(ul.children.length>14) ul.removeChild(ul.lastChild);
+  }
+  function fmt(n,d){ return n.toFixed(d===undefined?1:d); }
+
+  function step(){
+    if(!state.running) return;
+    state.tick++;
+    DEVICES.forEach(function(d){
+      var targetT=d.baseT, targetV=d.baseV;
+      if(state.anomaly && d===state.anomaly.dev && state.tick<=state.anomalyUntil){
+        if(state.anomaly.kind==="heat") targetT=96;
+        if(state.anomaly.kind==="vib") targetV=6.8;
+      }
+      d.t += (targetT-d.t)*0.25 + (Math.random()-0.5)*1.6;
+      d.v += (targetV-d.v)*0.3 + (Math.random()-0.5)*0.35;
+      if(d.v<0.3)d.v=0.3;
+      d.p += (d.baseP-d.p)*0.2 + (Math.random()-0.5)*2.4;
+    });
+    state.history.push(a1.t); if(state.history.length>60) state.history.shift();
+    render(); checkRules();
+  }
+  function deviceStatus(d){
+    var bad=false, warn=false;
+    state.rules.forEach(function(r){
+      var val = r.metric==="temperature"?d.t : r.metric==="vibration"?d.v : d.p;
+      if(val>r.thresh){ if(r.level==="严重")bad=true; else warn=true; }
+    });
+    if(d.t>85||d.v>4.5) { /* default hard limits also colour */ }
+    return bad?2:(warn?1:0);
+  }
+  function checkRules(){
+    DEVICES.forEach(function(d){
+      if(d.cool>0){ d.cool--; return; }
+      var hit=null;
+      state.rules.forEach(function(r){
+        var val = r.metric==="temperature"?d.t : r.metric==="vibration"?d.v : d.p;
+        if(val>r.thresh&&!hit) hit={r:r,val:val};
+      });
+      if(hit){
+        state.alerts++; d.cool=8;
+        var label = hit.r.metric==="temperature"?"温度":hit.r.metric==="vibration"?"振动":"功率";
+        var unit = hit.r.metric==="temperature"?"℃":hit.r.metric==="vibration"?" mm/s":" kW";
+        log(d.name+" "+label+" "+fmt(hit.val,1)+unit+"，超过阈值 "+hit.r.thresh+unit+"（"+hit.r.level+"）· 已推送值班群", true);
+        renderKpis();
+      }
+    });
+  }
+  function renderKpis(){
+    var avgT=DEVICES.reduce(function(s,d){return s+d.t;},0)/DEVICES.length;
+    var totP=DEVICES.reduce(function(s,d){return s+d.p;},0);
+    document.getElementById("kTemp").textContent=fmt(avgT,1)+" ℃";
+    document.getElementById("kPower").textContent=fmt(totP,0)+" kW";
+    document.getElementById("kAlerts").textContent=state.alerts;
+  }
+  function render(){
+    renderKpis();
+    DEVICES.forEach(function(d){
+      var st=deviceStatus(d);
+      d.el.querySelector('[data-role="t"]').textContent=fmt(d.t,1);
+      d.el.querySelector('[data-role="v"]').textContent=fmt(d.v,2);
+      d.el.querySelector('[data-role="p"]').textContent=fmt(d.p,1);
+      var b=d.el.querySelector('[data-role="badge"]');
+      b.textContent = st===2?"告警":st===1?"注意":"运行";
+      b.className="badge"+(st===2?" alarmb":st===1?" warnb":"");
+      d.el.style.borderColor = st===2?"var(--red)":st===1?"var(--amber)":"var(--line)";
+    });
+    drawChart();
+  }
+  function drawChart(){
+    var c=document.getElementById("mainChart"); if(!c) return;
+    var dpr=window.devicePixelRatio||1;
+    var w=c.clientWidth, h=c.clientHeight;
+    if(c.width!==Math.round(w*dpr)){ c.width=w*dpr; c.height=h*dpr; }
+    var ctx=c.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+    var dark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var min=20,max=110, padL=34, padB=18, plotW=w-padL-8, plotH=h-padB-10;
+    function Y(v){ return 8+plotH-(v-min)/(max-min)*plotH; }
+    ctx.strokeStyle=dark?"#2a3830":"#dde3dc"; ctx.fillStyle=dark?"#9fb0a4":"#5c6b62"; ctx.font="11px sans-serif"; ctx.lineWidth=1;
+    [30,60,85,100].forEach(function(v){ ctx.beginPath(); ctx.moveTo(padL,Y(v)); ctx.lineTo(w-8,Y(v)); ctx.stroke(); ctx.fillText(v+"",6,Y(v)+3); });
+    ctx.strokeStyle="#dc2626"; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(padL,Y(85)); ctx.lineTo(w-8,Y(85)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle="#0f766e"; ctx.lineWidth=2.2; ctx.beginPath();
+    state.history.forEach(function(v,i){ var x=padL+plotW*i/(59); var y=Y(v); if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+    ctx.stroke();
+    var last=state.history[state.history.length-1];
+    ctx.fillStyle="#0f766e"; ctx.beginPath(); ctx.arc(padL+plotW, Y(last),3.5,0,7); ctx.fill();
+  }
+  setInterval(step, 2000); render(); log("规则链已加载：温度/振动双阈值 + 自定义规则实时生效中。");
+
+  document.getElementById("pauseBtn").addEventListener("click",function(){
+    state.running=!state.running;
+    this.textContent=state.running?"暂停":"继续";
+    document.getElementById("liveLabel").textContent=state.running?"LIVE · 仿真数据每 2 秒刷新":"已暂停 · 真实环境对应 ThingsBoard 断开数据流";
+    if(state.running) log("数据流已恢复。"); else log("数据流已暂停（手动）。");
+  });
+  function inject(kind){
+    var dev = kind==="heat"?DEVICES[0]:DEVICES[3];
+    state.anomaly={kind:kind,dev:dev}; state.anomalyUntil=state.tick+9;
+    log("已向 "+dev.name+" 注入"+(kind==="heat"?"高温":"高振动")+"异常，观察曲线、设备卡片与告警流的连锁反应。");
+    if(!state.running){ state.running=true; document.getElementById("pauseBtn").textContent="暂停"; }
+  }
+  document.getElementById("heatBtn").addEventListener("click",function(){inject("heat");});
+  document.getElementById("vibBtn").addEventListener("click",function(){inject("vib");});
+  document.getElementById("recoverBtn").addEventListener("click",function(){ state.anomaly=null; log("异常已清除，设备参数将逐步回落到正常区间，告警恢复后自动清除。"); });
+
+  // AI summary (in-page simulation of the DeepSeek step)
+  document.getElementById("aiBtn").addEventListener("click",function(){
+    var avgT=DEVICES.reduce(function(s,d){return s+d.t;},0)/DEVICES.length;
+    var avgV=DEVICES.reduce(function(s,d){return s+d.v;},0)/DEVICES.length;
+    var totP=DEVICES.reduce(function(s,d){return s+d.p;},0);
+    var worst=DEVICES.slice().sort(function(a,b){return b.t-a.t;})[0];
+    var txt;
+    if(state.alerts===0){
+      txt="最近时段 6 台设备整体平稳：平均温度 "+fmt(avgT,1)+"℃、平均振动 "+fmt(avgV,2)+" mm/s，总功率约 "+fmt(totP,0)+" kW，无告警。温度最高的为 "+worst.name+"（"+fmt(worst.t,1)+"℃），仍在安全区间。建议按原计划巡检，重点留意 "+worst.name+" 的散热口积灰。";
+    } else {
+      txt="最近时段共触发告警 "+state.alerts+" 次，需优先处理："+worst.name+" 当前温度 "+fmt(worst.t,1)+"℃，为全车间最高。车间平均温度 "+fmt(avgT,1)+"℃、平均振动 "+fmt(avgV,2)+" mm/s，总功率约 "+fmt(totP,0)+" kW。建议立即检查 "+worst.name+" 的冷却与负载情况，确认告警后再恢复自动运行，不要直接静音规则。";
+    }
+    var el=document.getElementById("aiText"); el.textContent="正在聚合最近时段数据并调用模型…";
+    setTimeout(function(){ el.textContent=txt; document.getElementById("aiMeta").textContent="模型：deepseek-chat · 本次基于实时聚合值现场生成（课堂仿真）· "+now(); log("AI 摘要已生成并推送到看板摘要区。"); },700);
+  });
+
+  // CSV download (120 rows simulated history)
+  document.getElementById("csvBtn").addEventListener("click",function(){
+    var rows=["timestamp,device,temperature_c,vibration_mm_s,power_kw,humidity_rh,status"];
+    var base=Date.now()-120*30000;
+    for(var i=0;i<120;i++){
+      var d=DEVICES[i%DEVICES.length];
+      var ts=new Date(base+i*30000).toISOString();
+      rows.push([ts,d.id,fmt(d.baseT+Math.sin(i/9)*5+(Math.random()-0.5)*2,1),fmt(Math.max(0.3,d.baseV+(Math.random()-0.5)*0.6),2),fmt(d.baseP+(Math.random()-0.5)*4,1),(42+Math.round(Math.random()*8)),1].join(","));
+    }
+    var blob=new Blob([rows.join("\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="iot-simulated-telemetry-120.csv"; document.body.appendChild(a); a.click(); a.remove();
+    log("已导出 120 行模拟遥测 CSV，可用于练习导入与回放。");
+  });
+
+  // ---------- MQTT payload lab ----------
+  var ids=["sTemp","sVib","sPow","sHum"];
+  function payload(){
+    var t=parseFloat(document.getElementById("sTemp").value), v=parseFloat(document.getElementById("sVib").value),
+        p=parseFloat(document.getElementById("sPow").value), hu=parseInt(document.getElementById("sHum").value,10);
+    document.getElementById("sTempV").textContent=fmt(t,1)+" ℃";
+    document.getElementById("sVibV").textContent=fmt(v,1)+" mm/s";
+    document.getElementById("sPowV").textContent=fmt(p,1)+" kW";
+    document.getElementById("sHumV").textContent=hu+" %RH";
+    var obj={temperature:t,vibration:v,power:p,humidity:hu,status:1};
+    document.getElementById("payloadPre").textContent=JSON.stringify(obj,null,2);
+    var warns=[];
+    if(t>85)warns.push("温度超过 85℃，会触发告警规则");
+    if(v>4.5)warns.push("振动超过 4.5 mm/s，会触发严重告警");
+    document.getElementById("payloadJudge").textContent=warns.length?("⚠ 按当前规则判断："+warns.join("；")+"。"):"按当前规则判断：各项均在正常区间，这包数据不会触发告警。";
+  }
+  ids.forEach(function(id){ document.getElementById(id).addEventListener("input",payload); }); payload();
+
+  // ---------- rules lab ----------
+  document.getElementById("ruleSave").addEventListener("click",function(){
+    var m=document.getElementById("rMetric").value, th=parseFloat(document.getElementById("rThresh").value), lv=document.getElementById("rLevel").value;
+    if(isNaN(th)){ return; }
+    state.rules=state.rules.filter(function(r){return r.metric!==m;});
+    state.rules.push({metric:m,thresh:th,level:lv});
+    var names={temperature:"温度",vibration:"振动",power:"功率"}, units={temperature:"℃",vibration:" mm/s",power:" kW"};
+    document.getElementById("ruleList").textContent="当前生效规则："+state.rules.map(function(r){return names[r.metric]+" > "+r.thresh+units[r.metric]+"（"+r.level+"）";}).join(" · ");
+    DEVICES.forEach(function(d){d.cool=0;});
+    log("新规则已启用："+names[m]+" > "+th+units[m]+"（"+lv+"），即刻对实时数据生效。");
+  });
+
+  // ---------- copy buttons ----------
+  document.querySelectorAll(".copy-btn").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var src=document.getElementById(btn.getAttribute("data-copy")); if(!src)return;
+      var text=src.textContent;
+      function done(){ var old=btn.textContent; btn.textContent="已复制 ✓"; setTimeout(function(){btn.textContent=old;},1400); }
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(done); } else { done(); }
+    });
+  });
+
+  // ---------- quiz ----------
+  var explain={1:"对。摘要只需要聚合结论，喂流水只会更贵、更慢、更容易让模型抓错重点。",2:"对。所以真实规则一定要配持续时间和恢复回差。",3:"对。密钥只属于服务端，前端代码任何人都能看到。 "};
+  document.querySelectorAll(".opt").forEach(function(b){
+    b.addEventListener("click",function(){
+      var q=b.getAttribute("data-q"), ok=b.getAttribute("data-ok")==="1";
+      var r=document.getElementById("r"+q);
+      r.textContent=ok?("✓ 回答正确。"+explain[q]):"✗ 再想想——回到对应章节看一眼提示，重点不在背答案。";
+      r.style.color=ok?"var(--green)":"var(--red)";
+    });
+  });
+  window.addEventListener("resize",drawChart);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>工业 AI ROI 测算器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#f4f2ed; --surface:#ffffff; --surface2:#ece9e2; --ink:#17201c; --muted:#66706a; --line:#ddd8ce;
+--teal:#0f766e; --teal2:#115e59; --amber:#d97706; --amber-bg:#fef3c7; --red:#b91c1c; --green:#15803d;
+--radius:16px;
+}
+@media (prefers-color-scheme: dark){
+:root{ --bg:#121614; --surface:#1c2220; --surface2:#242c29; --ink:#eef2f0; --muted:#9aa8a2; --line:#323c38; --amber-bg:#3a2f14;}
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",system-ui,-apple-system,sans-serif;line-height:1.6}
+a{color:var(--teal)}
+.mono{font-family:"JetBrains Mono",monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 56px}
+
+/* hero */
+.hero{padding:36px 0 10px}
+.hero-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.eyebrow{font-size:12px;letter-spacing:.14em;font-weight:700;color:var(--teal);text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;margin:10px 0 12px;font-weight:900;letter-spacing:-.02em}
+h1 span{color:var(--teal)}
+.lead{font-size:16.5px;color:var(--muted);max-width:720px;margin:0}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.hstat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.hstat b{font-family:"JetBrains Mono",monospace;font-size:18px}
+.hstat span{display:block;font-size:12px;color:var(--muted)}
+
+/* templates */
+.section-title{font-size:20px;font-weight:900;margin:30px 0 6px}
+.section-sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.templates{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.templates{grid-template-columns:1fr}}
+.tpl{ text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:18px;cursor:pointer;font:inherit;color:inherit;transition:.15s}
+.tpl:hover{border-color:var(--teal)}
+.tpl.active{border-color:var(--teal);box-shadow:0 0 0 3px color-mix(in srgb,var(--teal) 18%, transparent)}
+.tpl.tag{font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:999px;background:var(--surface2);display:inline-block}
+.tpl.active.tag{background:var(--teal);color:#fff}
+.tpl h3{margin:10px 0 6px;font-size:18px}
+.tpl p{margin:0;color:var(--muted);font-size:13.5px}
+.tpl.nums{display:flex;gap:16px;margin-top:12px;font-size:13px}
+.tpl.nums b{font-family:"JetBrains Mono",monospace;font-size:15px;display:block}
+
+/* layout */
+.calc{display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:start;margin-top:8px}
+@media(max-width:960px){.calc{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.panel h2{font-size:17px;margin:0 0 4px}
+.panel.hint{font-size:13px;color:var(--muted);margin:0 0 16px}
+.group{border-top:1px dashed var(--line);padding:16px 0 4px}
+.group:first-of-type{border-top:0;padding-top:4px}
+.group h3{font-size:13px;letter-spacing:.06em;margin:0 0 12px;color:var(--teal);display:flex;justify-content:space-between}
+.group h3 output{color:var(--ink);font-family:"JetBrains Mono",monospace;letter-spacing:0}
+.field{margin-bottom:14px}
+.field label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:500;margin-bottom:6px}
+.field label span{color:var(--muted);font-weight:400;font-size:12px}
+.field-row{display:flex;gap:8px;align-items:center}
+input[type=range]{flex:1;accent-color:var(--teal);min-width:0}
+input[type=number]{width:110px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:14px;text-align:right}
+.unit{font-size:12px;color:var(--muted);white-space:nowrap;min-width:44px}
+.note{font-size:12.5px;color:var(--muted);background:var(--surface2);border-radius:10px;padding:10px 12px}
+
+/* results */
+.results{position:sticky;top:16px}
+@media(max-width:960px){.results{position:static}}
+.verdict{border-radius:12px;padding:14px 16px;font-weight:700;font-size:15px;margin-bottom:14px}
+.verdict.good{background:#dcfce7;color:#14532d}
+.verdict.mid{background:var(--amber-bg);color:#92400e}
+.verdict.bad{background:#fee2e2;color:#7f1d1d}
+@media (prefers-color-scheme: dark){.verdict.good{background:#17351f;color:#bbf7d0}.verdict.bad{background:#3d1a1a;color:#fecaca}.verdict.mid{color:#fde68a}}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi label{font-size:12px;color:var(--muted);display:block}
+.kpi b{font-family:"JetBrains Mono",monospace;font-size:24px;line-height:1.2;display:block;margin-top:4px}
+.kpi small{font-size:12px;color:var(--muted)}
+.kpi.hero-kpi{grid-column:1/-1;background:var(--teal);color:#fff;border-color:var(--teal)}
+.kpi.hero-kpi label,.kpi.hero-kpi small{color:#ccfbf1}
+.kpi.hero-kpi b{font-size:38px}
+.bar-wrap{margin-top:16px}
+.bar{display:flex;height:16px;border-radius:999px;overflow:hidden;background:var(--surface2)}
+.bar i{display:block;height:100%}
+.legend{font-size:12.5px;color:var(--muted);margin-top:8px;display:grid;gap:4px}
+.legend b{color:var(--ink);font-family:"JetBrains Mono",monospace;float:right}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:500;font-size:12.5px}
+td.mono{font-size:13px}
+.btn{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:10px;padding:11px 16px}
+.btn-primary{background:var(--teal);color:#fff;width:100%}
+.btn-ghost{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn-row.btn{flex:1;white-space:nowrap}
+
+/* chart + report */
+.grid2{display:grid;grid-template-columns:1.15fr.85fr;gap:18px;margin-top:18px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.report{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:18px}
+.report h2{margin-top:0}
+#reportText{white-space:pre-wrap;font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px;line-height:1.85}
+details{margin-top:14px} summary{cursor:pointer;font-weight:700}
+.formula{font-family:"JetBrains Mono",monospace;font-size:13px;background:var(--surface2);padding:12px 14px;border-radius:10px;white-space:normal;word-break:break-all;line-height:1.7}
+footer{color:var(--muted);font-size:12.5px;margin-top:28px;text-align:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;font-size:14px;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media print{.templates,.calc.inputs,.btn-row,.hero-stats{display:none!important}.calc{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+<div class="eyebrow">Industrial AI · Project Justification Tool</div>
+<h1>工业 AI ROI 测算器<br><span>先算清账，再立项。</span></h1>
+<p class="lead">把投入、良率提升、人力节省和停机减少填进去，立刻得到回本周期、年化收益和 3 年 / 5 年现金流。选一个场景模板起步，再换成你工厂的真实数字——生成的那段摘要，可以直接贴进立项汇报。</p>
+<div class="hero-stats">
+<div class="hstat"><b>4 类收益</b><span>良率 · 人力 · 停机 · 其他</span></div>
+<div class="hstat"><b>3 个模板</b><span>质检 · 维保 · 排产</span></div>
+<div class="hstat"><b>5 年</b><span>累计现金流推演</span></div>
+<div class="hstat"><b>实时</b><span>拖动滑杆即时重算</span></div>
+</div>
+</header>
+
+<h2 class="section-title">① 先选一个场景模板</h2>
+<p class="section-sub">模板数字是同类项目的常见量级，只作起步参考——选中后所有字段都会填好，务必逐项换成你自己的报价与实测值。</p>
+<div class="templates" id="templates">
+<button class="tpl active" data-tpl="quality">
+<span class="tag">质量板块</span>
+<h3>🔍 视觉质检</h3>
+<p>相机 + 光源 + 边缘工控机替代人工目检，漏检率下降、返工减少，适合外观缺陷稳定的产线。</p>
+<div class="nums"><span>一次性投入<b>100 万</b></span><span>典型回本<b id="pb-quality">—</b></span></div>
+</button>
+<button class="tpl" data-tpl="maint">
+<span class="tag">设备板块</span>
+<h3>🩺 预测性维护</h3>
+<p>振动 / 温度 / 电流传感器 + 状态模型，把非计划停机变成计划内检修，收益主要来自停机避免。</p>
+<div class="nums"><span>一次性投入<b>125 万</b></span><span>典型回本<b id="pb-maint">—</b></span></div>
+</button>
+<button class="tpl" data-tpl="schedule">
+<span class="tag">计划板块</span>
+<h3>🗓️ 智能排产</h3>
+<p>以算法排程替代经验排单，减少换型等待与设备空转，计划员从“救火排单”回到异常处理。</p>
+<div class="nums"><span>一次性投入<b>95 万</b></span><span>典型回本<b id="pb-schedule">—</b></span></div>
+</button>
+</div>
+<p style="font-size:13px;color:var(--muted)">想从零开始？<a href="#" id="customLink">清空为自定义测算 →</a> 模板只是起点，改动任何一个数字后即按你的输入计算。</p>
+
+<div class="calc">
+<!-- INPUTS -->
+<section class="panel inputs">
+<h2>② 填入你的数字</h2>
+<p class="hint">金额单位统一为「万元」。滑杆快速估、数字框精调，两边同步。</p>
+
+<div class="group">
+<h3>一次性投入 <output id="sumInvest">—</output></h3>
+<div class="field"><label>硬件 <span>相机 / 传感器 / 服务器 / 工控机</span></label>
+<div class="field-row"><input type="range" min="0" max="300" step="1" data-k="hw"><input type="number" min="0" step="1" data-n="hw"><span class="unit">万元</span></div></div>
+<div class="field"><label>软件与算法开发 <span>license / 定制开发 / 模型训练</span></label>
+<div class="field-row"><input type="range" min="0" max="300" step="1" data-k="sw"><input type="number" min="0" step="1" data-n="sw"><span class="unit">万元</span></div></div>
+<div class="field"><label>实施与集成 <span>部署、联调、培训、上线支持</span></label>
+<div class="field-row"><input type="range" min="0" max="200" step="1" data-k="impl"><input type="number" min="0" step="1" data-n="impl"><span class="unit">万元</span></div></div>
+</div>
+
+<div class="group">
+<h3>每年运营成本 <output id="sumOps">—</output></h3>
+<div class="field"><label>年运营成本 <span>订阅 / 算力 / 维保 / 模型迭代，合并填</span></label>
+<div class="field-row"><input type="range" min="0" max="100" step="1" data-k="ops"><input type="number" min="0" step="1" data-n="ops"><span class="unit">万元/年</span></div></div>
+</div>
+
+<div class="group">
+<h3>良率收益</h3>
+<div class="field"><label>年产值基数 <span>该产线 / 车间年产值</span></label>
+<div class="field-row"><input type="range" min="500" max="50000" step="100" data-k="outputVal"><input type="number" min="0" step="100" data-n="outputVal"><span class="unit">万元</span></div></div>
+<div class="field"><label>良率提升 <span>百分点，如 92% → 94.5% 填 2.5</span></label>
+<div class="field-row"><input type="range" min="0" max="10" step="0.1" data-k="yieldGain"><input type="number" min="0" step="0.1" data-n="yieldGain"><span class="unit">百分点</span></div></div>
+</div>
+
+<div class="group">
+<h3>人力节省</h3>
+<div class="field"><label>可节省 / 转岗人数 <span>按全时当量计</span></label>
+<div class="field-row"><input type="range" min="0" max="30" step="0.5" data-k="headcount"><input type="number" min="0" step="0.5" data-n="headcount"><span class="unit">人</span></div></div>
+<div class="field"><label>人均年全成本 <span>工资 + 社保 + 福利</span></label>
+<div class="field-row"><input type="range" min="5" max="30" step="0.5" data-k="costPerHead"><input type="number" min="0" step="0.5" data-n="costPerHead"><span class="unit">万元</span></div></div>
+</div>
+
+<div class="group">
+<h3>停机减少</h3>
+<div class="field"><label>每年减少停机 <span>非计划停机 + 换型等待</span></label>
+<div class="field-row"><input type="range" min="0" max="400" step="5" data-k="downHours"><input type="number" min="0" step="5" data-n="downHours"><span class="unit">小时/年</span></div></div>
+<div class="field"><label>每小时停机损失 <span>产值损失 + 人工闲置 + 延期风险</span></label>
+<div class="field-row"><input type="range" min="0" max="5" step="0.1" data-k="costPerHour"><input type="number" min="0" step="0.1" data-n="costPerHour"><span class="unit">万元</span></div></div>
+</div>
+
+<div class="group">
+<h3>其他与保守系数</h3>
+<div class="field"><label>其他年收益 <span>返工减少、能耗、库存占用等，合并填</span></label>
+<div class="field-row"><input type="range" min="0" max="150" step="1" data-k="other"><input type="number" min="0" step="1" data-n="other"><span class="unit">万元/年</span></div></div>
+<div class="field"><label>收益兑现系数 <span>汇报时建议先按 70–85% 保守口径</span></label>
+<div class="field-row"><input type="range" min="40" max="100" step="5" data-k="realize"><input type="number" min="0" max="100" step="5" data-n="realize"><span class="unit">%</span></div></div>
+<div class="note">为什么要打折？模型识别率、现场采纳率、产量波动都会让“理论收益”打折。立项时用兑现系数把水分先挤掉，过会时反而更可信。</div>
+</div>
+</section>
+
+<!-- RESULTS -->
+<aside class="panel results">
+<h2>③ 测算结果</h2>
+<p class="hint" id="tplName">当前模板：视觉质检</p>
+<div class="verdict mid" id="verdict">—</div>
+<div class="kpi-grid">
+<div class="kpi hero-kpi"><label>回本周期（静态）</label><b id="kPayback">—</b><small id="kPaybackSub">按年净收益匀速兑现估算</small></div>
+<div class="kpi"><label>年毛收益（打折后）</label><b id="kGross">—</b><small>万元 / 年</small></div>
+<div class="kpi"><label>年净收益</label><b id="kNet">—</b><small>毛收益 − 年运营成本</small></div>
+<div class="kpi"><label>3 年 ROI</label><b id="kRoi3">—</b><small>(3年净收益−投入)÷投入</small></div>
+<div class="kpi"><label>5 年 ROI</label><b id="kRoi5">—</b><small>(5年净收益−投入)÷投入</small></div>
+<div class="kpi"><label>3 年累计净现金流</label><b id="kCum3">—</b><small>万元，已扣一次性投入</small></div>
+<div class="kpi"><label>5 年累计净现金流</label><b id="kCum5">—</b><small>万元，已扣一次性投入</small></div>
+</div>
+
+<div class="bar-wrap">
+<div style="font-size:13px;font-weight:700;margin-bottom:8px">年毛收益构成（打折前）</div>
+<div class="bar" id="benefitBar"></div>
+<div class="legend" id="benefitLegend"></div>
+</div>
+
+<div class="btn-row">
+<button class="btn btn-primary" id="copyBtn">复制立项摘要</button>
+<button class="btn btn-ghost" id="dlBtn">下载测算单 (.txt)</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:10px 0 0">复制 / 下载的都是下方自动生成的摘要全文，可直接粘进汇报 PPT 备注或立项文档。</p>
+</aside>
+</div>
+
+<div class="grid2">
+<section class="panel">
+<h2>5 年累计现金流</h2>
+<p class="hint">第 0 年为一次性投入（负值），之后每年叠加年净收益。曲线越过 0 的位置就是回本点。</p>
+<div id="chart"></div>
+<table style="margin-top:10px"><thead><tr><th>年份</th><th>当年净现金流</th><th>累计</th></tr></thead><tbody id="cfTable"></tbody></table>
+</section>
+<section class="panel">
+<h2>敏感性：兑现系数变了会怎样？</h2>
+<p class="hint">同一笔投入，收益只兑现 60% 时还回不回得了本？汇报前先看这一张表，心里有底。</p>
+<table><thead><tr><th>兑现系数</th><th>年净收益</th><th>回本</th><th>3年ROI</th></tr></thead><tbody id="sensTable"></tbody></table>
+<h2 style="margin-top:22px">三模板横向对照</h2>
+<p class="hint">按模板原始参数计算（兑现系数 80%），帮你判断先立哪个项。</p>
+<table><thead><tr><th>场景</th><th>投入</th><th>年净收益</th><th>回本</th></tr></thead><tbody id="cmpTable"></tbody></table>
+</section>
+</div>
+
+<section class="report">
+<h2>④ 立项汇报摘要（自动生成）</h2>
+<p class="section-sub">数字随输入实时更新。把假设写进摘要，是这份测算和“拍脑袋估算”的区别。</p>
+<div id="reportText"></div>
+<div class="btn-row" style="max-width:420px">
+<button class="btn btn-primary" id="copyBtn2">复制摘要</button>
+<button class="btn btn-ghost" onclick="window.print()">打印 / 存 PDF</button>
+</div>
+<details>
+<summary>计算口径与公式（评审问起时打开）</summary>
+<div style="margin-top:12px;display:grid;gap:10px">
+<div class="formula">良率收益 = 年产值 × 良率提升百分点 ÷ 100</div>
+<div class="formula">人力收益 = 节省人数 × 人均年全成本　|　停机收益 = 减少停机小时 × 每小时损失</div>
+<div class="formula">年毛收益 = (良率 + 人力 + 停机 + 其他) × 兑现系数</div>
+<div class="formula">年净收益 = 年毛收益 − 年运营成本　|　回本周期 = 一次性投入 ÷ 年净收益 × 12（月）</div>
+<div class="formula">N 年 ROI = (年净收益 × N − 一次性投入) ÷ 一次性投入 × 100%</div>
+<p style="font-size:13.5px;color:var(--muted);margin:0">口径说明：本测算为静态测算，未做资金折现（NPV / IRR）、未计税费与残值，也未考虑产量爬坡期——正式立项金额较大时，建议财务按折现口径复核。良率收益按“提升的百分点直接对应产值挽回”估算，若不良品并非全额损失（如可返工修复），应把良率提升调低或在兑现系数里再打一折。人力节省按“节省 / 转岗全时当量”计，转岗不等于裁员，汇报时建议注明人员安置去向。</p>
+</div>
+</details>
+</section>
+
+<section class="panel" style="margin-top:18px">
+<h2>汇报时最容易被追问的 3 个问题</h2>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="faqGrid">
+<div><b>“良率提升 2.5 个点，依据是什么？”</b><p style="color:var(--muted);font-size:13.5px">答法：给出当前漏检 / 误判的实测基线，以及试点线或同类项目的实测提升，而不是供应商宣传值。没有试点数据时，先按本工具的 60% 兑现档汇报。</p></div>
+<div><b>“省的人去哪了？”</b><p style="color:var(--muted);font-size:13.5px">答法：写清转岗安排——复检、异常处理、其他缺员产线。只写“节省人力成本”不写去向，是立项会上最常见的卡点。</p></div>
+<div><b>“上线后收益谁来验收？”</b><p style="color:var(--muted);font-size:13.5px">答法：约定验收指标与统计周期（如上线后连续 3 个月的良率与停机台账），由生产 / 财务共同确认，避免项目结束时各说各话。</p></div>
+</div>
+</section>
+<style>@media(max-width:820px){#faqGrid{grid-template-columns:1fr!important}}</style>
+
+<footer>工业 AI ROI 测算器 · 模板数字为同类项目常见量级的课堂参考值，非任何供应商报价或收益承诺；正式立项请以本厂实测基线与正式报价为准。</footer>
+</div>
+<div class="toast" id="toast">已复制</div>
+
+<script>
+var TEMPLATES = {
+quality: { name:"视觉质检", hw:45, sw:35, impl:20, ops:12, outputVal:8000, yieldGain:2.5, headcount:6, costPerHead:12, downHours:40, costPerHour:0.8, other:18, realize:80},
+maint: { name:"预测性维护", hw:60, sw:40, impl:25, ops:18, outputVal:12000, yieldGain:0.8, headcount:2, costPerHead:14, downHours:120, costPerHour:1.2, other:10, realize:80},
+schedule:{ name:"智能排产", hw:10, sw:55, impl:30, ops:15, outputVal:10000, yieldGain:1.0, headcount:3, costPerHead:13, downHours:80, costPerHour:0.6, other:25, realize:80},
+custom: { name:"自定义测算", hw:30, sw:30, impl:15, ops:10, outputVal:5000, yieldGain:1.5, headcount:3, costPerHead:12, downHours:50, costPerHour:0.8, other:10, realize:80}
+};
+var state = Object.assign({}, TEMPLATES.quality);
+var currentTpl = "quality";
+var COLORS = { yield:"#0f766e", labor:"#d97706", down:"#2563eb", other:"#9333ea"};
+
+function fmt(n, d){ if(!isFinite(n)) return "—"; return n.toLocaleString("zh-CN",{minimumFractionDigits:(d||0),maximumFractionDigits:(d||0)});}
+function calc(s){
+var invest = s.hw + s.sw + s.impl;
+var bYield = s.outputVal * s.yieldGain / 100;
+var bLabor = s.headcount * s.costPerHead;
+var bDown = s.downHours * s.costPerHour;
+var bOther = s.other;
+var grossRaw = bYield + bLabor + bDown + bOther;
+var gross = grossRaw * s.realize / 100;
+var net = gross - s.ops;
+var paybackMonths = net > 0? invest / net * 12: Infinity;
+var roi = function(y){ return invest>0? (net*y - invest)/invest*100: 0;};
+return { invest:invest, bYield:bYield, bLabor:bLabor, bDown:bDown, bOther:bOther, grossRaw:grossRaw, gross:gross, net:net, paybackMonths:paybackMonths, roi3:roi(3), roi5:roi(5), cum3:net*3-invest, cum5:net*5-invest};
+}
+function paybackText(m){
+if(!isFinite(m)) return "无法回本";
+if(m < 12) return fmt(m,1)+" 个月";
+return fmt(m/12,1)+" 年（"+fmt(m,0)+" 个月）";
+}
+function setFields(){
+Object.keys(state).forEach(function(k){
+var r=document.querySelector('[data-k="'+k+'"]'), n=document.querySelector('[data-n="'+k+'"]');
+if(r) r.value=state[k]; if(n) n.value=state[k];
+});
+}
+function bindInputs(){
+document.querySelectorAll('[data-k]').forEach(function(el){
+el.addEventListener('input', function(){ state[el.dataset.k]=parseFloat(el.value)||0; syncNum(el.dataset.k); markCustom(); render();});
+});
+document.querySelectorAll('[data-n]').forEach(function(el){
+el.addEventListener('input', function(){ state[el.dataset.n]=parseFloat(el.value)||0; var r=document.querySelector('[data-k="'+el.dataset.n+'"]'); if(r) r.value=el.value; markCustom(); render();});
+});
+}
+function syncNum(k){ var n=document.querySelector('[data-n="'+k+'"]'); if(n) n.value=state[k];}
+function markCustom(){
+if(currentTpl!=="custom"){
+// keep template highlight only if values still match; simplest: switch label
+document.getElementById('tplName').textContent = "当前：已按你的输入调整（模板起点："+TEMPLATES[currentTpl].name+"）";
+}
+}
+function render(){
+var r = calc(state);
+document.getElementById('sumInvest').textContent = fmt(r.invest)+" 万元";
+document.getElementById('sumOps').textContent = fmt(state.ops)+" 万元/年";
+// verdict
+var v=document.getElementById('verdict');
+if(r.net<=0){ v.className="verdict bad"; v.textContent="⚠ 按当前口径年净收益为 "+fmt(r.net)+" 万元，项目无法回本——先压投入或重新核实收益假设，再谈立项。";}
+else if(r.paybackMonths<=18){ v.className="verdict good"; v.textContent="✓ 回本周期 "+paybackText(r.paybackMonths)+"，在制造业常见的 18 个月立项门槛之内，账算得通。";}
+else if(r.paybackMonths<=36){ v.className="verdict mid"; v.textContent="◐ 回本周期 "+paybackText(r.paybackMonths)+"，偏长但可讨论——建议分期投入或先做试点线验证收益。";}
+else { v.className="verdict bad"; v.textContent="⚠ 回本周期 "+paybackText(r.paybackMonths)+"，超过 3 年——建议缩小一期范围，或把收益假设逐项复核后再报。";}
+document.getElementById('kPayback').textContent = isFinite(r.paybackMonths)? (r.paybackMonths<12? fmt(r.paybackMonths,1): fmt(r.paybackMonths,0)): "—";
+document.getElementById('kPaybackSub').textContent = isFinite(r.paybackMonths)? (r.paybackMonths<12? "个月回本": "个月回本 ≈ "+fmt(r.paybackMonths/12,1)+" 年"): "年净收益 ≤ 0，无法回本";
+document.getElementById('kGross').textContent = fmt(r.gross);
+document.getElementById('kNet').textContent = fmt(r.net);
+document.getElementById('kNet').style.color = r.net<0? "var(--red)": "";
+document.getElementById('kRoi3').textContent = fmt(r.roi3,0)+"%";
+document.getElementById('kRoi5').textContent = fmt(r.roi5,0)+"%";
+document.getElementById('kCum3').textContent = fmt(r.cum3);
+document.getElementById('kCum5').textContent = fmt(r.cum5);
+// bar
+var total = Math.max(r.grossRaw, 0.0001);
+var parts=[["良率收益",r.bYield,COLORS.yield],["人力节省",r.bLabor,COLORS.labor],["停机减少",r.bDown,COLORS.down],["其他收益",r.bOther,COLORS.other]];
+document.getElementById('benefitBar').innerHTML = parts.map(function(p){ return '<i style="width:'+(p[1]/total*100)+'%;background:'+p[2]+'"></i>';}).join('');
+document.getElementById('benefitLegend').innerHTML = parts.map(function(p){ return '<span><span style="color:'+p[2]+'">■</span> '+p[0]+' <b>'+fmt(p[1])+' 万</b></span>';}).join('');
+// cashflow table + chart
+var rows='', cum=-r.invest, pts=[[0,-r.invest]];
+rows+='<tr><td>第 0 年（投入）</td><td class="mono">-'+fmt(r.invest)+'</td><td class="mono">'+fmt(cum)+'</td></tr>';
+for(var y=1;y<=5;y++){ cum+=r.net; pts.push([y,cum]); rows+='<tr><td>第 '+y+' 年</td><td class="mono">'+fmt(r.net)+'</td><td class="mono" style="font-weight:'+(cum>=0?'700':'400')+'">'+fmt(cum)+'</td></tr>';}
+document.getElementById('cfTable').innerHTML=rows;
+drawChart(pts);
+// sensitivity
+var srows='';
+[60,80,100].forEach(function(rc){
+var s2=Object.assign({},state,{realize:rc}); var rr=calc(s2);
+srows+='<tr'+(rc===state.realize?' style="font-weight:700"':'')+'><td>'+rc+'%'+(rc===state.realize?'（当前）':'')+'</td><td class="mono">'+fmt(rr.net)+'</td><td class="mono">'+(isFinite(rr.paybackMonths)?fmt(rr.paybackMonths,0)+' 月':'无法回本')+'</td><td class="mono">'+fmt(rr.roi3,0)+'%</td></tr>';
+});
+document.getElementById('sensTable').innerHTML=srows;
+// comparison
+var crows='';
+Object.keys(TEMPLATES).slice(0,3).forEach(function(k){
+var rr=calc(TEMPLATES[k]);
+crows+='<tr><td>'+TEMPLATES[k].name+'</td><td class="mono">'+fmt(rr.invest)+'</td><td class="mono">'+fmt(rr.net)+'</td><td class="mono">'+(isFinite(rr.paybackMonths)?fmt(rr.paybackMonths,0)+' 月':'—')+'</td></tr>';
+var pb=document.getElementById('pb-'+k); if(pb) pb.textContent=isFinite(rr.paybackMonths)?fmt(rr.paybackMonths,0)+" 个月":"—";
+});
+document.getElementById('cmpTable').innerHTML=crows;
+// report
+document.getElementById('reportText').textContent = buildReport(r);
+}
+function drawChart(pts){
+var W=560,H=220,P={l:56,r:14,t:14,b:30};
+var vals=pts.map(function(p){return p[1];}); vals.push(0);
+var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx-mn<10){mx+=5;mn-=5;}
+var X=function(i){return P.l+(W-P.l-P.r)*i/5;}, Y=function(v){return P.t+(H-P.t-P.b)*(1-(v-mn)/(mx-mn));};
+var line=pts.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join(' ');
+var dots=pts.map(function(p){return '<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="4" fill="#0f766e"/><text x="'+X(p[0])+'" y="'+(Y(p[1])-10)+'" font-size="11" text-anchor="middle" fill="currentColor" font-family="JetBrains Mono">'+fmt(p[1])+'</text>';}).join('');
+var labels=pts.map(function(p){return '<text x="'+X(p[0])+'" y="'+(H-8)+'" font-size="11" text-anchor="middle" fill="currentColor" opacity=".6">第'+p[0]+'年</text>';}).join('');
+document.getElementById('chart').innerHTML =
+'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" role="img" aria-label="5年累计现金流曲线">'+
+'<line x1="'+P.l+'" y1="'+Y(0)+'" x2="'+(W-P.r)+'" y2="'+Y(0)+'" stroke="#d97706" stroke-dasharray="5 4" stroke-width="1.5"/>'+
+'<text x="'+(W-P.r)+'" y="'+(Y(0)-6)+'" font-size="11" text-anchor="end" fill="#d97706">盈亏平衡线 0</text>'+
+'<path d="'+line+'" fill="none" stroke="#0f766e" stroke-width="2.5"/>'+dots+labels+'</svg>';
+}
+function buildReport(r){
+var name = TEMPLATES[currentTpl]? TEMPLATES[currentTpl].name: "工业 AI 项目";
+return "\n"+
+"一次性投入 "+fmt(r.invest)+" 万元（硬件 "+fmt(state.hw)+" + 软件与开发 "+fmt(state.sw)+" + 实施集成 "+fmt(state.impl)+"），年运营成本 "+fmt(state.ops)+" 万元。\n"+
+"收益假设：年产值基数 "+fmt(state.outputVal)+" 万元，良率提升 "+fmt(state.yieldGain,1)+" 个百分点（年收益 "+fmt(r.bYield)+" 万元）；节省 / 转岗 "+fmt(state.headcount,1)+" 人，人均年全成本 "+fmt(state.costPerHead,1)+" 万元（年收益 "+fmt(r.bLabor)+" 万元）；每年减少停机 "+fmt(state.downHours)+" 小时，每小时损失 "+fmt(state.costPerHour,1)+" 万元（年收益 "+fmt(r.bDown)+" 万元）；其他年收益 "+fmt(r.bOther)+" 万元。以上收益按 "+fmt(state.realize)+"% 兑现系数折算。\n"+
+"测算结果：年毛收益 "+fmt(r.gross)+" 万元，年净收益 "+fmt(r.net)+" 万元；静态回本周期 "+paybackText(r.paybackMonths)+"；3 年 ROI "+fmt(r.roi3,0)+"%，3 年累计净现金流 "+fmt(r.cum3)+" 万元；5 年 ROI "+fmt(r.roi5,0)+"%，5 年累计净现金流 "+fmt(r.cum5)+" 万元。\n"+
+"说明：本测算为静态口径，未做资金折现，未计税费与残值；收益假设需以试点实测与产线台账复核后作为正式立项依据。";
+}
+function toast(msg){
+var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+setTimeout(function(){t.classList.remove('show');},1800);
+}
+function copyReport(){
+var txt=document.getElementById('reportText').textContent;
+if(navigator.clipboard && navigator.clipboard.writeText){
+navigator.clipboard.writeText(txt).then(function(){toast('立项摘要已复制');},function(){fallbackCopy(txt);});
+} else fallbackCopy(txt);
+}
+function fallbackCopy(txt){
+var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+try{ document.execCommand('copy'); toast('立项摘要已复制');}catch(e){ toast('复制失败，请长按摘要手动复制');}
+document.body.removeChild(ta);
+}
+document.querySelectorAll('.tpl').forEach(function(btn){
+btn.addEventListener('click', function(){
+document.querySelectorAll('.tpl').forEach(function(b){b.classList.remove('active');});
+btn.classList.add('active');
+currentTpl=btn.dataset.tpl;
+state=Object.assign({}, TEMPLATES[currentTpl]);
+document.getElementById('tplName').textContent="当前模板："+TEMPLATES[currentTpl].name;
+setFields(); render(); toast('已载入「'+TEMPLATES[currentTpl].name+'」模板');
+});
+});
+document.getElementById('customLink').addEventListener('click', function(e){
+e.preventDefault();
+document.querySelectorAll('.tpl').forEach(function(b){b.classList.remove('active');});
+currentTpl='custom'; state=Object.assign({}, TEMPLATES.custom);
+document.getElementById('tplName').textContent="当前模板：自定义测算";
+setFields(); render();
+});
+document.getElementById('copyBtn').addEventListener('click', copyReport);
+document.getElementById('copyBtn2').addEventListener('click', copyReport);
+document.getElementById('dlBtn').addEventListener('click', function(){
+var blob=new Blob([document.getElementById('reportText').textContent],{type:'text/plain;charset=utf-8'});
+var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='工业AI-ROI测算单.txt'; a.click();
+setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+toast('测算单已下载');
+});
+bindInputs(); setFields(); render();
+</script>
+</body>
+</html>
