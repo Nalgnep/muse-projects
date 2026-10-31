@@ -1,10 +1,24 @@
 (function () {
   if (document.querySelector(".site-nav")) return;
+
+  var framed = false;
+  try { framed = window.self !== window.top; } catch (e) { framed = true; }
+  var params = new URLSearchParams(location.search || "");
+  var embed = params.get("embed") === "1" || framed;
+
+  /* When opened inside the portal iframe, skip the shared top bar to avoid double chrome. */
+  if (embed) {
+    document.documentElement.classList.add("embed");
+    document.documentElement.style.setProperty("--site-nav-offset", "0px");
+    return;
+  }
+
   var subs = [
     "industrial-ai-iot-dashboard",
     "industrial-ai-pitfalls",
     "industrial-ai-projects",
-    "industrial-ai-roi-calculator"
+    "industrial-ai-roi-calculator",
+    "portal"
   ];
   var path = location.pathname || "";
   var inSub = subs.some(function (s) {
@@ -12,6 +26,7 @@
   });
   var pre = inSub ? "../" : "";
   var pages = [
+    { id: "portal", href: pre + "portal/", label: "门户" },
     { id: "academy", href: pre + "index.html", label: "算法课程" },
     { id: "projects", href: pre + "industrial-ai-projects/", label: "实战项目" },
     { id: "roi", href: pre + "industrial-ai-roi-calculator/", label: "ROI 测算" },
@@ -19,7 +34,8 @@
     { id: "iot", href: pre + "industrial-ai-iot-dashboard/", label: "IoT 看板" }
   ];
   var current = "academy";
-  if (path.indexOf("industrial-ai-projects") >= 0) current = "projects";
+  if (path.indexOf("/portal") >= 0) current = "portal";
+  else if (path.indexOf("industrial-ai-projects") >= 0) current = "projects";
   else if (path.indexOf("industrial-ai-roi-calculator") >= 0) current = "roi";
   else if (path.indexOf("industrial-ai-pitfalls") >= 0) current = "pitfalls";
   else if (path.indexOf("industrial-ai-iot-dashboard") >= 0) current = "iot";

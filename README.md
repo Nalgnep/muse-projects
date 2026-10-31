@@ -14,7 +14,7 @@
 | 4 | [避坑手册](industrial-ai-pitfalls/) | 数据、验收、运维 10 个翻车点，外加风险自测和上线红线 |
 | 5 | [IoT 看板](industrial-ai-iot-dashboard/) | MQTT、ThingsBoard、规则告警和 AI 摘要的可运行讲解 |
 
-页顶导航在五个页面之间切换。课程支持搜索、分享链接（如 `index.html#spc`）和本机进度；项目可以用 `industrial-ai-projects/#p2` 打开，`#p2-sim` 直接进入交互实验。
+页顶导航在五个页面之间切换。想发一个总入口，用 [门户](portal/)：`https://nalgnep.github.io/muse-projects/portal/`，可用哈希分享到某一项（如 `portal/#spc`、`portal/#bearing`）。课程支持搜索、分享链接（如 `index.html#spc`）和本机进度；项目可以用 `industrial-ai-projects/#p2` 打开，`#p2-sim` 直接进入交互实验。
 
 ## 打开方式
 
