@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>制造业算法学院 · 门户</title>
+<meta name="description" content="一个入口看完制造业算法学院：算法课、SPC 控制图、实战项目、轴承包络谱、ROI、避坑、IoT 看板，以及冰箱发泡空洞根因演示。">
+<meta property="og:title" content="制造业算法学院 · 门户">
+<meta property="og:description" content="分享这一个链接，菜单里切换全部站点和演示。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="canonical" href="https://nalgnep.github.io/muse-projects/portal/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#14202b">
+<style>
+:root{
+  --bg:#edf0f3; --panel:#ffffff; --panel2:#f4f7fa; --ink:#16222d; --muted:#4c5d6b;
+  --line:#d7dee5; --accent:#e07b1f; --accent-ink:#9a3412; --steel:#31597a;
+  --nav:#14202b; --nav-ink:#e7eef4; --side-w:280px; --top-h:56px;
+  --shadow:0 10px 28px rgba(22,34,45,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e141a; --panel:#17222d; --panel2:#1d2a37; --ink:#e8eef3; --muted:#a7b8c6;
+    --line:#2b3b4a; --accent:#f59a3d; --accent-ink:#ffb066; --steel:#7fb0d8;
+    --shadow:0 10px 28px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","WenQuanYi Micro Hei","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent-ink); text-decoration:none}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.app{display:grid; grid-template-columns:var(--side-w) 1fr; grid-template-rows:var(--top-h) 1fr; height:100%; min-height:100dvh}
+.top{
+  grid-column:1 / -1; display:flex; align-items:center; gap:12px;
+  background:var(--nav); color:var(--nav-ink); padding:0 14px;
+  border-bottom:3px solid var(--accent); z-index:30;
+}
+.brand{font-weight:800; font-size:15px; color:inherit; white-space:nowrap}
+.brand span{font-weight:600; opacity:.72; margin-left:8px; font-size:13px}
+.menu-btn{
+  display:none; border:1px solid rgba(255,255,255,.18); background:transparent; color:inherit;
+  border-radius:10px; min-width:40px; min-height:40px; cursor:pointer; font-weight:800;
+}
+.top-actions{margin-left:auto; display:flex; align-items:center; gap:8px; min-width:0}
+.crumb{font-size:13px; color:#c5d2dc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:min(42vw,360px)}
+.btn{
+  border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:var(--nav-ink);
+  border-radius:10px; padding:8px 12px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.btn:hover{background:rgba(255,255,255,.12)}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.btn.accent{background:#9a3412; border-color:#9a3412; color:#fff}
+
+.side{
+  grid-row:2; background:var(--panel); border-right:1px solid var(--line);
+  overflow:auto; padding:14px 12px 28px; z-index:20;
+}
+.side h2{margin:14px 8px 8px; font-size:11px; letter-spacing:.12em; color:var(--muted); font-weight:800; text-transform:uppercase}
+.side h2:first-child{margin-top:4px}
+.nav-item{
+  display:flex; flex-direction:column; gap:2px; width:100%; text-align:left;
+  border:1px solid transparent; background:transparent; color:var(--ink);
+  border-radius:12px; padding:10px 12px; cursor:pointer; margin-bottom:4px;
+}
+.nav-item:hover{background:var(--panel2); border-color:var(--line)}
+.nav-item[aria-current="page"]{background:#fdeed9; border-color:#f0c48a; color:var(--accent-ink)}
+@media (prefers-color-scheme: dark){
+  .nav-item[aria-current="page"]{background:#3a2a16; border-color:#8a5a20; color:var(--accent-ink)}
+}
+.nav-item b{font-size:14px; font-weight:800; line-height:1.3}
+.nav-item span{font-size:12px; color:var(--muted); line-height:1.4}
+.nav-item .ext{font-size:11px; font-weight:700; color:var(--steel)}
+.side-foot{margin:18px 8px 0; font-size:12px; color:var(--muted)}
+
+.main{grid-row:2; min-width:0; min-height:0; display:flex; flex-direction:column; background:var(--bg)}
+.stage{flex:1; min-height:0; position:relative}
+.home,.frame-wrap,.fallback{position:absolute; inset:0; overflow:auto}
+.home{padding:28px 24px 48px}
+.home-inner{max-width:980px; margin:0 auto}
+.home h1{font-size:clamp(28px,4vw,40px); line-height:1.15; margin:0 0 10px; font-weight:900}
+.home .lead{color:var(--muted); font-size:16px; max-width:720px; margin:0 0 22px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px}
+.card{
+  border:1px solid var(--line); background:var(--panel); border-radius:16px; padding:16px;
+  box-shadow:var(--shadow); cursor:pointer; text-align:left; color:inherit; width:100%;
+}
+.card:hover{border-color:var(--accent)}
+.card .tag{font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--steel); margin-bottom:6px}
+.card b{display:block; font-size:16px; margin-bottom:6px}
+.card p{margin:0; font-size:13.5px; color:var(--muted)}
+.tips{margin-top:22px; border-left:4px solid var(--steel); background:var(--panel2); border-radius:0 12px 12px 0; padding:12px 14px; font-size:13.5px; color:var(--muted)}
+
+.frame-wrap{display:none; background:var(--panel)}
+.frame-wrap.on{display:block}
+iframe{border:0; width:100%; height:100%; background:var(--panel); display:block}
+.fallback{
+  display:none; align-items:center; justify-content:center; padding:28px;
+  background:var(--bg);
+}
+.fallback.on{display:flex}
+.fallback-box{
+  max-width:460px; background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  padding:22px; box-shadow:var(--shadow);
+}
+.fallback-box h2{margin:0 0 8px; font-size:22px}
+.fallback-box p{margin:0 0 14px; color:var(--muted)}
+.fallback-box .row{display:flex; gap:8px; flex-wrap:wrap}
+
+.backdrop{display:none; position:fixed; inset:0; background:rgba(10,16,22,.45); z-index:15}
+body.drawer-open .backdrop{display:block}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .menu-btn{display:inline-flex; align-items:center; justify-content:center}
+  .side{
+    position:fixed; top:var(--top-h); left:0; bottom:0; width:min(86vw,320px);
+    transform:translateX(-105%); transition:transform .2s ease; box-shadow:var(--shadow);
+  }
+  body.drawer-open .side{transform:translateX(0)}
+  .crumb{display:none}
+  .home{padding:20px 16px 40px}
+}
+@media (prefers-reduced-motion: reduce){
+  .side{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="打开菜单" aria-controls="side" aria-expanded="false">☰</button>
+    <a class="brand" href="#home">制造业算法学院<span>门户</span></a>
+    <div class="top-actions">
+      <div class="crumb" id="crumb">概览</div>
+      <button class="btn" id="openBtn" type="button" disabled>新标签打开</button>
+    </div>
+  </header>
+
+  <aside class="side" id="side" aria-label="门户目录"></aside>
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <main class="main" id="content" tabindex="-1">
+    <div class="stage">
+      <section class="home" id="homeView" aria-label="门户概览">
+        <div class="home-inner">
+          <h1>一个链接，切换全部站点</h1>
+          <p class="lead">把算法课、控制图实验、实战项目、ROI、避坑手册、IoT 看板和冰箱发泡演示收在同一扇门里。左侧点选即可切换；地址栏的哈希可直接分享到某一项。</p>
+          <div class="grid" id="homeGrid"></div>
+          <div class="tips">站内页面嵌在本页打开；若某页拒绝被嵌套，会提示你用新标签打开。冰箱发泡演示来自另一个仓库，同属 <code>nalgnep.github.io</code>。</div>
+        </div>
+      </section>
+      <div class="frame-wrap" id="frameWrap" aria-hidden="true">
+        <iframe id="frame" title="站点内容" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="fallback" id="fallback" aria-hidden="true">
+        <div class="fallback-box">
+          <h2 id="fbTitle">无法在门户内嵌套打开</h2>
+          <p id="fbBody">这一页设置了防嵌套策略，或加载失败。请用新标签打开原地址。</p>
+          <div class="row">
+            <a class="btn accent" id="fbOpen" href="#" target="_blank" rel="noopener">新标签打开</a>
+            <button class="btn" id="fbHome" type="button">回到概览</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var ROOT = "../";
+  var ITEMS = [
+    {
+      id: "home",
+      group: "门户",
+      title: "概览",
+      desc: "全部入口一览，适合先发给同事看有哪些站。",
+      kind: "home"
+    },
+    {
+      id: "course",
+      group: "学习路径",
+      title: "工业 AI 算法课",
+      desc: "11 节互动课：从排序、SPC 到神经网络与强化学习。",
+      kind: "frame",
+      src: ROOT + "index.html",
+      abs: "https://nalgnep.github.io/muse-projects/"
+    },
+    {
+      id: "spc",
+      group: "学习路径",
+      title: "SPC 均值-极差图",
+      desc: "子组控制图、A2/D3/D4 控制限，以及 GB/T 4091 判异演示。",
+      kind: "frame",
+      src: ROOT + "index.html#spc",
+      abs: "https://nalgnep.github.io/muse-projects/#spc"
+    },
+    {
+      id: "projects",
+      group: "实战与诊断",
+      title: "实战项目",
+      desc: "8 个端到端任务书：视觉质检、预测维护、排产与数字孪生。",
+      kind: "frame",
+      src: ROOT + "industrial-ai-projects/",
+      abs: "https://nalgnep.github.io/muse-projects/industrial-ai-projects/"
+    },
+    {
+      id: "bearing",
+      group: "实战与诊断",
+      title: "轴承包络谱",
+      desc: "外圈 / 内圈 / 滚动体故障的时域、频谱与包络谱对照。",
+      kind: "frame",
+      src: ROOT + "industrial-ai-projects/#p2-sim",
+      abs: "https://nalgnep.github.io/muse-projects/industrial-ai-projects/#p2-sim"
+    },
+    {
+      id: "roi",
+      group: "工具与手册",
+      title: "ROI 测算器",
+      desc: "立项前把投入、良率、人力和停机算成回本周期。",
+      kind: "frame",
+      src: ROOT + "industrial-ai-roi-calculator/",
+      abs: "https://nalgnep.github.io/muse-projects/industrial-ai-roi-calculator/"
+    },
+    {
+      id: "pitfalls",
+      group: "工具与手册",
+      title: "避坑指南",
+      desc: "数据、验收、运维 10 个翻车点，外加上线红线。",
+      kind: "frame",
+      src: ROOT + "industrial-ai-pitfalls/",
+      abs: "https://nalgnep.github.io/muse-projects/industrial-ai-pitfalls/"
+    },
+    {
+      id: "iot",
+      group: "工具与手册",
+      title: "IoT 看板",
+      desc: "MQTT、ThingsBoard、规则告警与 AI 摘要的可运行讲解。",
+      kind: "frame",
+      src: ROOT + "industrial-ai-iot-dashboard/",
+      abs: "https://nalgnep.github.io/muse-projects/industrial-ai-iot-dashboard/"
+    },
+    {
+      id: "foaming",
+      group: "扩展演示",
+      title: "冰箱发泡空洞根因推理 Demo",
+      desc: "独立仓库里的发泡空洞根因推理演示，可在门户内打开或新标签查看。",
+      kind: "frame",
+      external: true,
+      src: "https://nalgnep.github.io/foaming-demo/",
+      abs: "https://nalgnep.github.io/foaming-demo/"
+    }
+  ];
+
+  var byId = {};
+  ITEMS.forEach(function (it) { byId[it.id] = it; });
+
+  var side = document.getElementById("side");
+  var homeView = document.getElementById("homeView");
+  var homeGrid = document.getElementById("homeGrid");
+  var frameWrap = document.getElementById("frameWrap");
+  var frame = document.getElementById("frame");
+  var fallback = document.getElementById("fallback");
+  var crumb = document.getElementById("crumb");
+  var openBtn = document.getElementById("openBtn");
+  var menuBtn = document.getElementById("menuBtn");
+  var backdrop = document.getElementById("backdrop");
+  var currentId = "home";
+  var loadTimer = null;
+  var framedOk = false;
+
+  function closeDrawer() {
+    document.body.classList.remove("drawer-open");
+    menuBtn.setAttribute("aria-expanded", "false");
+    menuBtn.setAttribute("aria-label", "打开菜单");
+    backdrop.hidden = true;
+  }
+  function openDrawer() {
+    document.body.classList.add("drawer-open");
+    menuBtn.setAttribute("aria-expanded", "true");
+    menuBtn.setAttribute("aria-label", "关闭菜单");
+    backdrop.hidden = false;
+  }
+  menuBtn.addEventListener("click", function () {
+    if (document.body.classList.contains("drawer-open")) closeDrawer();
+    else openDrawer();
+  });
+  backdrop.addEventListener("click", closeDrawer);
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDrawer();
+  });
+
+  function renderSide() {
+    var html = "";
+    var last = "";
+    ITEMS.forEach(function (it) {
+      if (it.group !== last) {
+        html += "<h2>" + it.group + "</h2>";
+        last = it.group;
+      }
+      html +=
+        '<button class="nav-item" type="button" data-id="' + it.id + '"' +
+        (it.id === currentId ? ' aria-current="page"' : "") + ">" +
+        "<b>" + it.title + "</b>" +
+        "<span>" + it.desc + "</span>" +
+        (it.external ? '<span class="ext">外部仓库 · 同域演示</span>' : "") +
+        "</button>";
+    });
+    html += '<p class="side-foot">地址形如 <code>portal/#spc</code>，复制即可分享到某一项。</p>';
+    side.innerHTML = html;
+    side.querySelectorAll(".nav-item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        go(btn.getAttribute("data-id"), true);
+        closeDrawer();
+      });
+    });
+  }
+
+  function renderHomeCards() {
+    homeGrid.innerHTML = ITEMS.filter(function (it) { return it.id !== "home"; }).map(function (it) {
+      return '<button class="card" type="button" data-id="' + it.id + '">' +
+        '<div class="tag">' + it.group + (it.external ? " · 外部" : "") + "</div>" +
+        "<b>" + it.title + "</b><p>" + it.desc + "</p></button>";
+    }).join("");
+    homeGrid.querySelectorAll(".card").forEach(function (card) {
+      card.addEventListener("click", function () { go(card.getAttribute("data-id"), true); });
+    });
+  }
+
+  function showHome() {
+    homeView.style.display = "block";
+    frameWrap.classList.remove("on");
+    frameWrap.setAttribute("aria-hidden", "true");
+    fallback.classList.remove("on");
+    fallback.setAttribute("aria-hidden", "true");
+    frame.removeAttribute("src");
+    openBtn.disabled = true;
+    openBtn.hidden = true;
+    crumb.textContent = "概览";
+  }
+
+  function showFallback(item, reason) {
+    homeView.style.display = "none";
+    frameWrap.classList.remove("on");
+    frameWrap.setAttribute("aria-hidden", "true");
+    fallback.classList.add("on");
+    fallback.setAttribute("aria-hidden", "false");
+    document.getElementById("fbTitle").textContent = "无法在门户内打开「" + item.title + "」";
+    document.getElementById("fbBody").textContent = reason || "该页面拒绝被嵌套，或加载超时。请用新标签打开原地址。";
+    var a = document.getElementById("fbOpen");
+    a.href = item.abs;
+    openBtn.disabled = false;
+    openBtn.hidden = false;
+    openBtn.onclick = function () { window.open(item.abs, "_blank", "noopener"); };
+  }
+
+  function hideChromeInFrame() {
+    try {
+      var doc = frame.contentDocument;
+      if (!doc) return;
+      var nav = doc.querySelector(".site-nav");
+      if (nav) nav.style.display = "none";
+      doc.documentElement.style.setProperty("--site-nav-offset", "0px");
+    } catch (e) {
+      /* cross-origin or blocked */
+    }
+  }
+
+  function showFrame(item) {
+    homeView.style.display = "none";
+    fallback.classList.remove("on");
+    fallback.setAttribute("aria-hidden", "true");
+    frameWrap.classList.add("on");
+    frameWrap.setAttribute("aria-hidden", "false");
+    framedOk = false;
+    openBtn.disabled = false;
+    openBtn.hidden = false;
+    openBtn.onclick = function () { window.open(item.abs, "_blank", "noopener"); };
+    crumb.textContent = item.title;
+
+    if (loadTimer) clearTimeout(loadTimer);
+    var token = String(Date.now());
+    frame.dataset.token = token;
+
+    frame.onload = function () {
+      if (frame.dataset.token !== token) return;
+      framedOk = true;
+      hideChromeInFrame();
+      /* hash-only navigations inside same document may not re-fire; nudge hash pages */
+      try {
+        var win = frame.contentWindow;
+        if (win && item.src.indexOf("#") >= 0) {
+          var hash = item.src.split("#")[1];
+          if (hash && win.location.hash.replace(/^#/, "") !== hash) {
+            win.location.hash = hash;
+          }
+        }
+      } catch (e) {}
+    };
+
+    var src = item.src;
+    if (src.indexOf("://") === -1) {
+      var hash = "";
+      var base = src;
+      var hi = src.indexOf("#");
+      if (hi >= 0) { hash = src.slice(hi); base = src.slice(0, hi); }
+      base += (base.indexOf("?") >= 0 ? "&" : "?") + "embed=1&t=" + Date.now();
+      src = base + hash;
+    }
+    frame.src = src;
+
+    loadTimer = setTimeout(function () {
+      if (frame.dataset.token !== token || framedOk) return;
+      /* still loading or blocked — probe access */
+      try {
+        var href = frame.contentWindow && frame.contentWindow.location.href;
+        if (href && href !== "about:blank") {
+          framedOk = true;
+          hideChromeInFrame();
+          return;
+        }
+      } catch (e) {
+        showFallback(item, "浏览器报告该页不能被嵌套（常见于设置了 X-Frame-Options / CSP）。");
+        return;
+      }
+      showFallback(item, "页面加载较慢或没有响应。若新标签可以打开，多半是网络或脚本问题。");
+    }, 8000);
+  }
+
+  function syncActive() {
+    side.querySelectorAll(".nav-item").forEach(function (btn) {
+      if (btn.getAttribute("data-id") === currentId) btn.setAttribute("aria-current", "page");
+      else btn.removeAttribute("aria-current");
+    });
+  }
+
+  function go(id, push) {
+    var item = byId[id] || byId.home;
+    currentId = item.id;
+    syncActive();
+    if (push) {
+      var next = "#" + item.id;
+      if (location.hash !== next) history.pushState({ id: item.id }, "", next);
+    }
+    if (item.kind === "home") showHome();
+    else showFrame(item);
+  }
+
+  document.getElementById("fbHome").addEventListener("click", function () { go("home", true); });
+  document.getElementById("fbOpen").addEventListener("click", function (e) {
+    /* default target=_blank */
+  });
+
+  window.addEventListener("hashchange", function () {
+    var id = (location.hash || "#home").replace(/^#/, "") || "home";
+    if (!byId[id]) id = "home";
+    if (id !== currentId) go(id, false);
+  });
+  window.addEventListener("popstate", function () {
+    var id = (location.hash || "#home").replace(/^#/, "") || "home";
+    if (!byId[id]) id = "home";
+    go(id, false);
+  });
+
+  renderSide();
+  renderHomeCards();
+  var start = (location.hash || "#home").replace(/^#/, "") || "home";
+  if (!byId[start]) start = "home";
+  go(start, false);
+})();
+</script>
+</body>
+</html>

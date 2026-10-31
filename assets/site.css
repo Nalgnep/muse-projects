@@ -93,12 +93,12 @@ code, pre, .mono, kbd, samp {
   text-decoration: none;
 }
 
-@media (max-width: 780px) {
+@media (max-width: 900px) {
   .site-nav-inner { flex-wrap: wrap; align-items: flex-start; padding-top: 8px; padding-bottom: 8px; }
   .site-nav .brand { line-height: 36px; }
   .site-nav nav { flex-wrap: wrap; overflow: visible; }
-  :root { --site-nav-offset: 108px; }
-  html { scroll-padding-top: 120px; }
+  :root { --site-nav-offset: 120px; }
+  html { scroll-padding-top: 132px; }
 }
 @media print {
   .site-nav { display: none; }
