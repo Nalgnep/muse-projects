@@ -4,10 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:,">
-<title>IoT 看板实战 · 阿里云 × ThingsBoard × VPS × DeepSeek</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<title>IoT 看板实战 · 阿里云 × ThingsBoard × MQTT × DeepSeek</title>
+<meta name="description" content="把模拟传感器、MQTT、ThingsBoard 规则告警和 DeepSeek 摘要串成一条可照着搭的链路。含实时看板仿真、八步实操、上线清单和排障。">
+<meta property="og:title" content="IoT 看板实战">
+<meta property="og:description" content="设备数据进看板、规则告警、AI 写日报。调试端口上线前要收回。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="canonical" href="https://nalgnep.github.io/muse-projects/industrial-ai-iot-dashboard/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#14202b">
 <style>
 :root{
   --bg:#f4f5f1; --surface:#ffffff; --surface2:#eef1ec; --ink:#18211c; --muted:#5c6b62; --line:#dde3dc;
@@ -37,7 +42,7 @@ h1 em{font-style:normal;color:var(--teal)}
 .hstat b{display:block;font-size:24px;line-height:1;font-weight:900}
 .hstat span{font-size:13px;color:var(--muted)}
 /* dir nav */
-.dir{position:sticky;top:0;z-index:20;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.dir{position:sticky;top:var(--site-nav-offset,52px);z-index:20;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line);margin-bottom:22px}
 .dir-title{font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
 .dir-links{display:flex;flex-wrap:wrap;gap:7px}
 .dir-links a{font-size:13px;font-weight:700;color:var(--ink);background:var(--surface);border:1px solid var(--line);padding:7px 11px;border-radius:999px}
@@ -129,6 +134,7 @@ input[type=number],select{width:100%;padding:9px;border:1px solid var(--line);bo
 }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
 </style>
+<link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
 <div class="wrap">
@@ -210,7 +216,7 @@ input[type=number],select{width:100%;padding:9px;border:1px solid var(--line);bo
     <div class="card" style="margin-top:12px;padding:6px 16px;overflow-x:auto">
       <table>
         <tr><th>部件</th><th>在这套里干什么</th><th>入门选型</th><th>别踩的坑</th></tr>
-        <tr><td><b>阿里云 ECS</b></td><td>跑 ThingsBoard + 数据库，就是你的 VPS</td><td>2核4G / Ubuntu 22.04 / 40G 盘起步</td><td>安全组只开 22、443、8080、1883，其余全关</td></tr>
+        <tr><td><b>阿里云 ECS</b></td><td>跑 ThingsBoard + 数据库，就是你的 VPS</td><td>2核4G / Ubuntu 22.04 / 40G 盘起步</td><td>调试期可临时开 8080 和 1883；上线后只留 22 和 443</td></tr>
         <tr><td><b>ThingsBoard CE</b></td><td>设备、遥测、看板、规则链，开源免费</td><td>Docker 单机版先跑通，别一上来上集群/K8s</td><td>默认管理员密码必须改；时序数据要设保留期</td></tr>
         <tr><td><b>MQTT</b></td><td>设备上报协议，轻量、断线可重连</td><td>先用 ThingsBoard 自带 MQTT 接入</td><td>Topic 和设备 Token 要一一对应，别共用一个 Token</td></tr>
         <tr><td><b>DeepSeek API</b></td><td>把聚合数字写成摘要、归因、建议</td><td>按量付费，先喂聚合值，不要喂原始流水</td><td>API Key 只放 VPS 环境变量，绝不写进前端页面</td></tr>
@@ -227,7 +233,7 @@ input[type=number],select{width:100%;padding:9px;border:1px solid var(--line);bo
 
     <div class="step"><div class="step-no">1</div><div class="card">
       <h3>开一台 VPS（阿里云 ECS）并装好 Docker</h3>
-      <p class="small">控制台选 Ubuntu 22.04、2核4G，按量或包月均可。安全组放行：22（SSH）、8080（ThingsBoard）、1883（MQTT）、443（后面配 HTTPS）。</p>
+      <p class="small">控制台选 Ubuntu 22.04、2核4G，按量或包月均可。调试期安全组临时放行 22（SSH）、8080（ThingsBoard）和 1883（MQTT）。上线后只留 22 和 443：8080 收到本机，MQTT 改走 8883 加 TLS，设备 Token 不进代码仓库，也不要写进前端页面。</p>
       <div class="code-head"><span>终端 · SSH 登录后执行</span><button class="btn copy-btn" data-copy="c1">复制</button></div>
       <pre id="c1">sudo apt update &amp;&amp; sudo apt install -y docker.io docker-compose-plugin
 sudo systemctl enable --now docker
@@ -423,7 +429,7 @@ def make_summary(stats: dict) -&gt; str:
     <p class="cat">Go-live · 上线清单与成本</p>
     <h2>上线前逐项打勾</h2>
     <div class="grid2">
-      <div class="card"><h3>上线清单</h3><ul class="check"><li>默认密码已改，账号按角色分权</li><li>HTTPS 已启用，8080 不再对公网直开</li><li>告警通知真发到人（钉钉/企微/邮件任一跑通）</li><li>断电/断网演练过一次：设备重连后数据补得上</li><li>备份脚本跑过一次，并真的恢复验证过</li><li>磁盘告警已设：时序数据是最先吃满盘的</li></ul></div>
+      <div class="card"><h3>上线清单</h3><ul class="check"><li>默认密码已改，账号按角色分权</li><li>HTTPS 已启用，8080 不再对公网直开</li><li>MQTT 生产走 8883/TLS，设备 Token 不进仓库、不进前端</li><li>告警通知真发到人（钉钉/企微/邮件任一跑通）</li><li>断电/断网演练过一次：设备重连后数据补得上</li><li>备份脚本跑过一次，并真的恢复验证过</li><li>磁盘告警已设：时序数据是最先吃满盘的</li></ul></div>
       <div class="card"><h3>入门成本参考（课堂估算）</h3>
         <table><tr><th>项目</th><th>参考</th></tr>
         <tr><td>阿里云 ECS 2核4G</td><td>约 ¥80–110 / 月</td></tr>
@@ -697,5 +703,6 @@ def make_summary(stats: dict) -&gt; str:
   window.addEventListener("resize",drawChart);
 })();
 </script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

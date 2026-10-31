@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nalgnep.github.io/muse-projects/sitemap.xml
