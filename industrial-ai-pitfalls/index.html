@@ -4,10 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:,">
-<title>工业 AI 落地避坑手册 — 10 个最常见的翻车点</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<title>工业 AI 落地避坑手册 · 制造业算法学院</title>
+<meta name="description" content="工业 AI 项目最常见的 10 个翻车点：数据孤岛、标签泄漏、实验室精度、没有基线和上线后无人运维。每个配模拟案例、自查清单，并有 10 题风险自测和上线红线。">
+<meta property="og:title" content="工业 AI 落地避坑手册">
+<meta property="og:description" content="学院教你怎么做对，这本教你怎么不翻车。数据、验收、运维三类，外加 10 条上线红线。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="canonical" href="https://nalgnep.github.io/muse-projects/industrial-ai-pitfalls/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#14202b">
 <style>
 :root{
 --bg:#f4f2ed; --surface:#ffffff; --surface2:#eceae3; --ink:#16181d; --muted:#5d646f; --line:#ddd8cc;
@@ -41,7 +46,7 @@ a{color:inherit}
 .btn-solid{background:var(--hazard);color:#111}
 .btn-ghost{background:transparent;color:#fff;border-color:#4a4d55}
 /* NAV */
-.tocbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tocbar{position:sticky;top:var(--site-nav-offset,52px);z-index:20;background:color-mix(in srgb,var(--bg) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .tocbar-inner{display:flex;gap:8px;overflow-x:auto;padding:10px 20px;max-width:1080px;margin:0 auto;scrollbar-width:none}
 .tocbar-inner::-webkit-scrollbar{display:none}
 .chip{white-space:nowrap;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer}
@@ -124,6 +129,7 @@ footer{padding:28px 0 40px;border-top:1px solid var(--line);color:var(--muted);f
 .fix{flex-direction:column;gap:4px}
 }
 </style>
+<link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
 <div class="hazard"></div>
@@ -195,7 +201,7 @@ footer{padding:28px 0 40px;border-top:1px solid var(--line);color:var(--muted);f
 <div class="test">
 <div class="kicker" style="color:var(--hazard)">3 分钟自测</div>
 <h3>你的项目现在有几颗雷？</h3>
-<p>每题对应一个翻车点。选“有这情况”记 1 颗雷，选“已规避”记 0。答完 10 题出风险等级——结果只在本次打开内计算，不保存。</p>
+<p>每题对应一个翻车点。选“有这情况”记 1 颗雷，选“已规避”记 0。答完 10 题出风险等级。答案保存在这台浏览器里，方便下次评审接着对。</p>
 <div id="questions"></div>
 <div class="result" id="result"></div>
 </div>
@@ -337,29 +343,36 @@ return '<article class="pit pit-item" data-cat="'+p.cat+'" id="'+p.id+'">'
 +'<div class="fix"><b>⚠ 避坑动作</b><span>'+p.fix+'</span></div></article>'
 }).join('');
 }
+var QUIZ_KEY="mfg-pitfalls-quiz-v1";
+var answers={};
+try{ var _qa=JSON.parse(localStorage.getItem(QUIZ_KEY)||"{}"); if(_qa&&typeof _qa==="object") answers=_qa; }catch(e){}
+function saveQuiz(){ try{ localStorage.setItem(QUIZ_KEY, JSON.stringify(answers)); }catch(e){} }
+function showQuizResult(scroll){
+if(Object.keys(answers).length<10) return;
+var score=Object.keys(answers).reduce(function(a,k){return a+(+answers[k]||0)},0);
+var r=document.getElementById('result'); r.classList.add('show');
+var level,advice;
+if(score<=2){level='低风险 · '+score+' 颗雷';advice='地基不错。把剩下的雷写进项目风险表，每月复查一次即可。'}
+else if(score<=5){level='中风险 · '+score+' 颗雷';advice='有明确的爆点。建议两周内对着本手册对应章节逐个整改，尤其是标“极高”的 01 / 02 / 05 / 08。'}
+else{level='高风险 · '+score+' 颗雷';advice='现在上线大概率翻车。先暂停排期，用红线清单逐条过，缺项补齐再谈上线日期。'}
+r.innerHTML='<b>'+level+'</b><p style="color:#d8d3c3;margin:8px 0 0">'+advice+'</p>';
+if(scroll) r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function renderQuiz(){
 document.getElementById('questions').innerHTML=QS.map(function(q,i){
-return '<div class="q"><p>'+(i+1)+'. '+q+'</p><div class="qbtns"><button class="qbtn" data-q="'+i+'" data-v="1">有这情况 · 是颗雷</button><button class="qbtn" data-q="'+i+'" data-v="0">已规避 / 不适用</button></div></div>'
+var picked=answers[String(i)];
+return '<div class="q"><p>'+(i+1)+'. '+q+'</p><div class="qbtns"><button class="qbtn'+(picked===1?' sel-risk':'')+'" data-q="'+i+'" data-v="1">有这情况 · 是颗雷</button><button class="qbtn'+(picked===0?' sel-safe':'')+'" data-q="'+i+'" data-v="0">已规避 / 不适用</button></div></div>'
 }).join('');
-var answers={};
 document.querySelectorAll('.qbtn').forEach(function(b){
 b.addEventListener('click',function(){
 var q=b.getAttribute('data-q'); answers[q]=+b.getAttribute('data-v');
 document.querySelectorAll('.qbtn[data-q="'+q+'"]').forEach(function(x){x.classList.remove('sel-risk','sel-safe')});
 b.classList.add(answers[q]===1?'sel-risk':'sel-safe');
-var done=Object.keys(answers).length;
-if(done===10){
-var score=Object.values(answers).reduce(function(a,c){return a+c},0);
-var r=document.getElementById('result'); r.classList.add('show');
-var level,advice;
-if(score<=2){level='🟢 低风险 · '+score+' 颗雷';advice='地基不错。把剩下的雷写进项目风险表，每月复查一次即可。'}
-else if(score<=5){level='🟡 中风险 · '+score+' 颗雷';advice='有明确的爆点。建议两周内对着本手册对应章节逐个整改，尤其是标“极高”的 01 / 02 / 05 / 08。'}
-else{level='🔴 高风险 · '+score+' 颗雷';advice='现在上线大概率翻车。先暂停排期，用红线清单逐条过，缺项补齐再谈上线日期。'}
-r.innerHTML='<b>'+level+'</b><p style="color:#d8d3c3;margin:8px 0 0">'+advice+'</p>';
-r.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
+saveQuiz();
+showQuizResult(Object.keys(answers).length===10);
 });
 });
+showQuizResult(false);
 }
 function downloadChecklist(){
 var lines=['工业 AI 落地避坑手册 · 完整自查清单','（全部案例为课堂模拟）',''];
@@ -370,12 +383,13 @@ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=
 }
 document.getElementById('filters').addEventListener('click',function(e){
 var btn=e.target.closest('[data-f]'); if(!btn) return;
-document.querySelectorAll('#filters.chip[data-f]').forEach(function(c){c.classList.remove('active')});
+document.querySelectorAll('#filters .chip[data-f]').forEach(function(c){c.classList.remove('active')});
 btn.classList.add('active');
 var f=btn.getAttribute('data-f');
 document.querySelectorAll('.pit-item').forEach(function(el){ el.classList.toggle('hidden', f!=='all' && el.getAttribute('data-cat')!==f);});
 });
 renderGrid(); renderDetails(); renderQuiz();
 </script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

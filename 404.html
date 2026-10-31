@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>页面不存在 · 制造业算法学院</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314202b'/%3E%3Crect x='6.5' y='24.6' width='19' height='2.2' rx='1' fill='%23e07b1f'/%3E%3C/svg%3E">
+<style>
+  body{margin:0;background:#edf0f3;color:#16222d;font-family:"PingFang SC","Microsoft YaHei","WenQuanYi Micro Hei",system-ui,sans-serif;line-height:1.6}
+  main{max-width:720px;margin:0 auto;padding:72px 20px}
+  h1{font-size:36px;line-height:1.2;margin:0 0 8px}
+  p{color:#4c5d6b}
+  ul{padding:0;list-style:none;display:grid;gap:8px}
+  a{color:#9a3412;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+  <p>404</p>
+  <h1>这个地址没有页面。</h1>
+  <p>链接可能写旧了。从下面任一站继续：</p>
+  <ul id="links"></ul>
+</main>
+<script>
+(function () {
+  var parts = (location.pathname || "").split("/").filter(Boolean);
+  var base = parts[0] === "muse-projects" ? "/muse-projects/" : "/";
+  var pages = [
+    ["index.html", "算法课程"],
+    ["industrial-ai-projects/", "实战项目"],
+    ["industrial-ai-roi-calculator/", "ROI 测算"],
+    ["industrial-ai-pitfalls/", "避坑手册"],
+    ["industrial-ai-iot-dashboard/", "IoT 看板"]
+  ];
+  document.getElementById("links").innerHTML = pages.map(function (p) {
+    return "<li><a href=\"" + base + p[0] + "\">" + p[1] + "</a></li>";
+  }).join("");
+})();
+</script>
+</body>
+</html>

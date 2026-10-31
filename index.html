@@ -4,11 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" href="data:," />
-    <title>算法学习网站 · 制造业算法学院</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <title>制造业算法学院 · 用工厂里的事讲算法</title>
+    <meta name="description" content="面向制造业工程师的中文互动课：11 节算法课、8 个落地项目、ROI 测算、避坑手册和 IoT 看板实战。SPC、预测性维护、视觉质检、排产与强化学习，全部用车间场景讲清楚。" />
+    <meta property="og:title" content="制造业算法学院" />
+    <meta property="og:description" content="从排序、SPC 到神经网络和强化学习，再用项目、ROI 和避坑清单把算法落到产线。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <link rel="canonical" href="https://nalgnep.github.io/muse-projects/" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#14202b" />
     <style>
       :root{
         --bg:#edf0f3; --panel:#ffffff; --panel2:#f6f8fa; --ink:#16222d; --ink2:#4c5d6b;
@@ -170,7 +174,28 @@
         .lhead{padding:20px}
         .box{padding:18px}
       }
+
+      .path{margin:26px 0 4px}
+      .path h2{font-size:22px;margin:4px 0 8px}
+      .path .plead{margin:0 0 14px;color:var(--ink2);font-size:14.5px}
+      .path-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+      .path-grid a{display:flex;flex-direction:column;gap:4px;height:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;text-decoration:none;color:inherit;box-shadow:var(--shadow)}
+      .path-grid a:hover{border-color:var(--accent)}
+      .path-grid .here{outline:2px solid var(--accent)}
+      .path-grid .n{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--accent-ink)}
+      .path-grid b{font-size:15px;line-height:1.35}
+      .path-grid .d{font-size:12.5px;color:var(--ink2);line-height:1.45}
+      .expert{margin-top:14px;border:1px solid var(--line);border-left:4px solid var(--steel);background:var(--panel2);border-radius:0 12px 12px 0;padding:12px 16px}
+      .expert b{display:block;font-size:13px;letter-spacing:.08em;color:var(--steel);margin-bottom:4px}
+      .expert p{margin:0;font-size:14.5px}
+      .nexts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+      .nexts a{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--panel);color:var(--accent-ink);font-weight:700;font-size:13.5px;border-radius:999px;padding:7px 12px;text-decoration:none}
+      .nexts a:hover{border-color:var(--accent)}
+      #lessonSearch{font:inherit;font-size:14px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);min-width:min(260px,72vw)}
+      @media (max-width:980px){.path-grid{grid-template-columns:1fr 1fr}}
+      @media (max-width:560px){.path-grid{grid-template-columns:1fr}}
     </style>
+    <link rel="stylesheet" href="assets/site.css" />
   </head>
   <body>
     <div class="wrap">
@@ -191,9 +216,10 @@
             </div>
             <aside class="hero-card">
               <h3>我的学习进度</h3>
-              <p>按路线图从上往下学，每节课末尾有小测验，答对即掌握。进度只记在本次打开的页面里，关掉不保存。</p>
-              <div class="pbar"><i id="pbarFill"></i></div>
+              <p>按路线图从上往下学，每节课末尾有小测验。完成标记保存在这台浏览器里，换电脑不会跟着走。</p>
+              <div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" id="pbar"><i id="pbarFill"></i></div>
               <div class="pbar-note" id="pbarNote">已完成 0 / 11 节</div>
+              <button class="btn" id="resetProgress" type="button" style="margin-top:10px">清除本机进度</button>
             </aside>
           </div>
         </header>
@@ -205,8 +231,24 @@
           <div class="stage s4"><span class="lv">展望阶段</span><span class="tag">看下半场</span><h3>展望篇 · 工业 AI 往哪走</h3><p>从检测预警到受控闭环、混合建模、多智能体协同与规模化复制——模型上线只是起点。</p></div>
         </section>
 
+        <section class="path" aria-label="整站学习路径">
+          <h2>五站一条路：先懂，再做，再算账，再排雷</h2>
+          <p class="plead">算法课只是第一站。后面四站用的是同一套车间语言：质量、设备、工艺、能源、计划。建议按编号走，也可以从你工厂最痛的那一站跳进去。</p>
+          <ol class="path-grid">
+            <li><a class="here" href="#lessonGrid"><span class="n">01 · 当前</span><b>算法课程</b><span class="d">11 节互动课。先建立 SPC、回归、树、网络、强化学习的直觉。</span></a></li>
+            <li><a href="industrial-ai-projects/"><span class="n">02</span><b>实战项目</b><span class="d">8 份任务书。视觉质检、预测维护、排产、数字孪生，按验收 KPI 做一遍。</span></a></li>
+            <li><a href="industrial-ai-roi-calculator/"><span class="n">03</span><b>ROI 测算</b><span class="d">立项前把投入、良率、人力、停机算成回本周期。可切换粗算和精算。</span></a></li>
+            <li><a href="industrial-ai-pitfalls/"><span class="n">04</span><b>避坑手册</b><span class="d">数据、验收、运维 10 个翻车点，外加上线前 10 条红线。</span></a></li>
+            <li><a href="industrial-ai-iot-dashboard/"><span class="n">05</span><b>IoT 看板</b><span class="d">MQTT、ThingsBoard、告警规则和 AI 摘要，把设备接到看板上。</span></a></li>
+          </ol>
+        </section>
+
         <div class="filters" id="catFilters">
           <span class="flabel">按板块看：</span>
+        </div>
+        <div class="filters">
+          <label class="flabel" for="lessonSearch">搜索课程</label>
+          <input id="lessonSearch" type="search" placeholder="试试 SPC、排产、质检、轴承" autocomplete="off" />
         </div>
         <div class="filters" id="lvFilters" style="margin-top:-8px">
           <span class="flabel">按阶段看：</span>
@@ -223,7 +265,7 @@
 
       <footer>
         <span>制造业算法学院 · 教学案例中的企业与数据均为课堂模拟，用于演示算法原理</span>
-        <span>建议学习顺序：基础篇 → 进阶篇 → 高级篇 → 展望篇</span>
+        <span>建议顺序：算法课 → 实战项目 → ROI → 避坑 → IoT 看板</span>
       </footer>
     </div>
 
@@ -236,6 +278,15 @@
       const randi = (a, b) => Math.floor(rand(a, b + 1));
       const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
       const fmt = (n, d) => Number(n).toFixed(d == null ? 2 : d);
+      function normal() {
+        let u = 0, v = 0, s = 0;
+        while (s === 0 || s >= 1) {
+          u = Math.random() * 2 - 1;
+          v = Math.random() * 2 - 1;
+          s = u * u + v * v;
+        }
+        return u * Math.sqrt(-2 * Math.log(s) / s);
+      }
       function setupCanvas(cv, h) {
         const w = cv.clientWidth || 640;
         const dpr = window.devicePixelRatio || 1;
@@ -265,11 +316,12 @@
           hook: "仓库里 8000 种零件，凭什么老王 3 秒就能找到那颗螺丝？",
           analogy: "像图书管理员整理书架：书按编号排好（排序），找书时对半翻（查找），比一本本翻快几百倍。",
           explain: [
-            "排序就是把一堆乱序的东西按规则排整齐。最笨但最好懂的是<b>冒泡排序</b>：相邻两个比一比，大的往后沉，一轮一轮把最大值'冒'到末尾，像水里的气泡往上浮。数据量一大它就慢，于是有了<b>快速排序</b>：随便挑一个'标杆'，比它小的站左边、大的站右边，再对左右两队递归处理——分而治之，通常快几十倍。",
+            "排序就是把一堆乱序的东西按规则排整齐。最笨但最好懂的是<b>冒泡排序</b>：相邻两个比一比，大的往后沉，一轮一轮把最大值'冒'到末尾，像水里的气泡往上浮。数据量一大它就慢，于是有了<b>快速排序</b>：随便挑一个'标杆'，比它小的站左边、大的站右边，再对左右两队递归处理——分而治之，平均情况下通常快几十倍。标杆每次都挑得很偏时，它会退化得和冒泡一样慢，所以真正上线的排序库会在退化时自动换算法。",
             "排好序之后，查找就有了神技<b>二分查找</b>：每次翻到中间，看目标在左半还是右半，直接砍掉一半。8000 个零件最多查 13 次（2¹³=8192），而挨个找平均要 4000 次。",
             "在工厂里，排序无处不在：订单按交期排序决定先做谁、库存按周转率排序决定先盘点谁、设备按故障风险排序决定先保养谁。算法的第一课，就是先学会'排队'。"
           ],
-          points: ["冒泡排序：相邻比较交换，适合理解原理和小数据", "快速排序：分而治之，是工业界最常用的通用排序", "二分查找：前提是数据已排序，8000 条数据最多 13 步", "时间复杂度：O(n²) 与 O(n log n) 在大数据量下差距是数量级的"],
+          points: ["冒泡排序：相邻比较交换，适合理解原理和小数据", "快速排序：分而治之，平均 O(n log n)，最坏会退回 O(n²)", "二分查找：前提是数据已排序，8192 条最多 13 次比较", "生产库常用内省排序或 Timsort，而不是手写快排"],
+          expert: "C++ 的 std::sort 是内省排序：快速排序递归太深就改堆排序，避免最坏情况。Java、Python 对对象多用 Timsort，它利用现实数据里已经有序的片段。二分查找的比较上界是 floor(log2 n)+1，所以 8192 条最多 13 次。课上的动画只演示分治思想，不要把「随便挑一个标杆」直接搬进生产代码。",
           demo: "sort",
           table: {
             title: "模拟数据：某仓库 12 种紧固件按库存周转天数排序（节选）",
@@ -294,16 +346,17 @@
           analogy: "像人的体温：36.5℃ 上下浮动 0.3℃ 是正常的，突然冲到 38℃ 就是生病了——SPC 干的就是给产线量体温。",
           explain: [
             "任何工序的输出都有波动，比如轴承外径目标 25.00mm，实际测出来总在 24.98~25.02 之间跳。这种波动分两种：<b>偶然波动</b>（温度、电压的微小变化，人人都有，正常）和<b>异常波动</b>（刀具磨损、夹具松动，必须干预）。SPC 的核心任务就是把这两种波动分开。",
-            "方法很简单：持续抽样测量，算出均值 μ 和标准差 σ，画两条<b>控制限</b>：μ±3σ。点落在控制限内、随机分布，就是'体温正常'；点越线、或连续多点朝一个方向跑，就是异常信号——这时别急着调机，先找原因。",
+            "方法很简单：持续抽样测量，算出均值 μ 和标准差 σ，画两条<b>控制限</b>：μ±3σ。点落在控制限内、随机分布，就是'体温正常'。国内产线的正式判异看 GB/T 4091：1 点越出控制限、连续 9 点落在中心线同一侧、连续 6 点递增或递减，都是异常信号——这时别急着调机，先找原因。",
             "注意：控制限来自过程自身的波动，不是客户给的规格限。过程'健康'（受控）但能力不足（Cpk 低）和过程失控是两回事，SPC 先解决前者判断。"
           ],
-          points: ["μ±3σ 控制限内约含 99.73% 的正常数据", "判异准则：点越界、连续 7 点同侧、连续 6 点同向趋势", "先判断'受控与否'，再谈'能力够不够'（Cpk）", "SPC 的价值是提前预警，而不是事后挑废品"],
+          points: ["μ±3σ 控制限内约含 99.73% 的正态数据", "GB/T 4091：1 点越界、连续 9 点同侧、连续 6 点单调", "控制限来自过程，规格限来自客户，不要画在一张图上混判", "先判断受控与否，再谈能力够不够（Cpk）"],
+          expert: "坊间讲义里的「连续 7 点同侧」来自更早的西方电气规则，和现行 GB/T 4091 不一致。准则 2 是连续 9 点在中心线同一侧，准则 3 才是连续 6 点递增或递减。验收文件、控制计划请写国标编号。这节演示用的是个体值图，方便看懂；批量生产更常见的是均值-极差图或均值-标准差图，子组大小要先定下来，不能把单值和均值的控制限混用。",
           demo: "spc",
           table: {
             title: "模拟数据：轴承外径抽样测量（目标 25.00mm，每 30 分钟抽 1 件）",
             head: ["样本号", "测量值(mm)", "与均值偏差", "判定"],
             rows: [["1", "25.004", "+0.004", "正常"], ["2", "24.996", "-0.004", "正常"], ["3", "25.008", "+0.008", "正常"], ["4", "25.011", "+0.011", "正常"], ["5", "25.014", "+0.014", "趋势警告"], ["6", "25.019", "+0.019", "越上限·异常"]],
-            note: "μ=25.000，σ=0.006，上控制限 = 25.018。第 6 点越限且前面已连续上行——典型的刀具磨损信号。"
+            note: "μ=25.000，σ=0.006，上控制限 = 25.018。第 6 点越出控制限（准则 1）。从第 2 点起已经连续上行，再多两点就构成准则 3 的连续 6 点递增。这是刀具磨损的典型形状。"
           },
           caseStudy: {
             title: "落地案例：精密轴承厂的刀具磨损预警",
@@ -312,7 +365,7 @@
           },
           quiz: [
             { q: "控制图上的点越过 μ+3σ，最合理的解读是？", opts: ["这件肯定是废品，扔掉即可", "过程可能出现异常原因，应停机排查", "把控制限放宽到 ±4σ"], a: 1, exp: "越界说明波动模式变了，重点不是这一件产品，而是过程出了异常原因。" },
-            { q: "连续 7 个点都落在均值同一侧但都没越界，应该？", opts: ["完全正常，不用管", "触发判异准则，过程均值可能已偏移", "立即报废这 7 件"], a: 1, exp: "链长判异：连续 7 点同侧也是异常信号，说明均值可能已经悄悄漂移。" }
+            { q: "连续 9 个点都落在中心线同一侧，但都没有越出控制限。按 GB/T 4091 应该？", opts: ["完全正常，不用管", "触发准则 2，过程均值可能已经偏移", "立即报废这 9 件"], a: 1, exp: "GB/T 4091 准则 2：连续 9 点落在中心线同一侧即判异。老资料里的「7 点」来自更早的西方电气规则，验收时以国标为准。判的是过程，不是把这 9 件直接报废。" }
           ]
         },
         {
@@ -323,9 +376,10 @@
           explain: [
             "贪心算法的策略是：<b>每一步都做当前看起来最划算的选择</b>，不纠结全局。比如错峰用电：把每台设备的活儿逐个安排到'当前电价最低、且总负荷还没超限'的时段，排满为止。",
             "它的优点是快、好懂、容易落地；缺点是眼光短浅——眼前的最优拼起来不一定是全局最优（比如为了省电把关键订单拖到最后，反而误了交期）。所以贪心通常用来快速生成一个'不错'的方案，再用更高级的算法（后面的动态规划、遗传算法）去精修。",
-            "判断一个问题能不能用贪心，关键看它有没有'贪心选择性质'：局部最优能拼出全局最优。找零钱（用最大面额先凑）、活动排期、错峰用电都是经典适用场景。"
+            "判断一个问题能不能用贪心，关键看它有没有'贪心选择性质'：局部最优能拼出全局最优。活动排期，以及人民币这种币值规范的找零钱，可以保证最优。换成 1、3、4 元面额，每次拿最大的就会错。错峰用电通常够用，但交期、换型和最小开机时间一加上，就不能盲信眼前最便宜的那个时段。"
           ],
-          points: ["核心：每一步选当前最优，不回溯", "优点：速度快、实现简单、结果通常'够好'", "缺点：可能错过全局最优，需要业务规则兜底", "常见搭档：先贪心出初版方案，再用优化算法精修"],
+          points: ["核心：每一步选当前最优，不回溯", "只有具备贪心选择性质时，局部最优才等于全局最优", "错峰用电要加交期和换型约束，否则省下的电费会被罚金吃掉", "常见搭档：先贪心出可执行初案，再用动态规划或遗传算法精修"],
+          expert: "「找零钱总是拿最大面额」只在币值体系规范时成立，例如人民币。1、3、4 元凑 6 元，贪心会拿 4+1+1，最优是 3+3。车间里的错峰同样不是纯贪心：一台热处理炉有最小保温时间，一个急单有交期，贪心排完可能省了电、误了货。把它当成初案生成器，而不是最优性证明。",
           demo: "greedy",
           table: {
             title: "模拟数据：某厂分时电价（元/kWh）",
@@ -353,7 +407,8 @@
             "直线的斜率就是工艺人员最想要的答案：温度每升高 1℃，良率平均变化几个百分点。有了公式，就能预测没试过的参数组合、反推参数窗口，还能算出 R² 判断这条'暗线'靠不靠谱（越接近 1 越可信）。",
             "要注意：相关不等于因果。温度与良率相关，可能背后是模具预热状态在同时影响两者。回归给的是强有力的线索，最终结论仍要靠 DOE 试验验证——这正是工艺工程师的价值所在。"
           ],
-          points: ["斜率 = 自变量每变 1 单位，因变量的平均变化量", "R² 衡量模型解释力，低于 0.5 的结论要谨慎", "残差图能暴露'直线拟合错了'的非线性关系", "多变量回归可同时评估温度、压力、速度的贡献"],
+          points: ["斜率 = 自变量每变 1 单位，因变量的平均变化量", "R² 衡量解释力，低于 0.5 时不要直接拿去调机", "残差呈曲线，说明不该用直线外推", "相关不是因果，关键结论要用 DOE 复核"],
+          expert: "注塑良率对温度经常是先升后降的窗口，一条直线只能描述窗口的某一侧。残差图一旦弯了，就改用二次项、分段，或者直接做实验设计，不要把斜率无限外推。温度和良率一起动，也可能是模具状态在同时驱动两者——回归给线索，不给因果。",
           demo: "regression",
           table: {
             title: "模拟数据：注塑温度与外观良率（30 批次抽样）",
@@ -409,7 +464,8 @@
             "放到质量管理里：把每条缺陷记录变成一组特征（发生时段、设备温度、产品型号、缺陷尺寸……），聚类后常常会发现惊人的结构——比如缺陷自动聚成'夜班+低温'一团、'某模具'一团，根因分析的方向一下就清楚了。",
             "用之前有两个坑要知道：一是特征量纲要先标准化（温度几十、尺寸零点几，不处理距离会被温度主导）；二是 K 要自己定，常用'肘部法则'看拐点。"
           ],
-          points: ["核心循环：投靠最近中心 → 重算中心，直到稳定", "K 是人为指定的簇数，可用肘部法则辅助", "特征必须先标准化，否则大量纲特征会主导距离", "聚类结果需要业务解读：簇是数学结构，根因要人确认"],
+          points: ["核心循环：投靠最近中心 → 重算中心，直到稳定", "K 要人指定，肘部法则只是参考，最后要业务解释得通", "先标准化；班次、模具号这类类别字段不能和温度直接拼距离", "一次随机初始化可能停在差解，实务上要多次重启取最好的"],
+          expert: "K-Means 用的是欧氏距离，对初始中心敏感。sklearn 默认会多次重启（n_init），取簇内平方和最小的那次。类别型字段要先编码，而且不要和连续变量无脑拼在一个向量里，否则距离没有物理含义。簇是调查方向，不是根因结论。",
           demo: "kmeans",
           table: {
             title: "模拟数据：缺陷记录聚类结果（5000 条 → 4 个簇）",
@@ -493,7 +549,8 @@
             "在工厂里它最出圈的应用是<b>机器视觉质检</b>：摄像头拍下产品，网络在几十毫秒内判出划痕、凹坑、污渍。传统算法要工程师手写规则，新缺陷一出就抓瞎；神经网络只要补样本重训就能跟上。",
             "它的短板也要心里有数：是个'黑盒'，说不清为什么判坏；吃数据，小样本场景反而是决策树这类模型更稳。所以现场常是组合拳：神经网络负责看，SPC 负责监控它的稳定性。"
           ],
-          points: ["结构：输入层 → 隐藏层（提特征）→ 输出层（给判断）", "训练 = 用标注样本反复调权重（反向传播）", "强项：图像、声音、振动等'说不清规则'的感知任务", "短板：黑盒、吃数据，上线后要用 SPC 思维监控漂移"],
+          points: ["结构：输入层 → 隐藏层（提特征）→ 输出层（给判断）", "训练 = 用标注样本反复调权重（反向传播）", "阈值按漏检成本和误杀成本调，不要默认 0.5", "上线后用 SPC 的思路盯输入分布、误报率和漏检，漂移就回流样本"],
+          expert: "缺陷占比很低时，总准确率 99% 可能意味着缺陷全漏了。按类别看召回和误杀，再按「漏一件的客诉」和「误杀一件的复检」调置信度阈值。新缺陷只有几十张图时，规则或浅模型加硬样本回流，往往比从头训大网络稳。模型说不清理由时，把不确定的件分流给人工，不要让黑盒直接拦截高代价缺陷。",
           demo: "nn",
           table: {
             title: "模拟数据：视觉质检模型在验证集上的表现（2000 张）",
@@ -575,8 +632,31 @@
       ];
 
       /* ================= home render ================= */
-      let curCat = "全部", curLv = "全部";
-      const done = {}; // in-memory only
+      let curCat = "全部", curLv = "全部", query = "";
+      const done = {};
+      const PROG_KEY = "mfg-academy-progress-v1";
+      function loadDone() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(PROG_KEY) || "{}");
+          if (raw && typeof raw === "object") Object.assign(done, raw);
+        } catch (e) {}
+      }
+      function saveDone() {
+        try { localStorage.setItem(PROG_KEY, JSON.stringify(done)); } catch (e) {}
+      }
+      const NEXT = {
+        sort: [["industrial-ai-projects/#p5", "去做：智能排产"], ["industrial-ai-projects/#p7", "去做：需求预测与库存"]],
+        spc: [["industrial-ai-projects/#p6", "去做：焊接根因分析"], ["industrial-ai-pitfalls/#pit-06", "对照：没有基线就没有验收"]],
+        greedy: [["industrial-ai-projects/#p4", "去做：峰谷负荷调度"], ["industrial-ai-roi-calculator/", "算一笔电费账"]],
+        regression: [["industrial-ai-projects/#p3", "去做：注塑工艺优化"]],
+        tree: [["industrial-ai-projects/#p2", "去做：预测性维护"], ["industrial-ai-projects/#p6", "去做：焊接根因分析"]],
+        kmeans: [["industrial-ai-projects/#p6", "去做：焊接根因分析"], ["industrial-ai-pitfalls/#pit-03", "对照：只采好天气数据"]],
+        dp: [["industrial-ai-projects/#p5", "去做：智能排产"], ["industrial-ai-projects/#p7", "去做：安全库存"]],
+        ga: [["industrial-ai-projects/#p5", "去做：智能排产"]],
+        nn: [["industrial-ai-projects/#p1", "去做：视觉质检"], ["industrial-ai-pitfalls/#pit-05", "对照：别拿实验室精度验收"]],
+        rl: [["industrial-ai-projects/#p8", "去做：数字孪生闭环"], ["industrial-ai-iot-dashboard/", "动手：把设备接到看板"]],
+        outlook: [["industrial-ai-roi-calculator/", "先把回收期算清楚"], ["industrial-ai-pitfalls/#redline", "上线前过 10 条红线"], ["industrial-ai-projects/", "按 90 天路线选一个项目"]]
+      };
       const grid = $("#lessonGrid");
 
       function renderFilters() {
@@ -585,6 +665,8 @@
         CATS.forEach(c => {
           const b = document.createElement("button");
           b.className = "chip" + (c === curCat ? " on" : "");
+          b.type = "button";
+          b.setAttribute("aria-pressed", c === curCat ? "true" : "false");
           b.textContent = c === "全部" ? "全部板块" : c;
           b.onclick = () => { curCat = c; renderFilters(); renderGrid(); };
           cf.appendChild(b);
@@ -594,6 +676,8 @@
         LEVELS.forEach(l => {
           const b = document.createElement("button");
           b.className = "chip lv" + (l === curLv ? " on" : "");
+          b.type = "button";
+          b.setAttribute("aria-pressed", l === curLv ? "true" : "false");
           b.textContent = l === "全部" ? "全部阶段" : l;
           b.onclick = () => { curLv = l; renderFilters(); renderGrid(); };
           lf.appendChild(b);
@@ -602,9 +686,10 @@
 
       function renderGrid() {
         grid.innerHTML = "";
-        const list = LESSONS.filter(l => (curCat === "全部" || l.cat === curCat) && (curLv === "全部" || l.level === curLv));
+        const q = query.toLowerCase();
+        const list = LESSONS.filter(l => (curCat === "全部" || l.cat === curCat) && (curLv === "全部" || l.level === curLv) && (!q || (l.title + l.hook + l.cat + l.level + l.analogy).toLowerCase().includes(q)));
         if (!list.length) {
-          grid.innerHTML = '<div class="empty">这个组合下暂时没有课程，换个筛选试试。</div>';
+          grid.innerHTML = '<div class="empty">没有匹配的课程。试试「SPC」「排产」或「质检」，或清空搜索。</div>';
           return;
         }
         list.forEach(l => {
@@ -624,16 +709,19 @@
       function updateProgress() {
         const n = Object.keys(done).filter(k => done[k]).length;
         $("#pbarFill").style.width = (n / LESSONS.length * 100) + "%";
-        $("#pbarNote").textContent = "已完成 " + n + " / " + LESSONS.length + " 节" + (n === LESSONS.length ? " · 全部学完，🎉 你已经打通从基础到高级的完整链路！" : "");
+        $("#pbar").setAttribute("aria-valuenow", String(n));
+        $("#pbarNote").textContent = "已完成 " + n + " / " + LESSONS.length + " 节" + (n === LESSONS.length ? " · 全部学完。下一步去实战项目里选一个任务书。" : "");
+        saveDone();
       }
 
       /* ================= lesson view ================= */
       let animTimers = [];
       function clearAnims() { animTimers.forEach(t => { cancelAnimationFrame(t.raf); clearInterval(t.iv); clearTimeout(t.to); }); animTimers = []; }
 
-      function openLesson(id) {
+      function openLesson(id, fromPop) {
         const l = LESSONS.find(x => x.id === id);
         if (!l) return;
+        if (!fromPop && location.hash !== "#" + id) history.pushState({ lesson: id }, "", "#" + id);
         clearAnims();
         $("#homeView").style.display = "none";
         $("#lessonView").style.display = "block";
@@ -646,7 +734,8 @@
 
           '<div class="box"><h3><span class="n">1</span>通俗讲解</h3>' +
           l.explain.map(p => "<p>" + p + "</p>").join("") +
-          '<div class="formula"><b>记住这几点：</b><ul>' + l.points.map(p => "<li>" + p + "</li>").join("") + "</ul></div></div>" +
+          '<div class="formula"><b>记住这几点：</b><ul>' + l.points.map(p => "<li>" + p + "</li>").join("") + "</ul></div>" +
+          (l.expert ? '<div class="expert"><b>专家校准</b><p>' + l.expert + "</p></div>" : "") + "</div>" +
 
           '<div class="box"><h3><span class="n">2</span>动手模拟实验</h3><div id="demoMount"></div></div>' +
 
@@ -660,7 +749,8 @@
           l.caseStudy.kpis.map(k => '<div class="kpi">' + k[0] + "<b>" + k[1] + "</b></div>").join("") + "</div></div></div></div>" +
 
           '<div class="box"><h3><span class="n">5</span>随堂小测</h3><div id="quizMount"></div>' +
-          '<div class="finishrow"><button class="btn primary" id="finishBtn">' + (done[l.id] ? "已学完 ✓ 再点一次可取消" : "我学完了，标记完成") + '</button><span class="finishmsg" id="finishMsg">🎉 本节已计入学习进度</span></div></div>';
+          '<div class="finishrow"><button class="btn primary" id="finishBtn" type="button">' + (done[l.id] ? "已学完 · 再点一次可取消" : "我学完了，标记完成") + '</button><span class="finishmsg" id="finishMsg">本节已计入这台浏览器的学习进度</span></div></div>' +
+          ((NEXT[l.id] && NEXT[l.id].length) ? '<div class="box"><h3><span class="n">6</span>接着往下走</h3><p>同一套方法在其他站里有任务书、测算或排雷清单。</p><div class="nexts">' + NEXT[l.id].map(it => '<a href="' + it[0] + '">' + it[1] + "</a>").join("") + "</div></div>" : "");
 
         // quiz
         const qm = $("#quizMount");
@@ -698,7 +788,7 @@
         // finish
         $("#finishBtn").onclick = () => {
           done[l.id] = !done[l.id];
-          $("#finishBtn").textContent = done[l.id] ? "已学完 ✓ 再点一次可取消" : "我学完了，标记完成";
+          $("#finishBtn").textContent = done[l.id] ? "已学完 · 再点一次可取消" : "我学完了，标记完成";
           $("#finishMsg").classList.toggle("show", !!done[l.id]);
           updateProgress();
         };
@@ -708,13 +798,22 @@
         DEMOS[l.demo]($("#demoMount"));
       }
 
-      $("#backBtn").onclick = () => {
+      function showHome() {
         clearAnims();
         $("#lessonView").style.display = "none";
         $("#homeView").style.display = "block";
         renderGrid();
         window.scrollTo({ top: 0 });
+      }
+      $("#backBtn").onclick = () => {
+        if (location.hash) history.pushState({ lesson: null }, "", location.pathname + location.search);
+        showHome();
       };
+      window.addEventListener("popstate", () => {
+        const id = (location.hash || "").replace(/^#/, "");
+        if (LESSONS.some(l => l.id === id)) openLesson(id, true);
+        else showHome();
+      });
 
       /* ================= DEMOS ================= */
       const DEMOS = {};
@@ -752,7 +851,7 @@
           if (kind === "bubble") {
             for (let end = a.length - 1; end > 0; end--) {
               for (let i = 0; i < end; i++) {
-                st.push({ a: a.slice(), cmp: [i, i + 1], sorted: new Set(sorted) });
+                st.push({ a: a.slice(), cmp: [i, i + 1], sorted: new Set(sorted), hit: 1 });
                 if (a[i] > a[i + 1]) { const t = a[i]; a[i] = a[i + 1]; a[i + 1] = t; st.push({ a: a.slice(), cmp: [i, i + 1], sorted: new Set(sorted) }); }
               }
               sorted.add(end);
@@ -763,7 +862,7 @@
               if (lo === hi) { sorted.add(lo); return; }
               const pivot = a[hi]; let i = lo;
               for (let j = lo; j < hi; j++) {
-                st.push({ a: a.slice(), cmp: [j, hi], sorted: new Set(sorted) });
+                st.push({ a: a.slice(), cmp: [j, hi], sorted: new Set(sorted), hit: 1 });
                 if (a[j] < pivot) { const t = a[i]; a[i] = a[j]; a[j] = t; st.push({ a: a.slice(), cmp: [i, j], sorted: new Set(sorted) }); i++; }
               }
               const t = a[i]; a[i] = a[hi]; a[hi] = t;
@@ -799,7 +898,7 @@
                 : "<b>快速排序</b>靠分而治之，24 条数据只比较了 <b>" + comparisons + "</b> 次。排好序后，二分查找 8000 条数据最多只要 13 步。";
               return;
             }
-            const s = steps[idx++]; data = s.a; comparisons++;
+            const s = steps[idx++]; data = s.a; if (s.hit) comparisons++;
             draw(s.cmp, s.sorted);
             setRO(ro, [["当前状态", "排序中…"], ["已比较次数", comparisons]]);
           }, 30);
@@ -822,7 +921,7 @@
         function gen(drift) {
           pts = [];
           for (let i = 0; i < 36; i++) {
-            let v = MU + gauss() * SIG * 1.6;
+            let v = MU + normal() * SIG;
             if (drift && i >= 17) v += (i - 16) * 0.0016;
             pts.push(v);
           }
@@ -857,7 +956,7 @@
           const mean = pts.reduce((s, v) => s + v, 0) / pts.length;
           setRO(ro, [["样本均值", fmt(mean, 3) + " mm"], ["越界点数", ooc + " 个"], ["最长连续上升", maxRun + " 点"]]);
           note.innerHTML = drift
-            ? "第 18 件起刀具开始磨损，尺寸一路爬升，<b>" + ooc + " 个点越过上控制限</b>且出现长串上升趋势——SPC 在批量报废之前就报警了。"
+            ? "第 18 件起刀具开始磨损，尺寸一路爬升，<b>" + ooc + " 个点越过上控制限</b>。最长连续上升 " + maxRun + " 点；满 6 点就是 GB/T 4091 准则 3，不等批量报废再动手。"
             : "点子在控制限内随机分布、无趋势——这就是<b>受控状态</b>：波动只是'体温的正常起伏'，不要乱调机，越调越乱（过度调整是新手最常见的错）。";
         }
         mount.querySelector('[data-a="normal"]').onclick = () => gen(false);
@@ -1380,9 +1479,24 @@
       };
 
       /* ================= init ================= */
+      loadDone();
       renderFilters();
       renderGrid();
       updateProgress();
+      $("#lessonSearch").addEventListener("input", () => {
+        query = $("#lessonSearch").value.trim();
+        renderGrid();
+      });
+      $("#resetProgress").onclick = () => {
+        if (!window.confirm("清除这台浏览器里的课程完成标记？")) return;
+        Object.keys(done).forEach(k => delete done[k]);
+        saveDone();
+        updateProgress();
+        renderGrid();
+      };
+      const startId = (location.hash || "").replace(/^#/, "");
+      if (LESSONS.some(l => l.id === startId)) openLesson(startId, true);
     </script>
+    <script src="assets/site.js"></script>
   </body>
 </html>
