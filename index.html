@@ -142,6 +142,12 @@
       .readout{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
       .readout .ro{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px}
       .readout .ro b{display:block; font-size:17px}
+      .xr-block{margin-top:8px}
+      .xr-block + .xr-block{margin-top:22px;padding-top:16px;border-top:1px dashed var(--line)}
+      .chartcap{font-size:14px;font-weight:800;margin:12px 0 6px}
+      .rulelist{margin:8px 0 0;padding-left:18px;font-size:13.5px}
+      .rulelist li{margin:4px 0}
+      .demo-controls select{max-width:100%}
 
       /* data table */
       .tablewrap{overflow-x:auto}
@@ -211,7 +217,7 @@
                 <div class="stat"><b class="mono">11</b><span>节课：10 个核心算法 + 1 节展望课</span></div>
                 <div class="stat"><b class="mono">6</b><span>大板块：质量·设备·工艺·能源·计划·综合</span></div>
                 <div class="stat"><b class="mono">11</b><span>个可交互模拟实验</span></div>
-                <div class="stat"><b class="mono">22</b><span>道随堂小测</span></div>
+                <div class="stat"><b class="mono">23</b><span>道随堂小测</span></div>
               </div>
             </div>
             <aside class="hero-card">
@@ -340,7 +346,7 @@
           ]
         },
         {
-          id: "spc", level: "基础篇", cat: "质量", minutes: 15,
+          id: "spc", level: "基础篇", cat: "质量", minutes: 18,
           title: "统计过程控制 SPC：给产线装个'体温计'",
           hook: "轴承外径偶尔超差，到底是正常波动，还是设备在'发烧'？",
           analogy: "像人的体温：36.5℃ 上下浮动 0.3℃ 是正常的，突然冲到 38℃ 就是生病了——SPC 干的就是给产线量体温。",
@@ -350,7 +356,7 @@
             "注意：控制限来自过程自身的波动，不是客户给的规格限。过程'健康'（受控）但能力不足（Cpk 低）和过程失控是两回事，SPC 先解决前者判断。"
           ],
           points: ["μ±3σ 控制限内约含 99.73% 的正态数据", "GB/T 4091：1 点越界、连续 9 点同侧、连续 6 点单调", "控制限来自过程，规格限来自客户，不要画在一张图上混判", "先判断受控与否，再谈能力够不够（Cpk）"],
-          expert: "坊间讲义里的「连续 7 点同侧」来自更早的西方电气规则，和现行 GB/T 4091 不一致。准则 2 是连续 9 点在中心线同一侧，准则 3 才是连续 6 点递增或递减。验收文件、控制计划请写国标编号。这节演示用的是个体值图，方便看懂；批量生产更常见的是均值-极差图或均值-标准差图，子组大小要先定下来，不能把单值和均值的控制限混用。",
+          expert: "坊间讲义里的「连续 7 点同侧」来自更早的西方电气规则，和现行 GB/T 4091 不一致。准则 2 是连续 9 点在中心线同一侧，准则 3 才是连续 6 点递增或递减。验收文件、控制计划请写国标编号。上面的个体值图用来建立直觉；批量生产要用下面的均值-极差图，子组大小先定死。控制限用 A2、D3、D4 乘阶段 I 的平均极差，不能把单值的 ±3σ 套到均值点上。",
           demo: "spc",
           table: {
             title: "模拟数据：轴承外径抽样测量（目标 25.00mm，每 30 分钟抽 1 件）",
@@ -365,7 +371,8 @@
           },
           quiz: [
             { q: "控制图上的点越过 μ+3σ，最合理的解读是？", opts: ["这件肯定是废品，扔掉即可", "过程可能出现异常原因，应停机排查", "把控制限放宽到 ±4σ"], a: 1, exp: "越界说明波动模式变了，重点不是这一件产品，而是过程出了异常原因。" },
-            { q: "连续 9 个点都落在中心线同一侧，但都没有越出控制限。按 GB/T 4091 应该？", opts: ["完全正常，不用管", "触发准则 2，过程均值可能已经偏移", "立即报废这 9 件"], a: 1, exp: "GB/T 4091 准则 2：连续 9 点落在中心线同一侧即判异。老资料里的「7 点」来自更早的西方电气规则，验收时以国标为准。判的是过程，不是把这 9 件直接报废。" }
+            { q: "连续 9 个点都落在中心线同一侧，但都没有越出控制限。按 GB/T 4091 应该？", opts: ["完全正常，不用管", "触发准则 2，过程均值可能已经偏移", "立即报废这 9 件"], a: 1, exp: "GB/T 4091 准则 2：连续 9 点落在中心线同一侧即判异。老资料里的「7 点」来自更早的西方电气规则，验收时以国标为准。判的是过程，不是把这 9 件直接报废。" },
+            { q: "均值图出界，极差图仍然受控。更像是哪种问题？", opts: ["组内忽然忽大忽小，夹具松了", "整组一起偏移，例如对刀或刀具磨损", "只是子组大小选错了，两张图都没意义"], a: 1, exp: "均值图看位置，极差图看组内散布。位置挪了而组内极差不变，就是均值偏移。散布变大时顺序相反：极差图先报警，均值图往往还停在中心线附近。" }
           ]
         },
         {
@@ -646,7 +653,7 @@
       }
       const NEXT = {
         sort: [["industrial-ai-projects/#p5", "去做：智能排产"], ["industrial-ai-projects/#p7", "去做：需求预测与库存"]],
-        spc: [["industrial-ai-projects/#p6", "去做：焊接根因分析"], ["industrial-ai-pitfalls/#pit-06", "对照：没有基线就没有验收"]],
+        spc: [["industrial-ai-projects/#p6", "去做：焊接根因分析"], ["industrial-ai-projects/#p2-sim", "对照：轴承早期故障看包络谱"], ["industrial-ai-pitfalls/#pit-06", "对照：没有基线就没有验收"]],
         greedy: [["industrial-ai-projects/#p4", "去做：峰谷负荷调度"], ["industrial-ai-roi-calculator/", "算一笔电费账"]],
         regression: [["industrial-ai-projects/#p3", "去做：注塑工艺优化"]],
         tree: [["industrial-ai-projects/#p2", "去做：预测性维护"], ["industrial-ai-projects/#p6", "去做：焊接根因分析"]],
@@ -910,58 +917,260 @@
         shuffle();
       };
 
-      /* ---------- 2. SPC control chart ---------- */
+      /* ---------- 2. SPC: individuals + Xbar/R ---------- */
       DEMOS.spc = function (mount) {
-        const { cv, note, ro } = mountShell(mount,
-          '<button class="btn primary" data-a="normal">生成：正常过程</button>' +
-          '<button class="btn warn" data-a="drift">注入异常：刀具磨损漂移</button>',
-          "控制限 = 均值 ± 3σ。正常波动在限内随机跳动；一旦越线或连续上行，就是过程在'喊疼'。");
+        const XR = {
+          2: { A2: 1.880, D3: 0, D4: 3.267 },
+          3: { A2: 1.023, D3: 0, D4: 2.574 },
+          4: { A2: 0.729, D3: 0, D4: 2.282 },
+          5: { A2: 0.577, D3: 0, D4: 2.114 },
+          6: { A2: 0.483, D3: 0, D4: 2.004 },
+          7: { A2: 0.419, D3: 0.076, D4: 1.924 },
+          8: { A2: 0.373, D3: 0.136, D4: 1.864 },
+          9: { A2: 0.337, D3: 0.184, D4: 1.816 },
+          10: { A2: 0.308, D3: 0.223, D4: 1.777 }
+        };
+        const RULE_NAME = {
+          1: "准则 1：点超出控制限",
+          2: "准则 2：连续 9 点在中心线同一侧",
+          3: "准则 3：连续 6 点递增或递减",
+          4: "准则 4：连续 14 点上下交替",
+          5: "准则 5：连续 3 点中有 2 点落在同一侧 2σ 外",
+          6: "准则 6：连续 5 点中有 4 点落在同一侧 1σ 外",
+          7: "准则 7：连续 15 点挤在 ±1σ 以内",
+          8: "准则 8：连续 8 点都落在 ±1σ 以外"
+        };
+        let nSize = 5, mode = "normal", indDrift = false, indPts = [];
+        mount.innerHTML =
+          '<div class="xr-block"><p class="chartcap">个体值图：一个点就是一件</p>' +
+          '<div class="demo-controls"><button class="btn primary" type="button" data-a="normal">生成：正常过程</button>' +
+          '<button class="btn warn" type="button" data-a="drift">注入异常：刀具磨损漂移</button></div>' +
+          '<canvas class="demo" id="spcInd"></canvas><div class="readout" id="spcIndRo"></div><p class="demo-note" id="spcIndNote"></p></div>' +
+          '<div class="xr-block"><p class="chartcap">均值-极差图：把一组测量拆成位置和散布</p>' +
+          '<p>每次抽 n 件，算一个均值、一个极差，各成一个点。控制限只由前 12 个受控子组估计（阶段 I），第 13 组才开始注入故障。若把故障段也算进平均极差，限会被撑宽，异常反而看不见。</p>' +
+          '<div class="demo-controls">' +
+          '<button class="btn primary" type="button" data-m="normal">受控</button>' +
+          '<button class="btn" type="button" data-m="shift">注入均值偏移</button>' +
+          '<button class="btn" type="button" data-m="drift">注入均值漂移</button>' +
+          '<button class="btn" type="button" data-m="spread">注入组内变散</button>' +
+          '<label>子组大小 n <select id="spcN">' +
+          [2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => '<option value="' + n + '"' + (n === 5 ? " selected" : "") + ">" + n + "</option>").join("") +
+          "</select></label></div>" +
+          '<p class="chartcap">均值图 X\u0304</p><canvas class="demo" id="spcX"></canvas>' +
+          '<p class="chartcap">极差图 R</p><canvas class="demo" id="spcR"></canvas>' +
+          '<div class="readout" id="spcXrRo"></div><ul class="rulelist" id="spcRules"></ul><p class="demo-note" id="spcXrNote"></p></div>';
+
         const MU = 25.0, SIG = 0.006;
-        let pts = [];
-        function gen(drift) {
-          pts = [];
+        function genInd(drift) {
+          indDrift = drift; indPts = [];
           for (let i = 0; i < 36; i++) {
             let v = MU + normal() * SIG;
             if (drift && i >= 17) v += (i - 16) * 0.0016;
-            pts.push(v);
+            indPts.push(v);
           }
-          draw(drift);
+          drawInd();
         }
-        function draw(drift) {
-          const { ctx, w } = setupCanvas(cv, 280); const c = colors();
+        function drawInd() {
+          const cv = $("#spcInd", mount);
+          const { ctx, w } = setupCanvas(cv, 240); const c = colors();
           const lo = MU - 4.5 * SIG, hi = MU + 4.5 * SIG;
-          const Y = v => 250 - (v - lo) / (hi - lo) * 220;
-          const X = i => 44 + i * (w - 60) / 35;
-          ctx.strokeStyle = c.line; ctx.fillStyle = c.ink2; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+          const Y = v => 214 - (v - lo) / (hi - lo) * 188;
+          const X = i => 46 + i * (w - 58) / 35;
+          ctx.font = "11px sans-serif"; ctx.textAlign = "right";
           [MU + 3 * SIG, MU, MU - 3 * SIG].forEach(v => {
-            ctx.beginPath(); ctx.moveTo(40, Y(v)); ctx.lineTo(w - 12, Y(v));
-            ctx.strokeStyle = v === MU ? c.steel : c.bad; ctx.setLineDash(v === MU ? [] : [6, 4]); ctx.stroke(); ctx.setLineDash([]);
-            ctx.fillText(fmt(v, 3), 38, Y(v) + 4);
+            ctx.beginPath(); ctx.moveTo(42, Y(v)); ctx.lineTo(w - 8, Y(v));
+            ctx.strokeStyle = v === MU ? c.steel : c.bad; ctx.setLineDash(v === MU ? [] : [5, 4]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = c.ink2; ctx.fillText(fmt(v, 3), 40, Y(v) + 3);
           });
-          ctx.fillStyle = c.bad; ctx.textAlign = "left";
-          ctx.fillText("上控制限 UCL", w - 108, Y(MU + 3 * SIG) - 7);
-          ctx.fillText("下控制限 LCL", w - 108, Y(MU - 3 * SIG) + 15);
-          ctx.fillStyle = c.steel; ctx.fillText("目标均值 25.000", w - 130, Y(MU) - 7);
           ctx.beginPath();
-          pts.forEach((v, i) => { i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); });
-          ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.4; ctx.stroke(); ctx.lineWidth = 1;
+          indPts.forEach((v, i) => { i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); });
+          ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.3; ctx.stroke(); ctx.lineWidth = 1;
           let ooc = 0, runUp = 1, maxRun = 1;
-          pts.forEach((v, i) => {
-            if (i && v > pts[i - 1]) { runUp++; maxRun = Math.max(maxRun, runUp); } else runUp = 1;
+          indPts.forEach((v, i) => {
+            if (i && v > indPts[i - 1]) { runUp++; maxRun = Math.max(maxRun, runUp); } else runUp = 1;
             const bad = v > MU + 3 * SIG || v < MU - 3 * SIG;
             if (bad) ooc++;
-            ctx.beginPath(); ctx.arc(X(i), Y(v), bad ? 5 : 3.4, 0, 7);
+            ctx.beginPath(); ctx.arc(X(i), Y(v), bad ? 4.5 : 3, 0, 7);
             ctx.fillStyle = bad ? c.bad : c.accent; ctx.fill();
           });
-          const mean = pts.reduce((s, v) => s + v, 0) / pts.length;
-          setRO(ro, [["样本均值", fmt(mean, 3) + " mm"], ["越界点数", ooc + " 个"], ["最长连续上升", maxRun + " 点"]]);
-          note.innerHTML = drift
-            ? "第 18 件起刀具开始磨损，尺寸一路爬升，<b>" + ooc + " 个点越过上控制限</b>。最长连续上升 " + maxRun + " 点；满 6 点就是 GB/T 4091 准则 3，不等批量报废再动手。"
-            : "点子在控制限内随机分布、无趋势——这就是<b>受控状态</b>：波动只是'体温的正常起伏'，不要乱调机，越调越乱（过度调整是新手最常见的错）。";
+          setRO($("#spcIndRo", mount), [["样本均值", fmt(indPts.reduce((s, v) => s + v, 0) / indPts.length, 3) + " mm"], ["越界点数", ooc + " 个"], ["最长连续上升", maxRun + " 点"]]);
+          $("#spcIndNote", mount).innerHTML = indDrift
+            ? "第 18 件起尺寸爬升，<b>" + ooc + " 个点越过上控制限</b>。个体值图能看见这件事，但它把“整组偏了”和“组内变散了”画在同一个点上，分不开。"
+            : "点子在 ±3σ 里随机跳，就是受控。别因为正常起伏去调机。批量生产请用下面的均值-极差图，两张图各管一件事。";
         }
-        mount.querySelector('[data-a="normal"]').onclick = () => gen(false);
-        mount.querySelector('[data-a="drift"]').onclick = () => gen(true);
-        gen(false);
+
+        function mulberry(seed) {
+          let a = seed >>> 0;
+          return function () {
+            a |= 0; a = a + 0x6D2B79F5 | 0;
+            let t = Math.imul(a ^ a >>> 15, 1 | a);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+          };
+        }
+        function gaussOf(rng) {
+          let u = 0, v = 0, s = 0;
+          while (s === 0 || s >= 1) { u = rng() * 2 - 1; v = rng() * 2 - 1; s = u * u + v * v; }
+          return u * Math.sqrt(-2 * Math.log(s) / s);
+        }
+        function zOf(x, cl, ucl, lcl) {
+          if (x >= cl) { const s = (ucl - cl) / 3; return s > 1e-12 ? (x - cl) / s : 0; }
+          const s = (cl - lcl) / 3; return s > 1e-12 ? (x - cl) / s : 0;
+        }
+        function rangeIdx(a, b) { const o = []; for (let i = a; i <= b; i++) o.push(i); return o; }
+        function analyze(values, cl, ucl, lcl) {
+          const z = values.map(v => zOf(v, cl, ucl, lcl));
+          const events = [];
+          const flag = new Set();
+          function add(rule, end, members) {
+            events.push({ rule, end });
+            members.forEach(i => flag.add(i));
+          }
+          const m = values.length;
+          values.forEach((v, i) => { if (v >= ucl || v <= lcl) add(1, i, [i]); });
+          let run = z[0] === 0 ? 0 : 1, side = Math.sign(z[0]);
+          for (let i = 1; i < m; i++) {
+            const s = Math.sign(z[i]);
+            if (s !== 0 && s === side) run++;
+            else { side = s; run = s === 0 ? 0 : 1; }
+            if (run === 9) add(2, i, rangeIdx(i - 8, i));
+          }
+          let up = 1, down = 1;
+          for (let i = 1; i < m; i++) {
+            if (values[i] > values[i - 1]) { up++; down = 1; }
+            else if (values[i] < values[i - 1]) { down++; up = 1; }
+            else { up = 1; down = 1; }
+            if (up === 6 || down === 6) add(3, i, rangeIdx(i - 5, i));
+          }
+          for (let i = 13; i < m; i++) {
+            let ok = true;
+            for (let k = 0; k < 13; k++) {
+              const d = values[i - 12 + k] - values[i - 13 + k];
+              if (k === 0) { if (d === 0) { ok = false; break; } continue; }
+              const prev = values[i - 13 + k] - values[i - 14 + k];
+              if (d === 0 || d * prev >= 0) { ok = false; break; }
+            }
+            if (ok) { add(4, i, rangeIdx(i - 13, i)); break; }
+          }
+          for (let i = 2; i < m; i++) {
+            let hi = 0, lo = 0;
+            for (let k = i - 2; k <= i; k++) { if (z[k] > 2) hi++; if (z[k] < -2) lo++; }
+            if (hi >= 2 || lo >= 2) { add(5, i, rangeIdx(i - 2, i)); break; }
+          }
+          for (let i = 4; i < m; i++) {
+            let hi = 0, lo = 0;
+            for (let k = i - 4; k <= i; k++) { if (z[k] > 1) hi++; if (z[k] < -1) lo++; }
+            if (hi >= 4 || lo >= 4) { add(6, i, rangeIdx(i - 4, i)); break; }
+          }
+          let inC = 0, outC = 0;
+          for (let i = 0; i < m; i++) {
+            inC = Math.abs(z[i]) < 1 ? inC + 1 : 0;
+            outC = Math.abs(z[i]) > 1 ? outC + 1 : 0;
+            if (inC === 15) add(7, i, rangeIdx(i - 14, i));
+            if (outC === 8) add(8, i, rangeIdx(i - 7, i));
+          }
+          return { events, flag };
+        }
+        function drawXR(cv, values, cl, ucl, lcl, flag) {
+          const { ctx, w, h } = setupCanvas(cv, 210); const c = colors();
+          const sigU = (ucl - cl) / 3, sigL = Math.max((cl - lcl) / 3, 1e-9);
+          const marks = [lcl, cl - 2 * sigL, cl - sigL, cl, cl + sigU, cl + 2 * sigU, ucl].concat(values);
+          let lo = Math.min.apply(null, marks), hi = Math.max.apply(null, marks);
+          const pad = (hi - lo) * 0.12 || 0.001; lo -= pad; hi += pad;
+          const Y = v => 16 + (1 - (v - lo) / (hi - lo)) * (h - 36);
+          const X = i => 48 + i * (w - 60) / Math.max(1, values.length - 1);
+          ctx.font = "11px sans-serif"; ctx.textAlign = "right"; ctx.fillStyle = c.ink2;
+          [cl - 2 * sigL, cl - sigL, cl + sigU, cl + 2 * sigU].forEach(v => {
+            if (v < lo || v > hi) return;
+            ctx.beginPath(); ctx.moveTo(44, Y(v)); ctx.lineTo(w - 8, Y(v));
+            ctx.strokeStyle = c.line; ctx.setLineDash([2, 4]); ctx.stroke(); ctx.setLineDash([]);
+          });
+          [[ucl, "UCL"], [cl, "CL"], [lcl, "LCL"]].forEach(pair => {
+            ctx.beginPath(); ctx.moveTo(44, Y(pair[0])); ctx.lineTo(w - 8, Y(pair[0]));
+            ctx.strokeStyle = pair[1] === "CL" ? c.steel : c.bad;
+            ctx.setLineDash(pair[1] === "CL" ? [] : [5, 4]); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle = pair[1] === "CL" ? c.steel : c.bad;
+            ctx.fillText(pair[1], 42, Y(pair[0]) + 3);
+          });
+          ctx.beginPath();
+          values.forEach((v, i) => { i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)); });
+          ctx.strokeStyle = c.ink2; ctx.lineWidth = 1.3; ctx.stroke(); ctx.lineWidth = 1;
+          values.forEach((v, i) => {
+            const bad = flag.has(i) || v >= ucl || v <= lcl;
+            ctx.beginPath(); ctx.arc(X(i), Y(v), bad ? 4.2 : 3, 0, 7);
+            ctx.fillStyle = bad ? c.bad : c.accent; ctx.fill();
+          });
+          ctx.fillStyle = c.ink2; ctx.textAlign = "left";
+          ctx.fillText("1", X(0) - 3, h - 6);
+          ctx.fillText(String(values.length), X(values.length - 1) - 8, h - 6);
+        }
+        function renderXR() {
+          const rng = mulberry(1011 + nSize * 17 + { normal: 1, shift: 2, drift: 3, spread: 4 }[mode]);
+          const K = 24, phase = 12;
+          const xbars = [], ranges = [];
+          for (let i = 0; i < K; i++) {
+            let mu = MU, sig = SIG;
+            if (i >= phase && mode === "shift") mu = MU + 1.6 * SIG;
+            if (i >= phase && mode === "drift") mu = MU + (i - phase + 1) * 0.8 * SIG;
+            if (i >= phase && mode === "spread") sig = SIG * 2.2;
+            let mn = Infinity, mx = -Infinity, sum = 0;
+            for (let j = 0; j < nSize; j++) {
+              const v = mu + gaussOf(rng) * sig;
+              sum += v; if (v < mn) mn = v; if (v > mx) mx = v;
+            }
+            xbars.push(sum / nSize); ranges.push(mx - mn);
+          }
+          const xbb = xbars.slice(0, phase).reduce((s, v) => s + v, 0) / phase;
+          const rbar = ranges.slice(0, phase).reduce((s, v) => s + v, 0) / phase;
+          const k = XR[nSize];
+          const uclX = xbb + k.A2 * rbar, lclX = xbb - k.A2 * rbar;
+          const uclR = k.D4 * rbar, lclR = k.D3 * rbar;
+          const ax = analyze(xbars, xbb, uclX, lclX);
+          const ar = analyze(ranges, rbar, uclR, lclR);
+          drawXR($("#spcX", mount), xbars, xbb, uclX, lclX, ax.flag);
+          drawXR($("#spcR", mount), ranges, rbar, uclR, lclR, ar.flag);
+          setRO($("#spcXrRo", mount), [
+            ["n / A2", nSize + " / " + k.A2.toFixed(3)],
+            ["D3 / D4", k.D3.toFixed(3) + " / " + k.D4.toFixed(3)],
+            ["阶段 I 总均值", fmt(xbb, 4) + " mm"],
+            ["阶段 I 平均极差", fmt(rbar, 4) + " mm"],
+            ["均值图限", fmt(lclX, 4) + " ~ " + fmt(uclX, 4)],
+            ["极差图限", fmt(lclR, 4) + " ~ " + fmt(uclR, 4)]
+          ]);
+          function lines(chartName, found) {
+            const by = {};
+            found.events.forEach(e => { (by[e.rule] = by[e.rule] || []).push(e.end); });
+            return Object.keys(by).map(r => {
+              const ends = by[r];
+              return "<li><b>" + chartName + " · " + RULE_NAME[r] + "</b>：首次出现在第 " + (ends[0] + 1) + " 个子组" + (ends.length > 1 ? "，同类窗口还有 " + (ends.length - 1) + " 处" : "") + "。</li>";
+            }).join("");
+          }
+          const html = lines("均值图", ax) + lines("极差图", ar);
+          $("#spcRules", mount).innerHTML = html || "<li>两张图都没有触发 GB/T 4091 的八条准则。</li>";
+          const why = {
+            normal: "这是同一过程的 24 个子组。限来自前 12 组，后 12 组仍应落在同一套限里。受控过程偶尔会碰到某一条链长准则，要连着看，不要一次触达就改刀。",
+            shift: "第 13 组起，均值上移 1.6 倍组内标准差，组内极差没变。均值图出界或连续偏在一侧；极差图常常仍然受控。只看极差图，会漏掉对刀偏移和刀具磨损这种“整组一起走”。",
+            drift: "第 13 组起均值逐组抬高。均值图先走出连续递增（准则 3），再碰到控制限。极差图对缓慢的位置漂移不敏感，所以两张图要一起看。",
+            spread: "第 13 组起组内标准差放到 2.2 倍，瞄准的均值仍是 25.000。极差图会冲向上控制限；均值图只是点子变散，多数还在限内。只看均值图，会把夹具松动、来料变散当成正常。"
+          };
+          const d3note = nSize <= 6 ? " n≤6 时 D3=0，极差图没有下控制限。" : "";
+          $("#spcXrNote", mount).innerHTML = "<b>为什么两张都要：</b>均值图只回答“中心有没有搬走”，极差图只回答“组内有没有变散”。" + why[mode] + " 公式：均值图限 = X\u0304\u0304 ± A2·R\u0304，极差图限 = D3·R\u0304 到 D4·R\u0304。" + d3note + " 红点是参与判异的子组。分区按控制限到中心线三等分，对应国标 A/B/C 区；极差不是正态分布，下侧分区只是作图约定。";
+        }
+        function setMode(next) {
+          mode = next;
+          mount.querySelectorAll("[data-m]").forEach(b => b.classList.toggle("primary", b.getAttribute("data-m") === mode));
+          renderXR();
+        }
+        mount.querySelector('[data-a="normal"]').onclick = () => genInd(false);
+        mount.querySelector('[data-a="drift"]').onclick = () => genInd(true);
+        mount.querySelectorAll("[data-m]").forEach(b => { b.onclick = () => setMode(b.getAttribute("data-m")); });
+        $("#spcN", mount).onchange = e => { nSize = parseInt(e.target.value, 10); renderXR(); };
+        if (mount._onResize) window.removeEventListener("resize", mount._onResize);
+        mount._onResize = () => { if (!$("#spcX", mount)) return; drawInd(); renderXR(); };
+        window.addEventListener("resize", mount._onResize);
+        genInd(false);
+        renderXR();
+        requestAnimationFrame(() => { if ($("#spcX", mount)) { drawInd(); renderXR(); } });
       };
 
       /* ---------- 3. greedy peak shaving ---------- */

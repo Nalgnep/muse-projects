@@ -121,6 +121,15 @@ th{font-size:12px;color:var(--muted)}
 .stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .stack span{font-size:12px;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:99px;font-family:"JetBrains Mono",monospace}
 .note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.bear{margin-top:28px;padding-top:18px;border-top:1px dashed var(--line)}
+.bear h4{margin:0 0 6px}
+.bear-controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.bear-controls button{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.bear-controls button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.bear-sliders{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+@media(max-width:700px){.bear-sliders{grid-template-columns:1fr}}
+.bear canvas{width:100%;height:auto;display:block;background:var(--surface2);border-radius:12px;margin-top:6px}
+.bear .cap{font-size:13px;font-weight:800;margin:12px 0 0}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 </style>
 <link rel="stylesheet" href="../assets/site.css">
@@ -260,9 +269,13 @@ function renderGrid(){
   $("progFill").style.width=(n/PROJECTS.length*100)+"%";
   saveDone();
 }
-function openProject(id){
-  curId=id; curTab="brief";
-  if(location.hash!=="#p"+id) history.replaceState(null,"","#p"+id);
+function projectHash(id, tab){ return "#p"+id+(tab && tab!=="brief" ? "-"+tab : ""); }
+function openProject(id, tab){
+  curId=id;
+  var allowed={brief:1,steps:1,sim:1,data:1,quiz:1};
+  curTab = tab && allowed[tab] ? tab : "brief";
+  var h=projectHash(id, curTab);
+  if(location.hash!==h) history.replaceState(null,"",h);
   renderGrid(); renderDetail();
   setTimeout(function(){$("detail").scrollIntoView({behavior:"smooth",block:"start"})},50);
 }
@@ -276,7 +289,7 @@ function renderDetail(){
     +'<div id="paneHost"></div>'
     +'<div style="padding:0 24px 22px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="doneBtn">'+(done[p.id]?'✓ 已标记完成（点击撤销）':'标记这个项目已学完')+'</button><button class="btn ghost" id="closeBtn">收起</button></div>';
   $("detail").innerHTML=html; $("detail").className="detail open";
-  Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(b){b.onclick=function(){curTab=b.getAttribute("data-t");renderDetail();}});
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(b){b.onclick=function(){curTab=b.getAttribute("data-t"); var h=projectHash(curId, curTab); if(location.hash!==h) history.replaceState(null,"",h); renderDetail();}});
   $("doneBtn").onclick=function(){ if(done[p.id]){delete done[p.id]}else{done[p.id]=1} renderGrid(); renderDetail(); };
   $("closeBtn").onclick=function(){curId=null; if(location.hash) history.replaceState(null,"",location.pathname+location.search); renderGrid();$("detail").className="detail";};
   renderPane();
@@ -297,8 +310,9 @@ function renderPane(){
     var ctrl = s.options
       ? '<label class="slider-label"><span>'+s.label+'</span><span id="simVal">'+s.options[s.val]+'</span></label><input type="range" id="simRange" min="0" max="2" step="1" value="'+s.val+'">'
       : '<label class="slider-label"><span>'+s.label+'</span><span id="simVal">'+s.val+s.unit+'</span></label><input type="range" id="simRange" min="'+s.min+'" max="'+s.max+'" value="'+s.val+'">';
-    host.innerHTML='<div class="pane active"><p>拖动下面的参数，看关键指标怎么变。真实项目里调参就是在这个权衡里找平衡点，没有免费的最优。</p>'+ctrl+'<div style="margin-top:14px"><canvas class="sim" id="simCanvas" width="900" height="300"></canvas></div><div class="sim-result" id="simResult"></div><p class="note" id="simNote"></p></div>';
+    host.innerHTML='<div class="pane active"><p>拖动下面的参数，看关键指标怎么变。真实项目里调参就是在这个权衡里找平衡点，没有免费的最优。</p>'+ctrl+'<div style="margin-top:14px"><canvas class="sim" id="simCanvas" width="900" height="300"></canvas></div><div class="sim-result" id="simResult"></div><p class="note" id="simNote"></p>'+(p.id===2?'<div id="bearingLab"></div>':'')+'</div>';
     var r=$("simRange"); var upd=function(){drawSim(p,parseFloat(r.value))}; r.oninput=upd; upd();
+    if(p.id===2) mountBearing($("bearingLab"));
   }
   if(curTab==="data"){
     host.innerHTML='<div class="pane active"><h4>模拟数据集</h4><p>字段结构与真实产线导出一致，共生成 120 行课堂模拟数据。下载后可用 Excel 筛选透视，或用 Python 复现任务书里的分析。</p><button class="btn secondary" id="dlBtn">⬇ 下载 '+p.csv.name+'（模拟数据）</button>'
@@ -322,6 +336,279 @@ function renderPane(){
       $("ex"+qi).style.display="block";
     }});
   }
+}
+function mountBearing(root){
+  if(!root) return;
+  var kind="outer";
+  var geo={rpm:1500,n:9,d:7.9,D:39,beta:0};
+  root.innerHTML=
+    '<div class="bear"><h4>轴承包络谱：速度有效值还没动的时候，剥落已经在打拍子</h4>'+
+    '<p>课堂参数接近一只深沟球轴承（量级同 6205），不是某一台空压机的图纸。原始频谱里，早期剥落的能量躲在共振峰上，故障频率本身往往看不见。先做带通，再用希尔伯特变换取出包络，故障重复频率才会在低频抬起来。峭度看波形有多“尖”，正态约为 3。</p>'+
+    '<div class="bear-controls" id="bearKind">'+
+    '<button type="button" data-k="healthy">健康</button>'+
+    '<button type="button" data-k="outer" class="on">外圈</button>'+
+    '<button type="button" data-k="inner">内圈</button>'+
+    '<button type="button" data-k="ball">滚动体</button></div>'+
+    '<div class="bear-sliders">'+
+    slider("转速","rpm",600,3600,30," r/min")+
+    slider("滚动体个数","n",6,12,1," 个")+
+    slider("滚动体直径 d","d",5,12,0.1," mm")+
+    slider("节圆直径 D","D",30,80,0.5," mm")+
+    slider("接触角","beta",0,25,1," °")+
+    '</div>'+
+    '<div class="sim-result" id="bearRo"></div>'+
+    '<p class="cap">时域波形（前 0.12 秒）</p><canvas id="bearWave"></canvas>'+
+    '<p class="cap">原始频谱：转频很小，能量在共振带</p><canvas id="bearFft"></canvas>'+
+    '<p class="cap">包络谱：BPFO / BPFI / BSF / FTF</p><canvas id="bearEnv"></canvas>'+
+    '<p class="note" id="bearNote"></p></div>';
+  function slider(label,key,min,max,step,unit){
+    return '<label class="slider-label"><span>'+label+'</span><span id="bv-'+key+'">'+geo[key]+unit+'</span></label><input type="range" data-g="'+key+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+geo[key]+'">';
+  }
+  function cssv(name, fallback){
+    var v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v||fallback;
+  }
+  function seedRng(str){
+    var a=2166136261;
+    for(var i=0;i<str.length;i++){ a^=str.charCodeAt(i); a=Math.imul(a,16777619); }
+    return function(){
+      a|=0; a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return ((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  function gauss(rng){
+    var u=0,v=0,s=0;
+    while(s===0||s>=1){ u=rng()*2-1; v=rng()*2-1; s=u*u+v*v; }
+    return u*Math.sqrt(-2*Math.log(s)/s);
+  }
+  function fft(re,im){
+    var n=re.length;
+    for(var i=1,j=0;i<n;i++){
+      var bit=n>>1;
+      for(;j&bit;bit>>=1) j^=bit;
+      j^=bit;
+      if(i<j){ var tr=re[i]; re[i]=re[j]; re[j]=tr; tr=im[i]; im[i]=im[j]; im[j]=tr; }
+    }
+    for(var len=2; len<=n; len<<=1){
+      var ang=-2*Math.PI/len, wlenRe=Math.cos(ang), wlenIm=Math.sin(ang);
+      for(var i2=0;i2<n;i2+=len){
+        var wRe=1,wIm=0;
+        for(var j2=0;j2<len/2;j2++){
+          var uRe=re[i2+j2], uIm=im[i2+j2];
+          var vRe=re[i2+j2+len/2]*wRe-im[i2+j2+len/2]*wIm;
+          var vIm=re[i2+j2+len/2]*wIm+im[i2+j2+len/2]*wRe;
+          re[i2+j2]=uRe+vRe; im[i2+j2]=uIm+vIm;
+          re[i2+j2+len/2]=uRe-vRe; im[i2+j2+len/2]=uIm-vIm;
+          var nw=wRe*wlenRe-wIm*wlenIm;
+          wIm=wRe*wlenIm+wIm*wlenRe; wRe=nw;
+        }
+      }
+    }
+  }
+  function ifft(re,im){
+    var n=re.length,i;
+    for(i=0;i<n;i++) im[i]=-im[i];
+    fft(re,im);
+    for(i=0;i<n;i++){ re[i]/=n; im[i]=-im[i]/n; }
+  }
+  function bandpass(x,fs,f1,f2){
+    var n=x.length, re=x.slice(), im=new Array(n).fill(0), k,f;
+    fft(re,im);
+    for(k=0;k<n;k++){
+      f=(k<=n/2?k:n-k)*fs/n;
+      if(f<f1||f>f2){ re[k]=0; im[k]=0; }
+    }
+    ifft(re,im); return re;
+  }
+  function envelope(x){
+    var n=x.length, re=x.slice(), im=new Array(n).fill(0), k,i, env=new Array(n);
+    fft(re,im);
+    for(k=1;k<n/2;k++){ re[k]*=2; im[k]*=2; }
+    for(k=n/2+1;k<n;k++){ re[k]=0; im[k]=0; }
+    ifft(re,im);
+    for(i=0;i<n;i++) env[i]=Math.hypot(re[i], im[i]);
+    return env;
+  }
+  function spectrum(x){
+    var n=x.length, re=x.slice(), im=new Array(n).fill(0), m=0,i, mag=new Array(n/2);
+    for(i=0;i<n;i++) m+=x[i]; m/=n;
+    for(i=0;i<n;i++) re[i]-=m;
+    fft(re,im);
+    for(i=0;i<n/2;i++) mag[i]=Math.hypot(re[i], im[i])/n;
+    return mag;
+  }
+  function kurtosis(x){
+    var n=x.length,m=0,m2=0,m4=0,i,d,d2;
+    for(i=0;i<n;i++) m+=x[i]; m/=n;
+    for(i=0;i<n;i++){ d=x[i]-m; d2=d*d; m2+=d2; m4+=d2*d2; }
+    m2/=n; m4/=n; return m4/(m2*m2);
+  }
+  function faultFreqs(){
+    var fr=geo.rpm/60, c=Math.cos(geo.beta*Math.PI/180);
+    var ratio=Math.min(geo.d/geo.D, 0.6), r=ratio*c;
+    return {fr:fr, BPFO:(geo.n/2)*fr*(1-r), BPFI:(geo.n/2)*fr*(1+r), BSF:(geo.D/(2*geo.d))*fr*(1-r*r), FTF:(fr/2)*(1-r), clamped: geo.d/geo.D>0.6};
+  }
+  function simulate(){
+    var fs=8192, N=4096, f=faultFreqs();
+    var rng=seedRng(kind+"|"+geo.rpm+"|"+geo.n+"|"+geo.d+"|"+geo.D+"|"+geo.beta);
+    var x=new Array(N), i,t;
+    for(i=0;i<N;i++){
+      t=i/fs;
+      x[i]=0.28*Math.sin(2*Math.PI*f.fr*t)+0.1*Math.sin(2*Math.PI*2*f.fr*t)+gauss(rng)*0.22;
+    }
+    var fres=2800, decay=1400;
+    function impulses(rate, amp, modHz, modDepth){
+      if(!(rate>1)) return;
+      var period=fs/rate, span=Math.floor(fs*0.012), k, start, mod, a, j, tt;
+      for(k=0, start=0; start<N; k++, start=Math.floor(k*period)){
+        mod=modHz?(1+modDepth*Math.cos(2*Math.PI*modHz*start/fs)):1;
+        a=amp*Math.max(0.2, mod);
+        for(j=0;j<span && start+j<N;j++){
+          tt=j/fs;
+          x[start+j]+=a*Math.exp(-decay*tt)*Math.sin(2*Math.PI*fres*tt);
+        }
+      }
+    }
+    if(kind==="outer") impulses(f.BPFO, 2.4, 0, 0);
+    if(kind==="inner") impulses(f.BPFI, 2.2, f.fr, 0.75);
+    if(kind==="ball") impulses(2*f.BSF, 2.2, f.FTF, 0.55);
+    var bp=bandpass(x, fs, 2200, 3400);
+    return {fs:fs, N:N, x:x, f:f, kurt:kurtosis(x), raw:spectrum(x), env:spectrum(envelope(bp))};
+  }
+  function setup(cv, h){
+    var w=cv.clientWidth||640, dpr=window.devicePixelRatio||1;
+    cv.width=Math.max(1,Math.floor(w*dpr)); cv.height=Math.floor(h*dpr);
+    cv.style.height=h+"px";
+    var ctx=cv.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx:ctx,w:w,h:h};
+  }
+  function drawWave(cv, x, fs){
+    var g=setup(cv, 150), ctx=g.ctx, ink=cssv("--ink","#17201D"), accent=cssv("--accent","#D94E0F");
+    ctx.fillStyle=cssv("--surface2","#EEF1EE"); ctx.fillRect(0,0,g.w,g.h);
+    var n=Math.min(x.length, Math.floor(fs*0.12));
+    var mn=Infinity,mx=-Infinity,i;
+    for(i=0;i<n;i++){ if(x[i]<mn) mn=x[i]; if(x[i]>mx) mx=x[i]; }
+    var pad=(mx-mn)*0.1||1; mn-=pad; mx+=pad;
+    ctx.beginPath();
+    for(i=0;i<n;i++){
+      var px=8+i*(g.w-16)/(n-1), py=8+(1-(x[i]-mn)/(mx-mn))*(g.h-20);
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.strokeStyle=accent; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.fillStyle=ink; ctx.font="11px sans-serif"; ctx.fillText("0", 8, g.h-4); ctx.fillText("0.12 秒", g.w-48, g.h-4);
+  }
+  function drawFft(cv, mag, fs, N){
+    var g=setup(cv, 170), ctx=g.ctx, ink=cssv("--muted","#5D6D66"), line=cssv("--line","#DCE2DC");
+    ctx.fillStyle=cssv("--surface2","#EEF1EE"); ctx.fillRect(0,0,g.w,g.h);
+    var fmax=fs/2, n=mag.length;
+    var db=new Array(n), i, v;
+    for(i=1;i<n;i++){ v=mag[i]; db[i]=20*Math.log10(v+1e-8); }
+    var lo=-70, hi=db.reduce(function(a,b){return Math.max(a,b||a);}, -70);
+    hi=Math.max(hi, lo+10);
+    function X(f){ return 36+(f/fmax)*(g.w-44); }
+    function Y(d){ return 10+(1-(d-lo)/(hi-lo))*(g.h-28); }
+    ctx.fillStyle="rgba(15,118,110,0.15)";
+    ctx.fillRect(X(2200), 10, Math.max(2,X(3400)-X(2200)), g.h-38);
+    ctx.beginPath();
+    for(i=1;i<n;i++){
+      var px=X(i*fs/N);
+      if(i===1) ctx.moveTo(px, Y(db[i])); else ctx.lineTo(px, Y(db[i]));
+    }
+    ctx.strokeStyle=cssv("--ink","#17201D"); ctx.lineWidth=1.1; ctx.stroke();
+    ctx.fillStyle=ink; ctx.font="11px sans-serif";
+    ctx.fillText("共振带 2.2–3.4 kHz", X(2200)+4, 22);
+    ctx.strokeStyle=line;
+    [0,1000,2000,3000,4000].forEach(function(f){ ctx.fillText(f/1000+"k", X(f)-8, g.h-6); });
+  }
+  function drawEnv(cv, mag, fs, N, f){
+    var g=setup(cv, 200), ctx=g.ctx;
+    ctx.fillStyle=cssv("--surface2","#EEF1EE"); ctx.fillRect(0,0,g.w,g.h);
+    var fmax=Math.max(400, 2.4*Math.max(f.BPFO, f.BPFI, 2*f.BSF));
+    var kmax=Math.min(mag.length-1, Math.ceil(fmax/(fs/N)));
+    var peak=0, i;
+    for(i=1;i<=kmax;i++) if(mag[i]>peak) peak=mag[i];
+    peak=peak||1;
+    function X(hz){ return 36+(hz/fmax)*(g.w-44); }
+    function Y(v){ return 16+(1-v/peak)*(g.h-36); }
+    ctx.beginPath();
+    for(i=1;i<=kmax;i++){
+      var px=X(i*fs/N);
+      if(i===1) ctx.moveTo(px, Y(mag[i])); else ctx.lineTo(px, Y(mag[i]));
+    }
+    ctx.strokeStyle=cssv("--ink","#17201D"); ctx.lineWidth=1.2; ctx.stroke();
+    var markers=[
+      {hz:f.FTF, name:"FTF", color:"#64748b"},
+      {hz:f.BPFO, name:"BPFO", color:cssv("--accent","#D94E0F")},
+      {hz:f.BPFI, name:"BPFI", color:cssv("--teal","#0F766E")},
+      {hz:f.BSF, name:"BSF", color:"#B45309"},
+      {hz:2*f.BSF, name:"2×BSF", color:"#B45309"}
+    ];
+    markers.forEach(function(mk, idx){
+      if(mk.hz<=0 || mk.hz>=fmax) return;
+      ctx.beginPath(); ctx.moveTo(X(mk.hz), 14); ctx.lineTo(X(mk.hz), g.h-22);
+      ctx.strokeStyle=mk.color; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=mk.color; ctx.font="11px sans-serif";
+      ctx.fillText(mk.name, X(mk.hz)+3, 26+(idx%3)*12);
+    });
+    ctx.fillStyle=cssv("--muted","#5D6D66"); ctx.font="11px sans-serif";
+    ctx.fillText("0", 32, g.h-6); ctx.fillText(Math.round(fmax)+" Hz", g.w-52, g.h-6);
+  }
+  function prominence(mag, fs, N, hz){
+    var k=Math.round(hz/(fs/N)), best=0, i, base=0, c=0;
+    for(i=Math.max(1,k-2); i<=Math.min(mag.length-1,k+2); i++) if(mag[i]>best) best=mag[i];
+    for(i=1;i<Math.min(mag.length, 80); i++){ base+=mag[i]; c++; }
+    return best/((base/c)||1e-9);
+  }
+  function redraw(){
+    var s=simulate(), f=s.f;
+    ["rpm","n","d","D","beta"].forEach(function(key){
+      var el=$("bv-"+key); if(!el) return;
+      var unit=key==="rpm"?" r/min":key==="n"?" 个":key==="beta"?" °":" mm";
+      el.textContent=(key==="n"||key==="rpm"||key==="beta"? geo[key] : Number(geo[key]).toFixed(1))+unit;
+    });
+    $("bearRo").innerHTML=[
+      ["转频", f.fr.toFixed(1)+" Hz"],
+      ["BPFO", f.BPFO.toFixed(1)+" Hz"],
+      ["BPFI", f.BPFI.toFixed(1)+" Hz"],
+      ["BSF", f.BSF.toFixed(1)+" Hz"],
+      ["FTF", f.FTF.toFixed(1)+" Hz"],
+      ["峭度", s.kurt.toFixed(1)]
+    ].map(function(r){return '<div><b>'+r[1]+'</b><span>'+r[0]+'</span></div>';}).join("");
+    drawWave($("bearWave"), s.x, s.fs);
+    drawFft($("bearFft"), s.raw, s.fs, s.N);
+    drawEnv($("bearEnv"), s.env, s.fs, s.N, f);
+    var pO=prominence(s.env,s.fs,s.N,f.BPFO), pI=prominence(s.env,s.fs,s.N,f.BPFI), pB=prominence(s.env,s.fs,s.N,2*f.BSF);
+    var story={
+      healthy:"健康：波形接近随机加一点转频，峭度应在 3 附近，包络谱上四条故障频率都不突出。ISO 10816 的速度有效值这时也正常。早期剥落还没把烈度抬起来。",
+      outer:"外圈剥落停在载荷区，冲击间隔稳定。包络谱上 BPFO（"+f.BPFO.toFixed(1)+" Hz）及其倍频最干净，相对抬升约 "+pO.toFixed(0)+" 倍。内圈和滚动体的线不该一起亮。",
+      inner:"内圈缺陷跟着轴转，进载荷区时冲击变强，所以被转频调制。主线在 BPFI（"+f.BPFI.toFixed(1)+" Hz，抬升约 "+pI.toFixed(0)+" 倍），两侧常有 ±转频 的边带。只标一根线、不看边带，容易和倍频搞混。",
+      ball:"滚动体缺陷每自转一圈分别打到内圈和外圈，重复频率是 2×BSF（"+(2*f.BSF).toFixed(1)+" Hz，抬升约 "+pB.toFixed(0)+" 倍），并常被保持架公转 FTF（"+f.FTF.toFixed(1)+" Hz）调制。图上 BSF 本身不一定是最高的那根。"
+    };
+    var warn=f.clamped?" 滚动体直径相对节圆过大，已按 d/D=0.6 封顶计算。":"";
+    $("bearNote").textContent=story[kind]+warn+" 带通取 2200–3400 Hz 的共振带，再做希尔伯特包络。原始频谱用分贝，是为了让小小的转频和很高的共振峰能画在同一张图里。";
+  }
+  root.querySelectorAll("#bearKind button").forEach(function(b){
+    b.onclick=function(){
+      kind=b.getAttribute("data-k");
+      root.querySelectorAll("#bearKind button").forEach(function(x){x.classList.toggle("on", x===b);});
+      redraw();
+    };
+  });
+  root.querySelectorAll("input[data-g]").forEach(function(input){
+    input.oninput=function(){
+      var key=input.getAttribute("data-g");
+      geo[key]=key==="n"||key==="rpm"||key==="beta" ? parseInt(input.value,10) : parseFloat(input.value);
+      redraw();
+    };
+  });
+  if(root._onResize) window.removeEventListener("resize", root._onResize);
+  root._onResize=function(){ if(!root.isConnected) return; redraw(); };
+  window.addEventListener("resize", root._onResize);
+  redraw();
+  requestAnimationFrame(function(){ if(root.isConnected) redraw(); });
 }
 function drawSim(p,v){
   var s=p.sim, c=$("simCanvas"); if(!c)return; var ctx=c.getContext("2d");
@@ -395,8 +682,8 @@ function downloadCSV(p){
   var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=p.csv.name; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(a.href)},800);
 }
 renderFilters(); renderGrid();
-var _pm=(location.hash||"").match(/^#p(\d+)$/);
-if(_pm) openProject(parseInt(_pm[1],10));
+var _pm=(location.hash||"").match(/^#p(\d+)(?:-([a-z]+))?$/);
+if(_pm) openProject(parseInt(_pm[1],10), _pm[2]);
 </script>
 <script src="../assets/site.js"></script>
 </body>

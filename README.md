@@ -8,13 +8,13 @@
 
 | 顺序 | 页面 | 你在这里做什么 |
 | --- | --- | --- |
-| 1 | [算法课程](index.html) | 11 节互动课：排序、SPC、贪心、回归、决策树、聚类、动态规划、遗传算法、神经网络、强化学习，加一节工业 AI 展望 |
-| 2 | [实战项目](industrial-ai-projects/) | 8 个端到端项目：视觉质检、预测性维护、工艺优化、峰谷调度、排产、焊接根因、库存、数字孪生 |
+| 1 | [算法课程](index.html) | 11 节互动课。SPC 课含个体值图，以及用 A2/D3/D4 计算的均值-极差图 |
+| 2 | [实战项目](industrial-ai-projects/) | 8 个端到端项目。预测维护的交互实验里有轴承包络谱（`#p2-sim`） |
 | 3 | [ROI 测算](industrial-ai-roi-calculator/) | 投入、良率、人力、停机，算出回本周期、现金流和立项摘要 |
 | 4 | [避坑手册](industrial-ai-pitfalls/) | 数据、验收、运维 10 个翻车点，外加风险自测和上线红线 |
 | 5 | [IoT 看板](industrial-ai-iot-dashboard/) | MQTT、ThingsBoard、规则告警和 AI 摘要的可运行讲解 |
 
-页顶导航在五个页面之间切换。课程支持搜索、分享链接（如 `index.html#spc`）和本机进度；项目可以用 `industrial-ai-projects/#p2` 直接打开。
+页顶导航在五个页面之间切换。课程支持搜索、分享链接（如 `index.html#spc`）和本机进度；项目可以用 `industrial-ai-projects/#p2` 打开，`#p2-sim` 直接进入交互实验。
 
 ## 打开方式
 
