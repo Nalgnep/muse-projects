@@ -360,6 +360,7 @@ body.drawer-open .backdrop{display:block}
     var a = document.getElementById("fbOpen");
     a.href = item.abs;
     openBtn.disabled = false;
+    openBtn.hidden = false;
     openBtn.onclick = function () { window.open(item.abs, "_blank", "noopener"); };
   }
 
@@ -383,6 +384,7 @@ body.drawer-open .backdrop{display:block}
     frameWrap.setAttribute("aria-hidden", "false");
     framedOk = false;
     openBtn.disabled = false;
+    openBtn.hidden = false;
     openBtn.onclick = function () { window.open(item.abs, "_blank", "noopener"); };
     crumb.textContent = item.title;
 
